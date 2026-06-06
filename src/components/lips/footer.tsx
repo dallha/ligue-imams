@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   Phone,
   Mail,
@@ -11,30 +11,30 @@ import {
   Youtube,
 } from 'lucide-react';
 import Link from 'next/link';
-
-const QUICK_LINKS = [
-  { label: 'Accueil', href: '/' },
-  { label: 'À Propos', href: '/a-propos' },
-  { label: 'Régions', href: '/regions' },
-  { label: 'Espace Membre', href: '/espace-membre' },
-  { label: 'Vérifier une Carte', href: '/verifier-carte' },
-];
-
-const RESOURCE_LINKS = [
-  { label: 'Communiqués', href: '/actualites' },
-  { label: 'Fatwas', href: '/actualites' },
-  { label: 'Coran', href: '/coran' },
-  { label: 'Événements', href: '/actualites' },
-  { label: 'Adhérer', href: '/adherer' },
-  { label: 'Faire un Don', href: '/faire-un-don' },
-];
+import { useLanguage } from '@/lib/lips/i18n/language-context';
 
 export default function LipsFooter() {
-  const [currentYear, setCurrentYear] = useState(2026);
+  const { t } = useLanguage();
+  const [currentYear] = useState(() => new Date().getFullYear());
 
-  useEffect(() => {
-    setCurrentYear(new Date().getFullYear());
-  }, []);
+  const QUICK_LINKS = [
+    { label: t.nav.home, href: '/' },
+    { label: t.nav.about, href: '/a-propos' },
+    { label: t.nav.regions, href: '/regions' },
+    { label: t.nav.memberArea, href: '/espace-membre' },
+    { label: t.nav.verifyCard, href: '/verifier-carte' },
+  ];
+
+  const RESOURCE_LINKS = [
+    { label: t.actualites.communiques, href: '/actualites' },
+    { label: t.actualites.fatwas, href: '/actualites' },
+    { label: t.nav.coran, href: '/coran' },
+    { label: t.actualites.events, href: '/actualites' },
+    { label: t.nav.join, href: '/adherer' },
+    { label: t.nav.donate, href: '/faire-un-don' },
+  ];
+
+  const addressLines = t.footer.address.split('\n');
 
   return (
     <footer id="contact" className="bg-lips-green-dark text-white/80 relative">
@@ -53,16 +53,15 @@ export default function LipsFooter() {
               />
               <div>
                 <div className="font-semibold text-white text-sm">
-                  Ligue des Imams
+                  {t.footer.orgLine1}
                 </div>
                 <div className="text-xs text-white/50">
-                  & Prédicateurs du Sénégal
+                  {t.footer.orgLine2}
                 </div>
               </div>
             </div>
             <p className="text-sm text-white/60 leading-relaxed mb-4">
-              Institution nationale de référence au service des imams, de la
-              communauté et de la paix sociale.
+              {t.footer.description}
             </p>
             <p className="font-arabic text-lips-gold text-sm">
               بِالصَّبْرِ وَالْيَقِينِ تُنَالُ الْإِمَامَةُ فِي الدِّينِ
@@ -90,7 +89,7 @@ export default function LipsFooter() {
           {/* Quick links */}
           <div>
             <h4 className="font-semibold text-white text-sm mb-4 uppercase tracking-wider">
-              Liens Rapides
+              {t.footer.quickLinks}
             </h4>
             <ul className="space-y-2.5">
               {QUICK_LINKS.map((link) => (
@@ -110,7 +109,7 @@ export default function LipsFooter() {
           {/* Resources */}
           <div>
             <h4 className="font-semibold text-white text-sm mb-4 uppercase tracking-wider">
-              Ressources
+              {t.footer.resources}
             </h4>
             <ul className="space-y-2.5">
               {RESOURCE_LINKS.map((link) => (
@@ -130,15 +129,18 @@ export default function LipsFooter() {
           {/* Contact */}
           <div>
             <h4 className="font-semibold text-white text-sm mb-4 uppercase tracking-wider">
-              Contact
+              {t.footer.contact}
             </h4>
             <ul className="space-y-3">
               <li className="flex items-start gap-2.5">
                 <MapPin className="h-4 w-4 text-lips-gold shrink-0 mt-0.5" />
                 <span className="text-sm text-white/60">
-                  Grande Mosquée AN-NOUR
-                  <br />
-                  Liberté II, Dakar, Sénégal
+                  {addressLines.map((line, i) => (
+                    <span key={i}>
+                      {line}
+                      {i < addressLines.length - 1 && <br />}
+                    </span>
+                  ))}
                 </span>
               </li>
               <li className="flex items-center gap-2.5">
@@ -158,15 +160,14 @@ export default function LipsFooter() {
       <div className="border-t border-white/10">
         <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-white/40">
           <span>
-            &copy; {currentYear} LIPS - Ligue des Imams et Prédicateurs du
-            Sénégal. Tous droits réservés.
+            &copy; {currentYear} {t.footer.copyright}
           </span>
           <div className="flex items-center gap-4">
             <a href="#" className="hover:text-white/60 transition-colors">
-              Mentions Légales
+              {t.footer.legalNotice}
             </a>
             <a href="#" className="hover:text-white/60 transition-colors">
-              Politique de Confidentialité
+              {t.footer.privacyPolicy}
             </a>
           </div>
         </div>

@@ -10,8 +10,10 @@ import { REGIONS_DATA } from '@/lib/lips/types';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import SenegalMap from '@/components/lips/senegal-map';
+import { useLanguage } from '@/lib/lips/i18n/language-context';
 
 export default function HomeRegions() {
+  const { t } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
 
@@ -33,17 +35,16 @@ export default function HomeRegions() {
           className="text-center mb-12"
         >
           <span className="text-sm font-semibold text-lips-gold tracking-widest uppercase">
-            Présence Nationale
+            {t.regions.sectionTag}
           </span>
           <h2 className="text-3xl md:text-4xl font-bold text-lips-green-dark mt-3 mb-4">
-            Nos 14 Régions
+            {t.regions.sectionTitle}
           </h2>
           <div className="separator-islamic text-lips-gold text-2xl my-4">
             &#10022;
           </div>
           <p className="text-muted-foreground max-w-2xl mx-auto text-base">
-            La LIPS est implantée dans les 14 régions administratives du Sénégal,
-            garantissant une couverture institutionnelle complète.
+            {t.regions.sectionDesc}
           </p>
         </motion.div>
 
@@ -97,7 +98,7 @@ export default function HomeRegions() {
               className="text-center mt-4 mb-6"
             >
               <span className="text-sm text-muted-foreground">
-                + 8 autres régions
+                {t.regions.moreRegions}
               </span>
             </motion.div>
           </div>
@@ -113,17 +114,17 @@ export default function HomeRegions() {
           <div className="inline-flex flex-wrap items-center justify-center gap-4 sm:gap-6 bg-lips-cream/80 rounded-xl px-4 sm:px-8 py-4 border border-border/50 shadow-sm">
             <div className="text-center">
               <div className="text-2xl font-bold text-lips-green">14</div>
-              <div className="text-xs text-muted-foreground">Régions</div>
+              <div className="text-xs text-muted-foreground">{t.regions.regionsLabel}</div>
             </div>
             <div className="w-px h-10 bg-border" />
             <div className="text-center">
               <div className="text-2xl font-bold text-lips-gold">15 000+</div>
-              <div className="text-xs text-muted-foreground">Mosquées</div>
+              <div className="text-xs text-muted-foreground">{t.regions.mosquesLabel}</div>
             </div>
             <div className="w-px h-10 bg-border" />
             <div className="text-center">
               <div className="text-2xl font-bold text-lips-emerald">5 000+</div>
-              <div className="text-xs text-muted-foreground">Membres</div>
+              <div className="text-xs text-muted-foreground">{t.regions.membersLabel}</div>
             </div>
           </div>
         </motion.div>
@@ -137,7 +138,7 @@ export default function HomeRegions() {
         >
           <Button asChild variant="outline" className="border-lips-green/30 text-lips-green hover:bg-lips-green/5">
             <Link href="/regions">
-              Explorer toutes les régions
+              {t.regions.exploreAll}
               <ArrowRight className="h-4 w-4 ml-2" />
             </Link>
           </Button>

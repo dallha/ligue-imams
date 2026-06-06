@@ -4,8 +4,11 @@ import { motion } from 'framer-motion';
 import { ArrowDown, UserPlus, BookOpen, Users, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { useLanguage } from '@/lib/lips/i18n/language-context';
 
 export default function HeroSection() {
+  const { t } = useLanguage();
+
   return (
     <section
       id="accueil"
@@ -42,7 +45,7 @@ export default function HeroSection() {
             className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white/90 text-xs sm:text-sm mb-6 sm:mb-8"
           >
             <Shield className="h-4 w-4 text-lips-gold" />
-            <span>Institution Nationale de Référence</span>
+            <span>{t.hero.badge}</span>
           </motion.div>
 
           {/* Arabic motto */}
@@ -53,7 +56,7 @@ export default function HeroSection() {
             className="mb-4"
           >
             <p className="font-arabic text-2xl md:text-4xl lg:text-5xl text-lips-gold leading-relaxed">
-              بِالصَّبْرِ وَالْيَقِينِ تُنَالُ الْإِمَامَةُ فِي الدِّينِ
+              {t.hero.arabicMotto}
             </p>
           </motion.div>
 
@@ -64,8 +67,7 @@ export default function HeroSection() {
             transition={{ duration: 0.8, delay: 0.3 }}
             className="text-white/70 text-sm md:text-base italic mb-6"
           >
-            &laquo; Par la patience et la certitude, on atteint
-            l&apos;imamat dans la religion &raquo;
+            &laquo; {t.hero.mottoTranslation} &raquo;
           </motion.p>
 
           {/* Main title */}
@@ -75,9 +77,9 @@ export default function HeroSection() {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-4 tracking-tight"
           >
-            Ligue des Imams et
+            {t.hero.title1}
             <br />
-            Prédicateurs du Sénégal
+            {t.hero.title2}
           </motion.h1>
 
           {/* Subtitle */}
@@ -87,9 +89,7 @@ export default function HeroSection() {
             transition={{ duration: 0.8, delay: 0.5 }}
             className="text-white/80 text-sm sm:text-base md:text-lg max-w-xl leading-relaxed mb-8 sm:mb-10"
           >
-            Au service des imams, de la communauté et de la paix sociale à
-            travers les 14 régions du Sénégal. Un cadre institutionnel pour
-            l&apos;unité, la formation et l&apos;accompagnement spirituel.
+            {t.hero.subtitle}
           </motion.p>
 
           {/* CTA Buttons — Primary "Adhérer" + Secondary "Découvrir" */}
@@ -106,7 +106,7 @@ export default function HeroSection() {
             >
               <Link href="/adherer">
                 <UserPlus className="mr-2 h-5 w-5" />
-                Adhérer à la LIPS
+                {t.hero.joinCta}
               </Link>
             </Button>
             <Button
@@ -117,7 +117,7 @@ export default function HeroSection() {
             >
               <Link href="/a-propos">
                 <BookOpen className="mr-2 h-4 w-4" />
-                Découvrir la LIPS
+                {t.hero.discoverCta}
               </Link>
             </Button>
           </motion.div>
@@ -131,9 +131,9 @@ export default function HeroSection() {
           className="mt-12 sm:mt-16 lg:mt-20 grid grid-cols-3 gap-4 sm:gap-8 lg:gap-12"
         >
           {[
-            { icon: Users, value: '5 000+', label: 'Membres' },
-            { icon: BookOpen, value: '14', label: 'Régions' },
-            { icon: Shield, value: '15 000+', label: 'Mosquées' },
+            { icon: Users, value: '5 000+', label: t.hero.members },
+            { icon: BookOpen, value: '14', label: t.hero.regions },
+            { icon: Shield, value: '15 000+', label: t.hero.mosques },
           ].map((stat) => (
             <div key={stat.label} className="flex items-center gap-2 sm:gap-3">
               <stat.icon className="h-4 w-4 sm:h-5 sm:w-5 text-lips-gold shrink-0" />

@@ -10,59 +10,63 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
-const NAV_ITEMS = [
-  {
-    label: 'Accueil',
-    href: '/',
-  },
-  {
-    label: 'À Propos',
-    href: '/a-propos',
-    children: [
-      { label: 'Notre Mission', href: '/a-propos' },
-      { label: 'Gouvernance', href: '/a-propos#gouvernance' },
-      { label: 'Carte Membre', href: '/a-propos#carte-membre' },
-      { label: 'FAQ', href: '/a-propos#faq' },
-    ],
-  },
-  {
-    label: 'Actualités',
-    href: '/actualites',
-    children: [
-      { label: 'Communiqués & Fatwas', href: '/actualites#actualites' },
-      { label: 'Événements', href: '/actualites#evenements' },
-      { label: 'Galerie Photos', href: '/actualites#galerie' },
-      { label: 'Agenda & Calendrier', href: '/agenda' },
-    ],
-  },
-  {
-    label: 'Agenda',
-    href: '/agenda',
-  },
-  {
-    label: 'Régions',
-    href: '/regions',
-  },
-  {
-    label: 'Coran',
-    href: '/coran',
-  },
-  {
-    label: 'Adhérer',
-    href: '/adherer',
-  },
-  {
-    label: 'Vérifier une Carte',
-    href: '/verifier-carte',
-  },
-  {
-    label: 'Faire un Don',
-    href: '/faire-un-don',
-  },
-];
+import { useLanguage } from '@/lib/lips/i18n/language-context';
+import LanguageSwitcher from '@/components/lips/language-switcher';
 
 export default function LipsHeader() {
+  const { t } = useLanguage();
+
+  const NAV_ITEMS = [
+    {
+      label: t.nav.home,
+      href: '/',
+    },
+    {
+      label: t.nav.about,
+      href: '/a-propos',
+      children: [
+        { label: t.nav.ourMission, href: '/a-propos' },
+        { label: t.nav.governance, href: '/a-propos#gouvernance' },
+        { label: t.nav.memberCard, href: '/a-propos#carte-membre' },
+        { label: t.nav.faq, href: '/a-propos#faq' },
+      ],
+    },
+    {
+      label: t.nav.news,
+      href: '/actualites',
+      children: [
+        { label: t.nav.communiquesFatwas, href: '/actualites#actualites' },
+        { label: t.nav.events, href: '/actualites#evenements' },
+        { label: t.nav.photoGallery, href: '/actualites#galerie' },
+        { label: t.nav.agendaCalendar, href: '/agenda' },
+      ],
+    },
+    {
+      label: t.nav.agenda,
+      href: '/agenda',
+    },
+    {
+      label: t.nav.regions,
+      href: '/regions',
+    },
+    {
+      label: t.nav.coran,
+      href: '/coran',
+    },
+    {
+      label: t.nav.join,
+      href: '/adherer',
+    },
+    {
+      label: t.nav.verifyCard,
+      href: '/verifier-carte',
+    },
+    {
+      label: t.nav.donate,
+      href: '/faire-un-don',
+    },
+  ];
+
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
@@ -107,10 +111,10 @@ export default function LipsHeader() {
               />
               <div className="hidden sm:block">
                 <div className="font-bold text-lips-green-dark text-sm lg:text-base leading-tight">
-                  Ligue des Imams
+                  {t.footer.orgLine1}
                 </div>
                 <div className="text-[10px] lg:text-xs text-muted-foreground leading-tight">
-                  & Prédicateurs du Sénégal
+                  {t.footer.orgLine2}
                 </div>
               </div>
             </Link>
@@ -172,8 +176,9 @@ export default function LipsHeader() {
                 asChild
                 className="hidden sm:inline-flex bg-lips-green hover:bg-lips-green-dark text-white shadow-md"
               >
-                <Link href="/espace-membre">Espace Membre</Link>
+                <Link href="/espace-membre">{t.nav.memberArea}</Link>
               </Button>
+              <LanguageSwitcher />
               <button
                 className="lg:hidden p-2.5 rounded-md hover:bg-lips-green/5 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
                 onClick={() => setMobileOpen(!mobileOpen)}
@@ -229,13 +234,14 @@ export default function LipsHeader() {
                     )}
                   </div>
                 ))}
-                <div className="pt-2 border-t border-border/50">
+                <div className="pt-2 border-t border-border/50 space-y-3">
+                  <LanguageSwitcher />
                   <Button
                     asChild
                     className="w-full bg-lips-green hover:bg-lips-green-dark text-white"
                   >
                     <Link href="/espace-membre" onClick={() => setMobileOpen(false)}>
-                      Espace Membre
+                      {t.nav.memberArea}
                     </Link>
                   </Button>
                 </div>

@@ -5,8 +5,10 @@ import { motion, useInView } from 'framer-motion';
 import { ArrowRight, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { useLanguage } from '@/lib/lips/i18n/language-context';
 
 export default function HomeAboutNarrative() {
+  const { t } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-80px' });
 
@@ -33,7 +35,7 @@ export default function HomeAboutNarrative() {
             <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-lips-green-dark/10">
               <img
                 src="/mosquee-exterieur.jpg"
-                alt="Grande Mosquée — Siège de la LIPS"
+                alt={t.aboutNarrative.imageAlt}
                 className="w-full aspect-[4/3] object-cover"
               />
               {/* Gradient overlay at bottom */}
@@ -42,10 +44,10 @@ export default function HomeAboutNarrative() {
               {/* Caption on image */}
               <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-6">
                 <p className="text-white font-semibold text-sm sm:text-base">
-                  Grande Mosquée AN-NOUR
+                  {t.aboutNarrative.mosqueName}
                 </p>
                 <p className="text-white/60 text-xs sm:text-sm">
-                  Liberté II, Dakar — Siège de la LIPS
+                  {t.aboutNarrative.mosqueLocation}
                 </p>
               </div>
             </div>
@@ -59,10 +61,10 @@ export default function HomeAboutNarrative() {
             >
               <div className="flex items-center gap-2 mb-2">
                 <Star className="h-4 w-4 text-lips-gold fill-lips-gold" />
-                <span className="text-xs font-bold text-lips-green-dark uppercase tracking-wider">Depuis 2006</span>
+                <span className="text-xs font-bold text-lips-green-dark uppercase tracking-wider">{t.aboutNarrative.sinceLabel}</span>
               </div>
               <p className="text-[11px] sm:text-xs text-muted-foreground leading-relaxed">
-                18 ans d&apos;excellence au service de l&apos;imamat au Sénégal
+                {t.aboutNarrative.sinceDesc}
               </p>
             </motion.div>
 
@@ -78,10 +80,10 @@ export default function HomeAboutNarrative() {
             transition={{ duration: 0.8, delay: 0.2 }}
           >
             <span className="text-sm font-semibold text-lips-gold tracking-widest uppercase">
-              Qui Sommes-Nous
+              {t.aboutNarrative.sectionTag}
             </span>
             <h2 className="text-3xl md:text-4xl font-bold text-lips-green-dark mt-3 mb-4">
-              Ligue des Imams et<br />Prédicateurs du Sénégal
+              {t.aboutNarrative.sectionTitle1}<br />{t.aboutNarrative.sectionTitle2}
             </h2>
             <div className="separator-islamic text-lips-gold text-2xl my-4">
               &#10022;
@@ -89,25 +91,13 @@ export default function HomeAboutNarrative() {
 
             <div className="space-y-4 text-muted-foreground leading-relaxed">
               <p>
-                La <strong className="text-lips-green-dark">LIPS</strong> est
-                l&apos;institution nationale de référence qui fédère l&apos;ensemble
-                des imams et prédicateurs du Sénégal. Fondée en 2006, elle œuvre
-                pour l&apos;institutionnalisation de l&apos;imamat, la formation
-                continue des cadres religieux et la promotion du dialogue
-                interreligieux au service de la paix sociale.
+                {t.aboutNarrative.paragraph1}
               </p>
               <p>
-                Forte de sa présence dans les <strong className="text-lips-green-dark">14 régions</strong> du
-                pays et de son réseau de plus de <strong className="text-lips-green-dark">5 000 membres</strong>,
-                la LIPS constitue un cadre unificateur qui porte la voix des imams
-                auprès des autorités publiques, des institutions nationales et des
-                partenaires internationaux.
+                {t.aboutNarrative.paragraph2}
               </p>
               <p>
-                Son siège à la Grande Mosquée AN-NOUR de Liberté II, Dakar, est le
-                cœur symbolique d&apos;un réseau qui relie les mosquées et les
-                communautés de tout le territoire sénégalais, du Fouta à la
-                Casamance, de la côte au Sahel.
+                {t.aboutNarrative.paragraph3}
               </p>
             </div>
 
@@ -117,7 +107,7 @@ export default function HomeAboutNarrative() {
                 بِالصَّبْرِ وَالْيَقِينِ تُنَالُ الْإِمَامَةُ فِي الدِّينِ
               </p>
               <p className="text-xs text-muted-foreground italic">
-                &laquo; Par la patience et la certitude, on atteint l&apos;imamat dans la religion &raquo;
+                &laquo; {t.aboutNarrative.mottoTranslation} &raquo;
               </p>
             </div>
 
@@ -125,7 +115,7 @@ export default function HomeAboutNarrative() {
             <div className="mt-6">
               <Button asChild className="bg-lips-green hover:bg-lips-green-dark text-white font-semibold">
                 <Link href="/a-propos">
-                  En savoir plus sur la LIPS
+                  {t.aboutNarrative.cta}
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Link>
               </Button>

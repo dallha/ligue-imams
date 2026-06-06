@@ -10,6 +10,7 @@ import {
   Award,
   TrendingUp,
 } from 'lucide-react';
+import { useLanguage } from '@/lib/lips/i18n/language-context';
 
 interface StatItem {
   icon: React.ElementType;
@@ -19,63 +20,6 @@ interface StatItem {
   description: string;
   color: string;
 }
-
-const STATS: StatItem[] = [
-  {
-    icon: Users,
-    value: 5000,
-    suffix: '+',
-    label: 'Membres Actifs',
-    description:
-      'Imams, prédicateurs et cadres religieux encadrés à travers tout le territoire national',
-    color: 'text-lips-green',
-  },
-  {
-    icon: MapPin,
-    value: 14,
-    suffix: '',
-    label: 'Régions Couvertes',
-    description:
-      'Présence institutionnelle dans les 14 régions administratives du Sénégal',
-    color: 'text-lips-emerald',
-  },
-  {
-    icon: Building,
-    value: 15000,
-    suffix: '+',
-    label: 'Mosquées Affiliées',
-    description:
-      'Réseau de mosquées partenaires pour la diffusion du message de paix et de concorde',
-    color: 'text-lips-gold',
-  },
-  {
-    icon: BookOpen,
-    value: 200,
-    suffix: '+',
-    label: 'Formations Annuelles',
-    description:
-      'Cycles de formation continue en fiqh, aqida, daawa et gestion communautaire',
-    color: 'text-lips-green-light',
-  },
-  {
-    icon: Award,
-    value: 18,
-    suffix: '',
-    label: "Années d'Excellence",
-    description:
-      'Depuis 2006, la LIPS œuvre pour l\'institutionnalisation de l\'imamat au Sénégal',
-    color: 'text-lips-gold',
-  },
-  {
-    icon: TrendingUp,
-    value: 98,
-    suffix: '%',
-    label: 'Taux de Renouvellement',
-    description:
-      'Fidélité et engagement des membres au renouvellement annuel de leur carte',
-    color: 'text-lips-emerald',
-  },
-];
 
 function AnimatedCounter({
   value,
@@ -133,8 +77,60 @@ function AnimatedCounter({
 }
 
 export default function StatsSection() {
+  const { t } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
+
+  const STATS: StatItem[] = [
+    {
+      icon: Users,
+      value: 5000,
+      suffix: '+',
+      label: t.stats.items.members.label,
+      description: t.stats.items.members.desc,
+      color: 'text-lips-green',
+    },
+    {
+      icon: MapPin,
+      value: 14,
+      suffix: '',
+      label: t.stats.items.regions.label,
+      description: t.stats.items.regions.desc,
+      color: 'text-lips-emerald',
+    },
+    {
+      icon: Building,
+      value: 15000,
+      suffix: '+',
+      label: t.stats.items.mosques.label,
+      description: t.stats.items.mosques.desc,
+      color: 'text-lips-gold',
+    },
+    {
+      icon: BookOpen,
+      value: 200,
+      suffix: '+',
+      label: t.stats.items.trainings.label,
+      description: t.stats.items.trainings.desc,
+      color: 'text-lips-green-light',
+    },
+    {
+      icon: Award,
+      value: 18,
+      suffix: '',
+      label: t.stats.items.years.label,
+      description: t.stats.items.years.desc,
+      color: 'text-lips-gold',
+    },
+    {
+      icon: TrendingUp,
+      value: 98,
+      suffix: '%',
+      label: t.stats.items.renewal.label,
+      description: t.stats.items.renewal.desc,
+      color: 'text-lips-emerald',
+    },
+  ];
 
   return (
     <section
@@ -154,18 +150,16 @@ export default function StatsSection() {
           className="text-center mb-16"
         >
           <span className="text-sm font-semibold text-lips-gold tracking-widest uppercase">
-            En Chiffres
+            {t.stats.sectionTag}
           </span>
           <h2 className="text-3xl md:text-4xl font-bold text-lips-green-dark mt-3 mb-4">
-            L&apos;Impact de la LIPS en Chiffres
+            {t.stats.sectionTitle}
           </h2>
           <div className="separator-islamic text-lips-gold text-2xl my-4">
             &#10022;
           </div>
           <p className="text-muted-foreground max-w-2xl mx-auto text-base">
-            Des indicateurs concrets qui témoignent de l&apos;ampleur de notre
-            action institutionnelle au service de la communauté musulmane du
-            Sénégal.
+            {t.stats.sectionDesc}
           </p>
         </motion.div>
 

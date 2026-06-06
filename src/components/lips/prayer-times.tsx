@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { Clock, Sun, Sunset, Moon, ChevronDown, ChevronUp, MapPin, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLanguage } from '@/lib/lips/i18n/language-context';
+import type { TranslationDict } from '@/lib/lips/i18n/translations';
 
 // ─── Types ────────────────────────────────────────────────────
 interface PrayerData {
@@ -114,9 +116,11 @@ function getNextPrayerCountdown(timings: PrayerData['timings']): string {
 function RegionSelector({
   selected,
   onChange,
+  t,
 }: {
   selected: string;
   onChange: (key: string) => void;
+  t: TranslationDict;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -163,7 +167,7 @@ function RegionSelector({
         ref={btnRef}
         onClick={() => setOpen(!open)}
         className="flex items-center gap-1 px-2 py-1 rounded-lg bg-white/10 hover:bg-white/20 transition-colors text-white text-[10px] sm:text-xs font-medium"
-        aria-label="Changer de région"
+        aria-label={t.prayer.changeRegion}
       >
         <MapPin className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-lips-gold flex-shrink-0" />
         <span>{selectedLabel}</span>
@@ -219,7 +223,7 @@ function RegionSelector({
             className="fixed bottom-0 left-0 right-0 z-[9999] sm:hidden bg-[#0f3d22] border-t border-white/20 rounded-t-2xl shadow-2xl"
           >
             <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
-              <h3 className="text-white font-bold text-sm">Choisir une région</h3>
+              <h3 className="text-white font-bold text-sm">{t.prayer.chooseRegion}</h3>
               <button onClick={() => setOpen(false)} className="p-1 rounded-lg hover:bg-white/10 transition-colors">
                 <X className="h-5 w-5 text-white" />
               </button>
@@ -249,6 +253,7 @@ function RegionSelector({
 
 // ─── Main Component ───────────────────────────────────────────
 export default function PrayerTimesWidget() {
+  const { t } = useLanguage();
   const [prayerData, setPrayerData] = useState<PrayerData | null>(null);
   const [currentPrayer, setCurrentPrayer] = useState(0);
   const [currentTime, setCurrentTime] = useState('');
@@ -260,6 +265,12 @@ export default function PrayerTimesWidget() {
 
   // Read saved region from localStorage (default: dakar)
   const [region, setRegion] = useState('dakar');
+
+  // Translation helper for prayer names
+  function getPrayerName(key: string): string {
+    const lowerKey = key.toLowerCase() as keyof typeof t.prayer;
+    return t.prayer[lowerKey] ?? key;
+  }
 
   // Load saved region on mount
   useEffect(() => {
@@ -339,7 +350,7 @@ export default function PrayerTimesWidget() {
         <div className="max-w-7xl mx-auto px-3 sm:px-4 py-3">
           <div className="flex items-center justify-center gap-3 text-xs text-white/70">
             <Clock className="h-4 w-4 text-lips-gold animate-pulse" />
-            <span>Chargement des horaires de prière...</span>
+            <span>{t.prayer.loading}</span>
           </div>
         </div>
       </div>
@@ -362,11 +373,11 @@ export default function PrayerTimesWidget() {
         <div className="py-2.5 sm:hidden">
           {/* Row 1: Current prayer + countdown + clock + expand */}
           <div className="flex items-center justify-between gap-2">
-            <Link href="/agenda" className="flex items-center gap-2 min-w-0 flex-1" title="Voir le calendrier">
+            <Link href="/agenda" className="flex items-center gap-2 min-w-0 flex-1" title={t.prayer.seeCalendar}>
               <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-lips-gold">
                 <CurrentIcon className="h-3.5 w-3.5 text-[#0a2e18] flex-shrink-0" />
                 <div className="min-w-0">
-                  <div className="text-[#0a2e18] font-bold text-[11px] leading-tight">{currentPrayerInfo.name}</div>
+                  <div className="text-[#0a2e18] font-bold text-[11px] leading-tight">{getPrayerName(currentPrayerInfo.key)}</div>
                   <div className="font-mono text-[11px] text-[#0a2e18]/80 leading-tight font-semibold">{prayerData.timings[currentPrayerInfo.key as keyof typeof prayerData.timings]}</div>
                 </div>
               </div>
@@ -375,7 +386,7 @@ export default function PrayerTimesWidget() {
             <div className="flex items-center gap-1 px-2 py-1 bg-white/15 rounded-lg flex-shrink-0">
               <NextIcon className="h-3 w-3 text-white flex-shrink-0" />
               <div className="text-center">
-                <div className="text-[9px] text-white/70 leading-tight">Prochaine</div>
+                <div className="text-[9px] text-white/70 leading-tight">{t.prayer.next}</div>
                 <div className="font-mono text-[11px] font-bold text-white leading-tight">{countdown}</div>
               </div>
             </div>
@@ -388,7 +399,7 @@ export default function PrayerTimesWidget() {
             <button
               onClick={() => setExpanded(!expanded)}
               className="p-1.5 rounded-lg hover:bg-white/15 transition-colors touch-manipulation flex-shrink-0"
-              aria-label={expanded ? 'Réduire' : 'Voir toutes les prières'}
+              aria-label={expanded ? t.prayer.collapse : t.prayer.seeAllPrayers}
             >
               {expanded ? <ChevronUp className="h-4 w-4 text-white" /> : <ChevronDown className="h-4 w-4 text-white" />}
             </button>
@@ -400,7 +411,7 @@ export default function PrayerTimesWidget() {
               <span className="text-white text-[10px] font-semibold truncate">{hijriDisplay.french}</span>
               <span className="font-arabic text-white/80 text-[9px] truncate" dir="rtl">{hijriDisplay.arabic}</span>
             </Link>
-            <RegionSelector selected={region} onChange={handleRegionChange} />
+            <RegionSelector selected={region} onChange={handleRegionChange} t={t} />
           </div>
 
           {/* Expandable: All 5 prayers */}
@@ -430,7 +441,7 @@ export default function PrayerTimesWidget() {
                           <div className={`text-[10px] leading-tight truncate font-semibold ${
                             isCurrent ? 'text-[#0a2e18]' : 'text-white'
                           }`}>
-                            {prayer.name}
+                            {getPrayerName(prayer.key)}
                           </div>
                           <div className={`font-mono text-[11px] leading-tight font-bold ${
                             isCurrent ? 'text-[#0a2e18]/80' : 'text-white'
@@ -456,7 +467,7 @@ export default function PrayerTimesWidget() {
             <Link
               href="/agenda"
               className="flex items-center gap-1.5 sm:gap-2 min-w-0 overflow-hidden flex-shrink"
-              title="Voir le calendrier"
+              title={t.prayer.seeCalendar}
             >
               <Clock className="h-4 w-4 text-lips-gold flex-shrink-0" />
               <span className="font-mono text-xs sm:text-sm font-semibold flex-shrink-0">{currentTime}</span>
@@ -469,10 +480,10 @@ export default function PrayerTimesWidget() {
             <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
               <div className="flex items-center gap-1 px-1.5 sm:px-2 py-1 bg-white/10 rounded-lg">
                 <NextIcon className="h-3 w-3 text-white" />
-                <span className="text-[8px] sm:text-[9px] text-white/70">Prochaine</span>
+                <span className="text-[8px] sm:text-[9px] text-white/70">{t.prayer.next}</span>
                 <span className="font-mono text-[10px] sm:text-xs font-bold text-white">{countdown}</span>
               </div>
-              <RegionSelector selected={region} onChange={handleRegionChange} />
+              <RegionSelector selected={region} onChange={handleRegionChange} t={t} />
             </div>
           </div>
 
@@ -496,7 +507,7 @@ export default function PrayerTimesWidget() {
                     <div className={`text-[10px] lg:text-xs leading-tight font-semibold truncate ${
                       isCurrent ? 'text-[#0a2e18]' : 'text-white'
                     }`}>
-                      {prayer.name}
+                      {getPrayerName(prayer.key)}
                     </div>
                     <div className={`font-mono text-[10px] lg:text-[11px] leading-tight font-bold truncate ${
                       isCurrent ? 'text-[#0a2e18]/80' : 'text-white'

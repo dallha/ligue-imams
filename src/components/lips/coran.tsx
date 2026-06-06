@@ -25,6 +25,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { useLanguage } from '@/lib/lips/i18n/language-context';
 
 // ─── Types ────────────────────────────────────────────────────
 interface Moshaf {
@@ -105,15 +106,6 @@ const DAILY_VERSES: DailyVerse[] = [
   { arabic: 'فَاذْكُرُونِي أَذْكُرْكُمْ وَاشْكُرُوا لِي وَلَا تَكْفُرُونِ', french: 'Souvenez-vous de Moi, Je me souviendrai de vous. Soyez reconnaissants envers Moi et ne Me reniez pas.', reference: 'Coran 2:152 — Al-Baqara' },
 ];
 
-// ─── Quran Resources ──────────────────────────────────────────
-const QURAN_RESOURCES = [
-  { title: 'Lecture du Coran', description: 'Lisez le Coran en ligne avec traduction française et translittération.', icon: BookOpen, href: 'https://quran.com/fr/', color: 'text-lips-green' },
-  { title: 'MP3Quran.net', description: 'Plateforme complète de récitations audio du Coran par les plus grands récitateurs du monde musulman.', icon: Headphones, href: 'https://www.mp3quran.net/fr', color: 'text-lips-gold' },
-  { title: 'Coran en Wolof', description: 'Écoutez et lisez le Coran avec la traduction en wolof pour les locuteurs sénégalais.', icon: Globe, href: '#', color: 'text-lips-gold' },
-  { title: 'Tafsir en français', description: 'Commentaire et exégèse du Coran en langue française pour une compréhension approfondie.', icon: Mic, href: '#', color: 'text-amber-600' },
-  { title: 'Mémorisation (Hifz)', description: 'Guide pratique et méthodologie pour la mémorisation du Coran, adapté aux adultes et enfants.', icon: GraduationCap, href: '#', color: 'text-lips-green-dark' },
-];
-
 // ─── Helpers ──────────────────────────────────────────────────
 function getDailyVerse(): DailyVerse {
   const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / (1000 * 60 * 60 * 24));
@@ -163,6 +155,7 @@ function ReciterPill({ reciter, isSelected, onClick }: { reciter: Reciter; isSel
 
 // ─── Search Result Row ────────────────────────────────────────
 function ReciterSearchRow({ reciter, isSelected, isPopular, onClick }: { reciter: Reciter; isSelected: boolean; isPopular: boolean; onClick: () => void }) {
+  const { t } = useLanguage();
   const rowCls = cn(
     'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-left',
     isSelected ? 'bg-lips-green text-white' : 'hover:bg-lips-green/5'
@@ -182,10 +175,10 @@ function ReciterSearchRow({ reciter, isSelected, isPopular, onClick }: { reciter
       </div>
       <div className="min-w-0 flex-1">
         <p className={nameCls}>{reciter.name}</p>
-        <p className={subCls}>{reciter.moshaf.length} style{reciter.moshaf.length > 1 ? 's' : ''} — {reciter.letter}</p>
+        <p className={subCls}>{reciter.moshaf.length} {reciter.moshaf.length > 1 ? t.coran.styles : t.coran.style} — {reciter.letter}</p>
       </div>
       {isPopular && (
-        <Badge className="bg-lips-gold/10 text-lips-gold border-lips-gold/20 text-[9px] shrink-0">Populaire</Badge>
+        <Badge className="bg-lips-gold/10 text-lips-gold border-lips-gold/20 text-[9px] shrink-0">{t.coran.popular}</Badge>
       )}
     </button>
   );
@@ -193,6 +186,7 @@ function ReciterSearchRow({ reciter, isSelected, isPopular, onClick }: { reciter
 
 // ─── Main Component ───────────────────────────────────────────
 export default function CoranSection() {
+  const { t } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
 
@@ -221,6 +215,15 @@ export default function CoranSection() {
   const [showReciterSearch, setShowReciterSearch] = useState(false);
 
   const dailyVerse = useMemo(() => getDailyVerse(), []);
+
+  // ─── Quran Resources (computed inside component for i18n) ──
+  const quranResources = useMemo(() => [
+    { title: t.coran.resReadCoran, description: t.coran.resReadCoranDesc, icon: BookOpen, href: 'https://quran.com/fr/', color: 'text-lips-green' },
+    { title: t.coran.resMp3Quran, description: t.coran.resMp3QuranDesc, icon: Headphones, href: 'https://www.mp3quran.net/fr', color: 'text-lips-gold' },
+    { title: t.coran.resWolof, description: t.coran.resWolofDesc, icon: Globe, href: '#', color: 'text-lips-gold' },
+    { title: t.coran.resTafsir, description: t.coran.resTafsirDesc, icon: Mic, href: '#', color: 'text-amber-600' },
+    { title: t.coran.resHifz, description: t.coran.resHifzDesc, icon: GraduationCap, href: '#', color: 'text-lips-green-dark' },
+  ], [t]);
 
   // ─── Fetch data ───────────────────────────────────────────
   useEffect(() => {
@@ -256,13 +259,13 @@ export default function CoranSection() {
         }
       } catch (err) {
         console.error('Fetch error:', err);
-        setDataError('Impossible de charger les données. Vérifiez votre connexion.');
+        setDataError(t.coran.fetchError);
       } finally {
         setLoading(false);
       }
     }
     fetchData();
-  }, []);
+  }, [t.coran.fetchError]);
 
   // ─── Audio player logic ──────────────────────────────────
   useEffect(() => {
@@ -434,12 +437,12 @@ export default function CoranSection() {
 
         <div className="relative max-w-4xl mx-auto px-4 text-center">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
-            <span className="text-sm font-semibold text-lips-gold tracking-widest uppercase">Parole Divine</span>
+            <span className="text-sm font-semibold text-lips-gold tracking-widest uppercase">{t.coran.heroTag}</span>
             <p className="font-arabic text-4xl sm:text-5xl lg:text-7xl text-lips-gold mt-4 mb-4 leading-relaxed">القرآن الكريم</p>
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-4">Le Saint Coran</h1>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-4">{t.coran.heroTitle}</h1>
             <div className="separator-islamic text-lips-gold text-2xl my-4">&#10022;</div>
             <p className="text-white/70 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed">
-              Écoutez les plus belles récitations du Coran par les plus grands récitateurs du monde musulman, par sourate et en streaming direct.
+              {t.coran.heroSubtitle}
             </p>
           </motion.div>
         </div>
@@ -457,7 +460,7 @@ export default function CoranSection() {
                   <div className="w-8 h-8 rounded-full bg-lips-gold/20 flex items-center justify-center">
                     <BookOpen className="h-4 w-4 text-lips-gold" />
                   </div>
-                  <Badge className="bg-lips-gold/10 text-lips-gold border-lips-gold/20 text-xs">Verset du Jour</Badge>
+                  <Badge className="bg-lips-gold/10 text-lips-gold border-lips-gold/20 text-xs">{t.coran.verseOfDay}</Badge>
                 </div>
                 <p className="font-arabic text-2xl sm:text-3xl lg:text-4xl text-lips-green-dark text-right leading-loose mb-4" dir="rtl">{dailyVerse.arabic}</p>
                 <div className="w-16 h-0.5 bg-lips-gold/40 mx-auto my-4" />
@@ -473,24 +476,24 @@ export default function CoranSection() {
       <section className="py-12 sm:py-20 lg:py-28 bg-white relative">
         <div className="max-w-7xl mx-auto px-4">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay: 0.2 }} className="text-center mb-12">
-            <span className="text-sm font-semibold text-lips-gold tracking-widest uppercase">Récitation</span>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-lips-green-dark mt-3 mb-4">Récitateurs du Coran</h2>
+            <span className="text-sm font-semibold text-lips-gold tracking-widest uppercase">{t.coran.recitationTag}</span>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-lips-green-dark mt-3 mb-4">{t.coran.recitationTitle}</h2>
             <div className="separator-islamic text-lips-gold text-2xl my-4">&#10022;</div>
             <p className="text-muted-foreground max-w-2xl mx-auto text-base">
-              Sélectionnez un récitateurs et écoutez la psalmodie du Coran en streaming direct depuis MP3Quran.net.
+              {t.coran.recitationSubtitle}
             </p>
           </motion.div>
 
           {loading ? (
             <div className="flex items-center justify-center py-20">
               <Loader2 className="h-8 w-8 text-lips-green animate-spin" />
-              <span className="ml-3 text-muted-foreground">Chargement des récitateurs...</span>
+              <span className="ml-3 text-muted-foreground">{t.coran.loadingReciters}</span>
             </div>
           ) : dataError ? (
             <div className="text-center py-20">
               <p className="text-red-500 mb-4">{dataError}</p>
               <Button onClick={() => window.location.reload()} variant="outline" className="gap-2">
-                <RefreshCw className="h-4 w-4" /> Réessayer
+                <RefreshCw className="h-4 w-4" /> {t.coran.retry}
               </Button>
             </div>
           ) : (
@@ -500,7 +503,7 @@ export default function CoranSection() {
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <Headphones className="h-4 w-4 text-lips-gold" />
-                    <span className="text-sm font-semibold text-lips-green-dark">Récitateurs populaires</span>
+                    <span className="text-sm font-semibold text-lips-green-dark">{t.coran.popularReciters}</span>
                   </div>
                   <Button
                     variant="ghost"
@@ -509,7 +512,7 @@ export default function CoranSection() {
                     className="gap-1.5 text-xs text-lips-green hover:text-lips-green-dark hover:bg-lips-green/5"
                   >
                     <Search className="h-3.5 w-3.5" />
-                    Rechercher un récitateurs
+                    {t.coran.searchReciter}
                   </Button>
                 </div>
 
@@ -540,7 +543,7 @@ export default function CoranSection() {
                       <div className="relative mb-3">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
-                          placeholder="Rechercher un récitateurs par nom..."
+                          placeholder={t.coran.searchPlaceholder}
                           className="pl-10 border-lips-green/20 focus:border-lips-green h-10"
                           value={reciterSearch}
                           onChange={(e) => setReciterSearch(e.target.value)}
@@ -562,10 +565,10 @@ export default function CoranSection() {
                             ))}
                           </div>
                         ) : (
-                          <p className="text-center text-sm text-muted-foreground py-6">Aucun récitateurs trouvé pour &laquo; {reciterSearch} &raquo;</p>
+                          <p className="text-center text-sm text-muted-foreground py-6">{t.coran.noResult} &laquo; {reciterSearch} &raquo;</p>
                         )
                       ) : (
-                        <p className="text-center text-sm text-muted-foreground py-4">Tapez le nom d&apos;un récitateurs pour rechercher parmi {reciters.length} récitateurs</p>
+                        <p className="text-center text-sm text-muted-foreground py-4">{t.coran.typeToSearch} {reciters.length} {t.coran.styles}</p>
                       )}
                     </div>
                   </motion.div>
@@ -586,7 +589,7 @@ export default function CoranSection() {
                       </div>
                       {selectedReciter.moshaf.length > 1 && (
                         <Badge className="bg-lips-gold/10 text-lips-gold border-lips-gold/20 text-[10px] shrink-0">
-                          {selectedReciter.moshaf.length} styles
+                          {selectedReciter.moshaf.length} {t.coran.styles}
                         </Badge>
                       )}
                     </div>
@@ -594,7 +597,7 @@ export default function CoranSection() {
                     {/* Moshaf selector */}
                     {selectedReciter.moshaf.length > 1 && (
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Style</span>
+                        <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{t.coran.style}</span>
                         {selectedReciter.moshaf.map((m) => (
                           <button
                             key={m.id}
@@ -712,11 +715,11 @@ export default function CoranSection() {
         <div className="absolute inset-0 islamic-pattern opacity-5" />
         <div className="relative max-w-7xl mx-auto px-4">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay: 0.3 }} className="text-center mb-12">
-            <span className="text-sm font-semibold text-lips-gold tracking-widest uppercase">Index</span>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-lips-green-dark mt-3 mb-4">Les 114 Sourates</h2>
+            <span className="text-sm font-semibold text-lips-gold tracking-widest uppercase">{t.coran.surahIndexTag}</span>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-lips-green-dark mt-3 mb-4">{t.coran.surahIndexTitle}</h2>
             <div className="separator-islamic text-lips-gold text-2xl my-4">&#10022;</div>
             <p className="text-muted-foreground max-w-2xl mx-auto text-base">
-              Cliquez sur une sourate pour l&apos;écouter directement avec le récitateurs sélectionné.
+              {t.coran.surahIndexSubtitle}
             </p>
           </motion.div>
 
@@ -725,7 +728,7 @@ export default function CoranSection() {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Rechercher une sourate (nom, numéro)..."
+                placeholder={t.coran.searchSurah}
                 className="pl-10 bg-white border-lips-green/20 focus:border-lips-green h-11"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -737,7 +740,7 @@ export default function CoranSection() {
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-6 w-6 text-lips-green animate-spin" />
-              <span className="ml-2 text-muted-foreground text-sm">Chargement des sourates...</span>
+              <span className="ml-2 text-muted-foreground text-sm">{t.coran.loadingSurahs}</span>
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
@@ -796,7 +799,7 @@ export default function CoranSection() {
                     </div>
                     <div className="mt-1.5">
                       <Badge variant="secondary" className={badgeCls}>
-                        {surah.makkia ? 'Makki' : 'Madani'}
+                        {surah.makkia ? t.coran.makki : t.coran.madani}
                       </Badge>
                     </div>
                   </motion.button>
@@ -808,7 +811,7 @@ export default function CoranSection() {
           {searchQuery.trim() && filteredSurahs.length === 0 && (
             <div className="text-center py-12 text-muted-foreground">
               <Search className="h-8 w-8 mx-auto mb-2 opacity-30" />
-              <p>Aucune sourate trouvée pour &laquo; {searchQuery} &raquo;</p>
+              <p>{t.coran.noSurahFound} &laquo; {searchQuery} &raquo;</p>
             </div>
           )}
         </div>
@@ -818,14 +821,14 @@ export default function CoranSection() {
       <section className="py-12 sm:py-20 lg:py-28 bg-white relative">
         <div className="max-w-7xl mx-auto px-4">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay: 0.4 }} className="text-center mb-12">
-            <span className="text-sm font-semibold text-lips-gold tracking-widest uppercase">Ressources</span>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-lips-green-dark mt-3 mb-4">Ressources Coraniques</h2>
+            <span className="text-sm font-semibold text-lips-gold tracking-widest uppercase">{t.coran.resourcesTag}</span>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-lips-green-dark mt-3 mb-4">{t.coran.resourcesTitle}</h2>
             <div className="separator-islamic text-lips-gold text-2xl my-4">&#10022;</div>
-            <p className="text-muted-foreground max-w-2xl mx-auto text-base">Accédez à des outils et ressources pour approfondir votre relation avec le Coran.</p>
+            <p className="text-muted-foreground max-w-2xl mx-auto text-base">{t.coran.resourcesSubtitle}</p>
           </motion.div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {QURAN_RESOURCES.map((resource, index) => (
+            {quranResources.map((resource, index) => (
               <motion.div key={resource.title} initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.4, delay: 0.1 * index }}>
                 <Card className="group hover:shadow-lg hover:shadow-lips-green/10 transition-all duration-300 hover:border-lips-green/30 border-border/50 h-full">
                   <CardContent className="p-6 flex flex-col h-full">

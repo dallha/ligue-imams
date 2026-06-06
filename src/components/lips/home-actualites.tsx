@@ -13,6 +13,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { useLanguage } from '@/lib/lips/i18n/language-context';
 
 interface Article {
   id: number;
@@ -58,6 +59,7 @@ const TYPE_COLORS: Record<string, string> = {
 };
 
 export default function HomeActualites() {
+  const { t } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
 
@@ -79,18 +81,18 @@ export default function HomeActualites() {
         >
           <div>
             <span className="text-sm font-semibold text-lips-gold tracking-widest uppercase">
-              Actualités
+              {t.actualites.sectionTag}
             </span>
             <h2 className="text-3xl md:text-4xl font-bold text-lips-green-dark mt-3 mb-2">
-              Dernières Publications
+              {t.actualites.sectionTitle}
             </h2>
             <p className="text-muted-foreground max-w-xl text-sm">
-              Restez informé des positions officielles, avis juridiques et annonces de la LIPS.
+              {t.actualites.sectionDesc}
             </p>
           </div>
           <Button asChild variant="outline" className="border-lips-green/30 text-lips-green hover:bg-lips-green/5 mt-4 md:mt-0">
             <Link href="/actualites">
-              Toutes les actualités
+              {t.actualites.allNews}
               <ArrowRight className="h-4 w-4 ml-2" />
             </Link>
           </Button>
@@ -136,10 +138,10 @@ export default function HomeActualites() {
           className="mt-8 flex flex-wrap items-center justify-center gap-3"
         >
           {[
-            { label: 'Communiqués', href: '/actualites' },
-            { label: 'Fatwas', href: '/actualites' },
-            { label: 'Événements', href: '/actualites' },
-            { label: 'Galerie Photos', href: '/actualites' },
+            { label: t.actualites.communiques, href: '/actualites' },
+            { label: t.actualites.fatwas, href: '/actualites' },
+            { label: t.actualites.events, href: '/actualites' },
+            { label: t.actualites.gallery, href: '/actualites' },
           ].map((link) => (
             <Link
               key={link.label}
