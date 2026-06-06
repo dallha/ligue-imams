@@ -1,16 +1,33 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
-import { Save, Phone, Mail, MapPin, Globe, Star, BarChart3, CreditCard, Heart, Loader2 } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import {
+  Save, Phone, Globe, Star, BarChart3, CreditCard, Heart,
+  Loader2, UserPlus, Eye, EyeOff, Shield, CheckCircle2, XCircle, KeyRound,
+} from 'lucide-react'
 import { toast } from 'sonner'
 
 interface Settings {
   [key: string]: string
+}
+
+interface Region {
+  id: number
+  code: string
+  nom: string
 }
 
 const settingsGroups = [
@@ -84,10 +101,67 @@ const settingsGroups = [
   },
 ]
 
+const roleOptions = [
+  { value: 'IMAM', label: 'Imam' },
+  { value: 'PREDICATEUR', label: 'Prédicateur' },
+  { value: 'RESPONSABLE_REGIONAL', label: 'Responsable Régional' },
+  { value: 'ADMIN', label: 'Administrateur' },
+  { value: 'PRESIDENT', label: 'Président' },
+  { value: 'MEMBRE_CHOURA', label: 'Membre Choura' },
+]
+
+// ─── Password Strength Calculator ─────────────────────────────
+function getPasswordStrength(password: string) {
+  const checks = [
+    { label: '8 caractères minimum', met: password.length >= 8 },
+    { label: 'Une majuscule', met: /[A-Z]/.test(password) },
+    { label: 'Une minuscule', met: /[a-z]/.test(password) },
+    { label: 'Un chiffre', met: /[0-9]/.test(password) },
+    { label: 'Un caractère spécial', met: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password) },
+  ]
+  const score = checks.filter((c) => c.met).length
+  let level: 'weak' | 'medium' | 'strong' | 'very-strong' = 'weak'
+  if (score >= 5) level = 'very-strong'
+  else if (score >= 4) level = 'strong'
+  else if (score >= 3) level = 'medium'
+
+  return { checks, score, level }
+}
+
+// ─── Main Component ───────────────────────────────────────────
 export default function ParametresPage() {
   const [settings, setSettings] = useState<Settings>({})
   const [loading, setLoading] = useState(true)
   const [savingGroup, setSavingGroup] = useState<string | null>(null)
+
+  // ── Account creation state ──
+  const [regions, setRegions] = useState<Region[]>([])
+  const [showAccountForm, setShowAccountForm] = useState(false)
+  const [creating, setCreating] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [createdMatricule, setCreatedMatricule] = useState<string | null>(null)
+
+  const [accountForm, setAccountForm] = useState({
+    email: '',
+    password: '',
+    nom: '',
+    prenom: '',
+    telephone: '',
+    role: 'IMAM',
+    regionId: '',
+  })
+
+  const passwordStrength = useMemo(
+    () => getPasswordStrength(accountForm.password),
+    [accountForm.password]
+  )
+
+  const strengthConfig: Record<string, { color: string; width: string; label: string; badgeVariant: 'destructive' | 'secondary' | 'default' | 'outline' }> = {
+    weak: { color: 'bg-red-500', width: 'w-1/4', label: 'Faible', badgeVariant: 'destructive' },
+    medium: { color: 'bg-yellow-500', width: 'w-2/4', label: 'Moyen', badgeVariant: 'secondary' },
+    strong: { color: 'bg-blue-500', width: 'w-3/4', label: 'Fort', badgeVariant: 'default' },
+    'very-strong': { color: 'bg-green-500', width: 'w-full', label: 'Très fort', badgeVariant: 'outline' },
+  }
 
   const fetchSettings = useCallback(async () => {
     setLoading(true)
@@ -106,6 +180,14 @@ export default function ParametresPage() {
   useEffect(() => {
     fetchSettings()
   }, [fetchSettings])
+
+  // Fetch regions for account creation
+  useEffect(() => {
+    fetch('/api/admin/regions')
+      .then((res) => res.json())
+      .then((data) => setRegions(data.data || []))
+      .catch(console.error)
+  }, [])
 
   async function saveGroup(group: typeof settingsGroups[0]) {
     setSavingGroup(group.key)
@@ -134,6 +216,57 @@ export default function ParametresPage() {
     setSettings((prev) => ({ ...prev, [key]: value }))
   }
 
+  function resetAccountForm() {
+    setAccountForm({
+      email: '',
+      password: '',
+      nom: '',
+      prenom: '',
+      telephone: '',
+      role: 'IMAM',
+      regionId: '',
+    })
+    setShowPassword(false)
+    setCreatedMatricule(null)
+  }
+
+  async function handleCreateAccount() {
+    // Client-side validation
+    if (!accountForm.email || !accountForm.password || !accountForm.nom || !accountForm.prenom || !accountForm.telephone || !accountForm.regionId) {
+      toast.error('Veuillez remplir tous les champs obligatoires')
+      return
+    }
+
+    if (passwordStrength.score < 5) {
+      toast.error('Le mot de passe ne respecte pas les critères de sécurité')
+      return
+    }
+
+    setCreating(true)
+    setCreatedMatricule(null)
+    try {
+      const res = await fetch('/api/admin/create-account', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(accountForm),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        toast.error(data.error || 'Erreur lors de la création du compte')
+        return
+      }
+
+      setCreatedMatricule(data.data?.matricule || '')
+      toast.success(data.message || 'Compte créé avec succès')
+    } catch {
+      toast.error('Erreur lors de la création du compte')
+    } finally {
+      setCreating(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -160,6 +293,288 @@ export default function ParametresPage() {
           Configurez les paramètres généraux du site LIPS
         </p>
       </div>
+
+      {/* ── Account Creation Section ──────────────────────────── */}
+      <Card className="border-lips-green/20 shadow-md">
+        <CardHeader className="pb-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-lips-green/10">
+                <UserPlus className="h-5 w-5 text-lips-green" />
+              </div>
+              <div>
+                <CardTitle className="text-lg">Création de Compte</CardTitle>
+                <CardDescription>Créer un nouveau compte membre ou administrateur</CardDescription>
+              </div>
+            </div>
+            <Button
+              onClick={() => {
+                if (showAccountForm) {
+                  resetAccountForm()
+                  setShowAccountForm(false)
+                } else {
+                  setShowAccountForm(true)
+                }
+              }}
+              variant={showAccountForm ? 'outline' : 'default'}
+              className={showAccountForm ? '' : 'bg-lips-green hover:bg-lips-green-dark text-white gap-2'}
+              size="sm"
+            >
+              {showAccountForm ? 'Annuler' : (
+                <>
+                  <UserPlus className="h-4 w-4" />
+                  Nouveau Compte
+                </>
+              )}
+            </Button>
+          </div>
+        </CardHeader>
+
+        {/* Success Banner */}
+        {createdMatricule && (
+          <CardContent className="pt-0 pb-2">
+            <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-3">
+              <CheckCircle2 className="h-6 w-6 text-green-600 shrink-0" />
+              <div className="flex-1">
+                <p className="font-semibold text-green-800 text-sm">Compte créé avec succès</p>
+                <p className="text-green-700 text-sm mt-0.5">
+                  Matricule attribué : <span className="font-mono font-bold text-lg">{createdMatricule}</span>
+                </p>
+                <p className="text-green-600 text-xs mt-1">
+                  Transmettez ce matricule au membre pour lui permettre de se connecter.
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-green-700 border-green-300 hover:bg-green-50"
+                onClick={() => {
+                  navigator.clipboard.writeText(createdMatricule)
+                  toast.success('Matricule copié dans le presse-papier')
+                }}
+              >
+                Copier
+              </Button>
+            </div>
+          </CardContent>
+        )}
+
+        {showAccountForm && (
+          <CardContent className="pt-0">
+            <Separator className="mb-5" />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+              {/* ── Row 1: Identity ───────────────────── */}
+              <div className="space-y-2">
+                <Label htmlFor="acc-prenom" className="text-sm font-medium">
+                  Prénom <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="acc-prenom"
+                  value={accountForm.prenom}
+                  onChange={(e) => setAccountForm((f) => ({ ...f, prenom: e.target.value }))}
+                  placeholder="Prénom du membre"
+                  disabled={creating}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="acc-nom" className="text-sm font-medium">
+                  Nom <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="acc-nom"
+                  value={accountForm.nom}
+                  onChange={(e) => setAccountForm((f) => ({ ...f, nom: e.target.value }))}
+                  placeholder="Nom de famille"
+                  disabled={creating}
+                />
+              </div>
+
+              {/* ── Row 2: Contact ───────────────────── */}
+              <div className="space-y-2">
+                <Label htmlFor="acc-email" className="text-sm font-medium">
+                  Email <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="acc-email"
+                  type="email"
+                  value={accountForm.email}
+                  onChange={(e) => setAccountForm((f) => ({ ...f, email: e.target.value }))}
+                  placeholder="prenom.nom@exemple.sn"
+                  disabled={creating}
+                  autoComplete="off"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="acc-telephone" className="text-sm font-medium">
+                  Téléphone <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="acc-telephone"
+                  type="tel"
+                  value={accountForm.telephone}
+                  onChange={(e) => setAccountForm((f) => ({ ...f, telephone: e.target.value }))}
+                  placeholder="+221 77 000 00 00"
+                  disabled={creating}
+                />
+              </div>
+
+              {/* ── Row 3: Role & Region ─────────────── */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">
+                  Rôle <span className="text-red-500">*</span>
+                </Label>
+                <Select
+                  value={accountForm.role}
+                  onValueChange={(v) => setAccountForm((f) => ({ ...f, role: v }))}
+                  disabled={creating}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sélectionner un rôle" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {roleOptions.map((o) => (
+                      <SelectItem key={o.value} value={o.value}>
+                        {o.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">
+                  Région <span className="text-red-500">*</span>
+                </Label>
+                <Select
+                  value={accountForm.regionId}
+                  onValueChange={(v) => setAccountForm((f) => ({ ...f, regionId: v }))}
+                  disabled={creating}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sélectionner une région" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {regions.map((r) => (
+                      <SelectItem key={r.id} value={r.id.toString()}>
+                        {r.nom}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* ── Row 4: Password ──────────────────── */}
+              <div className="space-y-2 md:col-span-2">
+                <Label htmlFor="acc-password" className="text-sm font-medium">
+                  Mot de passe <span className="text-red-500">*</span>
+                </Label>
+                <div className="relative">
+                  <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="acc-password"
+                    type={showPassword ? 'text' : 'password'}
+                    value={accountForm.password}
+                    onChange={(e) => {
+                      setAccountForm((f) => ({ ...f, password: e.target.value }))
+                      setCreatedMatricule(null)
+                    }}
+                    placeholder="Mot de passe sécurisé"
+                    className="pl-10 pr-11"
+                    disabled={creating}
+                    autoComplete="new-password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    tabIndex={-1}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+
+                {/* Password Strength Bar */}
+                {accountForm.password && (
+                  <div className="space-y-2 mt-2">
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all duration-500 ${strengthConfig[passwordStrength.level].color} ${strengthConfig[passwordStrength.level].width}`}
+                        />
+                      </div>
+                      <Badge variant={strengthConfig[passwordStrength.level].badgeVariant} className="text-[10px] px-2 py-0">
+                        {strengthConfig[passwordStrength.level].label}
+                      </Badge>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-x-3 gap-y-1">
+                      {passwordStrength.checks.map((check) => (
+                        <div key={check.label} className="flex items-center gap-1.5">
+                          {check.met ? (
+                            <CheckCircle2 className="h-3 w-3 text-green-500 shrink-0" />
+                          ) : (
+                            <XCircle className="h-3 w-3 text-gray-300 shrink-0" />
+                          )}
+                          <span className={`text-[11px] ${check.met ? 'text-green-700' : 'text-gray-400'}`}>
+                            {check.label}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* ── Info box ── */}
+            <div className="mt-5 bg-amber-50 border border-amber-200 rounded-xl p-3.5 flex items-start gap-3">
+              <Shield className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
+              <div>
+                <p className="text-xs font-semibold text-amber-800">Informations importantes</p>
+                <ul className="text-xs text-amber-700 mt-1 space-y-0.5 list-disc list-inside">
+                  <li>Le matricule sera généré automatiquement au format <span className="font-mono font-bold">LIPS-XXXX</span></li>
+                  <li>Le compte sera créé avec le statut &quot;En attente&quot; par défaut</li>
+                  <li>Le membre devra utiliser son matricule ou email pour se connecter</li>
+                  <li>Transmettez le matricule et le mot de passe au membre de manière sécurisée</li>
+                </ul>
+              </div>
+            </div>
+
+            {/* ── Submit ── */}
+            <div className="mt-5 flex items-center justify-end gap-3">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  resetAccountForm()
+                  setShowAccountForm(false)
+                }}
+                disabled={creating}
+              >
+                Annuler
+              </Button>
+              <Button
+                onClick={handleCreateAccount}
+                disabled={creating || passwordStrength.score < 5}
+                className="bg-lips-green hover:bg-lips-green-dark text-white gap-2 min-w-[160px]"
+              >
+                {creating ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Création...
+                  </>
+                ) : (
+                  <>
+                    <UserPlus className="h-4 w-4" />
+                    Créer le Compte
+                  </>
+                )}
+              </Button>
+            </div>
+          </CardContent>
+        )}
+      </Card>
 
       {/* Settings Groups */}
       <div className="space-y-4">
