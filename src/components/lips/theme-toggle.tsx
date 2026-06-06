@@ -53,34 +53,44 @@ export default function ThemeToggle() {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
+  // ─── ALL hooks MUST be called before any conditional return ───
+
+  const handleSelect = useCallback((mode: ThemeMode) => {
+    if (mode === 'auto') {
+      const dayTime = isDaytimeInDakar();
+      setTheme(dayTime ? 'light' : 'dark');
+      try { localStorage.setItem('lips-theme-mode', 'auto'); } catch {}
+    } else {
+      setTheme(mode);
+      try { localStorage.setItem('lips-theme-mode', mode); } catch {}
+    }
+    setOpen(false);
+  }, [setTheme]);
+
   // ─── Auto day/night scheduler ───────────────────────────────
   useEffect(() => {
     if (theme !== 'auto') return;
 
-    // Apply immediately based on current time
     const applyAutoTheme = () => {
       const dayTime = isDaytimeInDakar();
       setTheme(dayTime ? 'light' : 'dark');
-      // Store that we're in auto mode so next mount restores it
       try { localStorage.setItem('lips-theme-mode', 'auto'); } catch {}
     };
 
     applyAutoTheme();
 
-    // Schedule the next transition
     let timeoutId: ReturnType<typeof setTimeout>;
 
     const scheduleNext = () => {
       const ms = msUntilNextTransition();
       timeoutId = setTimeout(() => {
         applyAutoTheme();
-        scheduleNext(); // schedule the one after
+        scheduleNext();
       }, ms);
     };
 
     scheduleNext();
 
-    // Also check every minute as a safety net
     const intervalId = setInterval(applyAutoTheme, 60_000);
 
     return () => {
@@ -101,7 +111,7 @@ export default function ThemeToggle() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Avoid hydration mismatch
+  // ─── Early return AFTER all hooks ───────────────────────────
   if (!mounted) {
     return (
       <div className="w-8 h-8 rounded-lg bg-muted/50 animate-pulse" />
@@ -119,26 +129,12 @@ export default function ThemeToggle() {
     { value: 'system', label: t.common.system, icon: Monitor },
   ];
 
-  const handleSelect = useCallback((mode: ThemeMode) => {
-    if (mode === 'auto') {
-      // Immediately apply based on current time
-      const dayTime = isDaytimeInDakar();
-      setTheme(dayTime ? 'light' : 'dark');
-      try { localStorage.setItem('lips-theme-mode', 'auto'); } catch {}
-    } else {
-      setTheme(mode);
-      try { localStorage.setItem('lips-theme-mode', mode); } catch {}
-    }
-    setOpen(false);
-  }, [setTheme]);
-
   const activeMode: ThemeMode = isAutoMode ? 'auto' : (theme as ThemeMode) || 'light';
 
   return (
     <div className="relative">
       <button
         onClick={() => {
-          // Simple click: cycle light → dark → auto → light
           if (activeMode === 'light') handleSelect('dark');
           else if (activeMode === 'dark') handleSelect('auto');
           else handleSelect('light');
