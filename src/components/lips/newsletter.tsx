@@ -17,7 +17,7 @@ export default function NewsletterSection() {
     <section
       ref={sectionRef}
       id="newsletter"
-      className="py-10 sm:py-16 bg-lips-cream relative"
+      className="py-10 sm:py-16 bg-lips-cream dark:bg-card relative"
     >
       <div className="max-w-3xl mx-auto px-4">
         <motion.div
@@ -29,7 +29,7 @@ export default function NewsletterSection() {
           <div className="w-12 h-12 rounded-full bg-lips-green/10 flex items-center justify-center mx-auto mb-4">
             <Mail className="h-5 w-5 text-lips-green" />
           </div>
-          <h3 className="text-xl font-bold text-lips-green-dark mb-2">
+          <h3 className="text-xl font-bold text-foreground mb-2">
             {t.newsletter.title}
           </h3>
           <p className="text-sm text-muted-foreground mb-6">
@@ -49,7 +49,7 @@ export default function NewsletterSection() {
               <Input
                 type="email"
                 placeholder={t.newsletter.placeholder}
-                className="h-11 bg-white border-lips-green/20 focus:border-lips-green"
+                className="h-11 bg-card border-lips-green/20 focus:border-lips-green"
                 required
               />
               <Button type="submit" className="bg-lips-green hover:bg-lips-green-dark text-white h-11 px-6 shrink-0">

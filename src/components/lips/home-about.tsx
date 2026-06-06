@@ -48,7 +48,7 @@ export default function HomeAbout() {
       className="py-12 sm:py-20 lg:py-28 relative overflow-hidden"
     >
       {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-white via-lips-cream/50 to-white" />
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-lips-cream/50 dark:via-card/50 to-background" />
       <div className="absolute inset-0 islamic-pattern opacity-5" />
 
       <div className="relative max-w-7xl mx-auto px-4">
@@ -62,7 +62,7 @@ export default function HomeAbout() {
           <span className="text-sm font-semibold text-lips-gold tracking-widest uppercase">
             {p.mission.sectionTag}
           </span>
-          <h2 className="text-3xl md:text-4xl font-bold text-lips-green-dark mt-3 mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mt-3 mb-4">
             {p.mission.sectionTitle}
           </h2>
           <div className="separator-islamic text-lips-gold text-2xl my-4">
@@ -81,14 +81,14 @@ export default function HomeAbout() {
               initial={{ opacity: 0, y: 30 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="group bg-white border border-border/50 rounded-xl p-5 hover:shadow-xl hover:shadow-lips-green/5 transition-all duration-300 hover:border-lips-green/20"
+              className="group bg-card border border-border/50 rounded-xl p-5 hover:shadow-xl hover:shadow-lips-green/5 transition-all duration-300 hover:border-lips-green/20"
             >
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-10 h-10 rounded-lg bg-lips-green/10 flex items-center justify-center group-hover:bg-lips-green/20 transition-colors">
                   <pillar.icon className="h-5 w-5 text-lips-green" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lips-green-dark text-sm">
+                  <h3 className="font-semibold text-foreground text-sm">
                     {pillar.title}
                   </h3>
                 </div>

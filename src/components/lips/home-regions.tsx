@@ -24,7 +24,7 @@ export default function HomeRegions() {
     <section
       ref={sectionRef}
       id="regions"
-      className="py-12 sm:py-20 lg:py-28 bg-white relative overflow-hidden"
+      className="py-12 sm:py-20 lg:py-28 bg-background relative overflow-hidden"
     >
       <div className="max-w-7xl mx-auto px-4">
         {/* Section header */}
@@ -37,7 +37,7 @@ export default function HomeRegions() {
           <span className="text-sm font-semibold text-lips-gold tracking-widest uppercase">
             {t.regions.sectionTag}
           </span>
-          <h2 className="text-3xl md:text-4xl font-bold text-lips-green-dark mt-3 mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mt-3 mb-4">
             {t.regions.sectionTitle}
           </h2>
           <div className="separator-islamic text-lips-gold text-2xl my-4">
@@ -69,12 +69,12 @@ export default function HomeRegions() {
                   initial={{ opacity: 0, y: 15 }}
                   animate={isInView ? { opacity: 1, y: 0 } : {}}
                   transition={{ duration: 0.3, delay: index * 0.05 }}
-                  className="group bg-lips-cream/50 border border-border/50 rounded-xl p-3 text-center hover:shadow-md hover:shadow-lips-green/5 hover:border-lips-green/30 transition-all duration-300 cursor-pointer"
+                  className="group bg-card/50 border border-border/50 rounded-xl p-3 text-center hover:shadow-md hover:shadow-lips-green/5 hover:border-lips-green/30 transition-all duration-300 cursor-pointer"
                 >
                   <div className="text-xs font-mono text-lips-green font-semibold mb-1">
                     {region.code}
                   </div>
-                  <div className="font-semibold text-lips-green-dark text-sm mb-0.5">
+                  <div className="font-semibold text-foreground text-sm mb-0.5">
                     {isRTL ? region.nomAr : region.nom}
                   </div>
                   {region.mosqueCount && (
@@ -108,7 +108,7 @@ export default function HomeRegions() {
           transition={{ duration: 0.6, delay: 0.5 }}
           className="text-center mb-8"
         >
-          <div className="inline-flex flex-wrap items-center justify-center gap-4 sm:gap-6 bg-lips-cream/80 rounded-xl px-4 sm:px-8 py-4 border border-border/50 shadow-sm">
+          <div className="inline-flex flex-wrap items-center justify-center gap-4 sm:gap-6 bg-card/80 rounded-xl px-4 sm:px-8 py-4 border border-border/50 shadow-sm">
             <div className="text-center">
               <div className="text-2xl font-bold text-lips-green">14</div>
               <div className="text-xs text-muted-foreground">{t.regions.regionsLabel}</div>

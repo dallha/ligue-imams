@@ -19,7 +19,7 @@ export default function HomeAboutNarrative() {
       className="py-12 sm:py-20 lg:py-28 relative overflow-hidden"
     >
       {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-lips-cream/80 via-white to-lips-cream/80" />
+      <div className="absolute inset-0 bg-gradient-to-b from-lips-cream/80 via-background to-lips-cream/80 dark:from-background dark:via-background dark:to-background" />
       <div className="absolute inset-0 islamic-pattern opacity-[0.04]" />
 
       <div className="relative max-w-7xl mx-auto px-4">
@@ -57,11 +57,11 @@ export default function HomeAboutNarrative() {
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.4 }}
-              className="absolute -bottom-4 -right-4 sm:bottom-6 sm:-right-6 bg-white rounded-xl shadow-lg border border-lips-gold/20 p-3 sm:p-4 max-w-[180px] sm:max-w-[200px]"
+              className="absolute -bottom-4 -right-4 sm:bottom-6 sm:-right-6 bg-card rounded-xl shadow-lg border border-lips-gold/20 p-3 sm:p-4 max-w-[180px] sm:max-w-[200px]"
             >
               <div className="flex items-center gap-2 mb-2">
                 <Star className="h-4 w-4 text-lips-gold fill-lips-gold" />
-                <span className="text-xs font-bold text-lips-green-dark uppercase tracking-wider">{t.aboutNarrative.sinceLabel}</span>
+                <span className="text-xs font-bold text-foreground uppercase tracking-wider">{t.aboutNarrative.sinceLabel}</span>
               </div>
               <p className="text-[11px] sm:text-xs text-muted-foreground leading-relaxed">
                 {t.aboutNarrative.sinceDesc}
@@ -82,7 +82,7 @@ export default function HomeAboutNarrative() {
             <span className="text-sm font-semibold text-lips-gold tracking-widest uppercase">
               {t.aboutNarrative.sectionTag}
             </span>
-            <h2 className="text-3xl md:text-4xl font-bold text-lips-green-dark mt-3 mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mt-3 mb-4">
               {t.aboutNarrative.sectionTitle1}<br />{t.aboutNarrative.sectionTitle2}
             </h2>
             <div className="separator-islamic text-lips-gold text-2xl my-4">
@@ -103,7 +103,7 @@ export default function HomeAboutNarrative() {
 
             {/* Arabic motto */}
             {!isRTL && (
-              <div className="mt-6 p-4 bg-lips-green-dark/5 rounded-xl border border-lips-green-dark/10">
+              <div className="mt-6 p-4 bg-lips-green-dark/5 dark:bg-lips-green/10 rounded-xl border border-lips-green-dark/10 dark:border-lips-green/20">
                 <p className="font-arabic text-lips-gold text-lg mb-1">
                   {t.hero.arabicMotto}
                 </p>

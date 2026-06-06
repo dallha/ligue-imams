@@ -276,6 +276,10 @@ export interface TranslationDict {
     menu: string;
     search: string;
     language: string;
+    theme: string;
+    light: string;
+    dark: string;
+    system: string;
   };
 }
 
@@ -522,6 +526,10 @@ export const fr: TranslationDict = {
     menu: 'Menu',
     search: 'Rechercher',
     language: 'Langue',
+    theme: 'Thème',
+    light: 'Clair',
+    dark: 'Sombre',
+    system: 'Système',
   },
 };
 
@@ -768,6 +776,10 @@ export const ar: TranslationDict = {
     menu: 'القائمة',
     search: 'بحث',
     language: 'اللغة',
+    theme: 'المظهر',
+    light: 'فاتح',
+    dark: 'داكن',
+    system: 'النظام',
   },
 };
 
@@ -1014,6 +1026,10 @@ export const en: TranslationDict = {
     menu: 'Menu',
     search: 'Search',
     language: 'Language',
+    theme: 'Theme',
+    light: 'Light',
+    dark: 'Dark',
+    system: 'System',
   },
 };
 

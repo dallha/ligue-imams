@@ -166,6 +166,10 @@
   background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M30 0l30 30-30 30L0 30zM30 8l22 22-22 22L8 30z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 }
 
+.dark .islamic-pattern {
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.08'%3E%3Cpath d='M30 0l30 30-30 30L0 30zM30 8l22 22-22 22L8 30z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
 /* Scroll animation utilities */
 .reveal-on-scroll {
   opacity: 0;
@@ -205,6 +209,59 @@
   width: 40%;
   height: 1px;
   background: linear-gradient(90deg, transparent, var(--lips-gold), transparent);
+}
+
+/* Dark mode smooth transitions */
+.dark * {
+  transition-property: background-color, border-color, color;
+  transition-duration: 0.15s;
+  transition-timing-function: ease-in-out;
+}
+
+/* Badge color adjustments for dark mode */
+.dark .bg-red-500\/10 {
+  background-color: rgb(239 68 68 / 0.2);
+}
+.dark .bg-purple-500\/10 {
+  background-color: rgb(168 85 247 / 0.2);
+}
+.dark .bg-green-500\/10 {
+  background-color: rgb(34 197 94 / 0.2);
+}
+.dark .text-red-600 {
+  color: rgb(248 113 113);
+}
+.dark .text-purple-600 {
+  color: rgb(192 132 252);
+}
+.dark .text-green-600 {
+  color: rgb(74 222 128);
+}
+.dark .text-sky-600 {
+  color: rgb(56 189 248);
+}
+.dark .text-amber-600 {
+  color: rgb(252 211 77);
+}
+.dark .text-rose-600 {
+  color: rgb(251 113 133);
+}
+.dark .text-emerald-600 {
+  color: rgb(52 211 153);
+}
+
+/* Service card border colors in dark mode */
+.dark .hover\:border-sky-200:hover {
+  border-color: rgb(56 189 248 / 0.3);
+}
+.dark .hover\:border-emerald-200:hover {
+  border-color: rgb(52 211 153 / 0.3);
+}
+.dark .hover\:border-amber-200:hover {
+  border-color: rgb(252 211 77 / 0.3);
+}
+.dark .hover\:border-rose-200:hover {
+  border-color: rgb(251 113 133 / 0.3);
 }
 
 .separator-islamic::before {

@@ -138,7 +138,7 @@ export default function StatsSection() {
     <section
       ref={sectionRef}
       id="chiffres"
-      className="py-12 sm:py-20 lg:py-28 bg-white relative"
+      className="py-12 sm:py-20 lg:py-28 bg-background relative"
     >
       {/* Decorative top border */}
       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-lips-green via-lips-gold to-lips-green" />
@@ -154,7 +154,7 @@ export default function StatsSection() {
           <span className="text-sm font-semibold text-lips-gold tracking-widest uppercase">
             {t.stats.sectionTag}
           </span>
-          <h2 className="text-3xl md:text-4xl font-bold text-lips-green-dark mt-3 mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mt-3 mb-4">
             {t.stats.sectionTitle}
           </h2>
           <div className="separator-islamic text-lips-gold text-2xl my-4">
@@ -173,7 +173,7 @@ export default function StatsSection() {
               initial={{ opacity: 0, y: 30 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="group relative bg-white border border-border/50 rounded-xl p-6 hover:shadow-xl hover:shadow-lips-green/5 transition-all duration-300 hover:border-lips-green/20"
+              className="group relative bg-card border border-border/50 rounded-xl p-6 hover:shadow-xl hover:shadow-lips-green/5 transition-all duration-300 hover:border-lips-green/20"
             >
               {/* Decorative corner */}
               <div className="absolute top-0 right-0 w-20 h-20 overflow-hidden rounded-tr-xl">
@@ -185,7 +185,7 @@ export default function StatsSection() {
                   className={`h-8 w-8 ${stat.color} mb-4`}
                   strokeWidth={1.5}
                 />
-                <div className="text-3xl md:text-4xl font-bold text-lips-green-dark mb-1">
+                <div className="text-3xl md:text-4xl font-bold text-foreground mb-1">
                   <AnimatedCounter
                     value={stat.value}
                     suffix={stat.suffix}

@@ -12,6 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/lib/lips/i18n/language-context';
 import LanguageSwitcher from '@/components/lips/language-switcher';
+import ThemeToggle from '@/components/lips/theme-toggle';
 
 export default function LipsHeader() {
   const { t } = useLanguage();
@@ -96,8 +97,8 @@ export default function LipsHeader() {
       <header
         className={`sticky top-0 z-50 transition-all duration-300 ${
           isScrolled
-            ? 'bg-white/95 backdrop-blur-md shadow-lg border-b border-lips-gold/20'
-            : 'bg-white/80 backdrop-blur-sm'
+            ? 'bg-background/95 backdrop-blur-md shadow-lg border-b border-lips-gold/20'
+            : 'bg-background/80 backdrop-blur-sm'
         }`}
       >
         <div className="max-w-7xl mx-auto px-4">
@@ -152,7 +153,7 @@ export default function LipsHeader() {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -5 }}
                         transition={{ duration: 0.15 }}
-                        className="absolute top-full left-0 mt-1 w-48 bg-white rounded-lg shadow-xl border border-border/50 py-1 z-50"
+                        className="absolute top-full left-0 mt-1 w-48 bg-popover rounded-lg shadow-xl border border-border/50 py-1 z-50"
                       >
                         {item.children.map((child) => (
                           <Link
@@ -178,6 +179,7 @@ export default function LipsHeader() {
               >
                 <Link href="/espace-membre">{t.nav.memberArea}</Link>
               </Button>
+              <ThemeToggle />
               <LanguageSwitcher />
               <button
                 className="lg:hidden p-2.5 rounded-md hover:bg-lips-green/5 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
@@ -202,7 +204,7 @@ export default function LipsHeader() {
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="lg:hidden overflow-hidden border-t border-border/50 bg-white"
+              className="lg:hidden overflow-hidden border-t border-border/50 bg-background"
             >
               <nav className="max-w-7xl mx-auto px-4 py-3 space-y-1">
                 {NAV_ITEMS.map((item) => (
@@ -235,6 +237,7 @@ export default function LipsHeader() {
                   </div>
                 ))}
                 <div className="pt-2 border-t border-border/50 space-y-3">
+                  <ThemeToggle />
                   <LanguageSwitcher />
                   <Button
                     asChild

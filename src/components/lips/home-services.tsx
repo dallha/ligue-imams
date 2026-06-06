@@ -80,7 +80,7 @@ export default function HomeServices() {
     <section
       ref={sectionRef}
       id="services"
-      className="py-12 sm:py-20 lg:py-28 bg-white relative overflow-hidden"
+      className="py-12 sm:py-20 lg:py-28 bg-background relative overflow-hidden"
     >
       {/* Subtle decorative elements */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-lips-gold/30 to-transparent" />
@@ -97,7 +97,7 @@ export default function HomeServices() {
           <span className="text-sm font-semibold text-lips-gold tracking-widest uppercase">
             {t.services.sectionTag}
           </span>
-          <h2 className="text-3xl md:text-4xl font-bold text-lips-green-dark mt-3 mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mt-3 mb-4">
             {t.services.sectionTitle}
           </h2>
           <div className="separator-islamic text-lips-gold text-2xl my-4">
@@ -119,7 +119,7 @@ export default function HomeServices() {
             >
               <Link
                 href={service.href}
-                className={`group block bg-white border border-border/50 rounded-2xl p-6 sm:p-7 hover:shadow-xl hover:shadow-lips-green/5 transition-all duration-300 ${service.borderColor} h-full`}
+                className={`group block bg-card border border-border/50 rounded-2xl p-6 sm:p-7 hover:shadow-xl hover:shadow-lips-green/5 transition-all duration-300 ${service.borderColor} h-full`}
               >
                 {/* Icon */}
                 <div className="mb-4">
@@ -129,7 +129,7 @@ export default function HomeServices() {
                 </div>
 
                 {/* Title */}
-                <h3 className="text-lg font-bold text-lips-green-dark mb-2 group-hover:text-lips-green transition-colors">
+                <h3 className="text-lg font-bold text-foreground mb-2 group-hover:text-lips-green transition-colors">
                   {service.title}
                 </h3>
 

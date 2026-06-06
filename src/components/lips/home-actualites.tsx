@@ -56,7 +56,7 @@ export default function HomeActualites() {
     <section
       ref={sectionRef}
       id="actualites"
-      className="py-12 sm:py-20 lg:py-28 bg-lips-cream relative overflow-hidden"
+      className="py-12 sm:py-20 lg:py-28 bg-lips-cream dark:bg-card relative overflow-hidden"
     >
       <div className="absolute inset-0 islamic-pattern opacity-5" />
 
@@ -72,7 +72,7 @@ export default function HomeActualites() {
             <span className="text-sm font-semibold text-lips-gold tracking-widest uppercase">
               {t.actualites.sectionTag}
             </span>
-            <h2 className="text-3xl md:text-4xl font-bold text-lips-green-dark mt-3 mb-2">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mt-3 mb-2">
               {t.actualites.sectionTitle}
             </h2>
             <p className="text-muted-foreground max-w-xl text-sm">
@@ -103,7 +103,7 @@ export default function HomeActualites() {
                       {article.categorie}
                     </Badge>
                   </div>
-                  <h4 className="font-semibold text-lips-green-dark text-sm mb-2 group-hover:text-lips-green transition-colors leading-snug flex-1">
+                  <h4 className="font-semibold text-foreground text-sm mb-2 group-hover:text-lips-green transition-colors leading-snug flex-1">
                     {article.titre}
                   </h4>
                   <div className="flex items-center justify-between mt-auto pt-3 border-t border-border/50">
@@ -135,7 +135,7 @@ export default function HomeActualites() {
             <Link
               key={link.label}
               href={link.href}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/80 border border-border/50 text-xs font-medium text-muted-foreground hover:text-lips-green hover:border-lips-green/30 transition-colors"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-card/80 border border-border/50 text-xs font-medium text-muted-foreground hover:text-lips-green hover:border-lips-green/30 transition-colors"
             >
               <Newspaper className="h-3 w-3" />
               {link.label}

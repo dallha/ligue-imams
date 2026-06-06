@@ -61,7 +61,7 @@ export default function LanguageSwitcher() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -4, scale: 0.95 }}
             transition={{ duration: 0.12 }}
-            className="absolute top-full mt-1.5 end-0 w-44 bg-white rounded-xl shadow-xl border border-border/50 py-1.5 z-[100] overflow-hidden"
+            className="absolute top-full mt-1.5 end-0 w-44 bg-popover rounded-xl shadow-xl border border-border/50 py-1.5 z-[100] overflow-hidden"
           >
             {LOCALES.map((l) => {
               const isActive = l === locale;
