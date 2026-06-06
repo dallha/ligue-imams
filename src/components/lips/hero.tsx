@@ -115,7 +115,7 @@ export default function HeroSection() {
               asChild
               variant="outline"
               size="lg"
-              className="border-white/30 text-white hover:bg-white/10 hover:text-white backdrop-blur-sm px-6 sm:px-8 text-sm sm:text-base justify-center"
+              className="bg-transparent border-white/30 text-white hover:bg-white/10 hover:text-white backdrop-blur-sm px-6 sm:px-8 text-sm sm:text-base justify-center"
             >
               <Link href="/a-propos">
                 <BookOpen className="mr-2 h-4 w-4" />
