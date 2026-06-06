@@ -21,6 +21,7 @@ import {
   BookOpen,
   CalendarDays,
   Trophy,
+  Clock,
   Settings,
   LogOut,
   Menu,
@@ -39,6 +40,7 @@ const sidebarSections = [
     items: [
       { href: '/admin/contenus', label: 'Contenus', icon: FileText },
       { href: '/admin/coran', label: 'Coran', icon: BookOpen },
+      { href: '/admin/prieres', label: 'Prière', icon: Clock },
       { href: '/admin/agenda', label: 'Agenda', icon: CalendarDays },
       { href: '/admin/concours', label: 'Concours', icon: Trophy },
       { href: '/admin/faq', label: 'FAQ', icon: HelpCircle },

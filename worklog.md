@@ -91,3 +91,32 @@ Stage Summary:
 - Added countdown to next prayer feature
 - Dynamic, accurate prayer times from Aladhan API instead of hardcoded values
 - Real Hijri dates from API instead of approximate calculation
+---
+Task ID: admin-prieres
+Agent: Super Z (main)
+Task: Add full admin control over prayer times, Hijri date, and region
+
+Work Log:
+- Created /api/admin/prieres/route.ts — GET/PUT for prayer config stored in SiteConfig table
+- Modified /api/prayer-times/route.ts — now reads admin overrides from DB first:
+  - prayer_mode: 'auto' (Aladhan API) or 'manual' (admin-defined times)
+  - hijri_mode: 'auto' (from API) or 'manual' (admin-defined day/month/year)
+  - prayer_region: default region for new visitors
+  - Individual time overrides: prayer_fajr, prayer_chourouk, prayer_dhuhr, prayer_asr, prayer_maghrib, prayer_isha
+  - Hijri overrides: hijri_day, hijri_month, hijri_year, hijri_month_name_fr, hijri_month_name_ar
+- Created /admin/prieres/page.tsx — full admin interface:
+  - Mode toggle (Auto/Manual) for both prayer times and Hijri date
+  - 6 time inputs (type=time) for each prayer
+  - "Pré-remplir depuis API" button to load Aladhan values then adjust
+  - Hijri date editor with day/month/year + auto-fill month names
+  - Region selector for default region
+  - Live preview of Hijri date
+  - API Aladhan preview when in auto mode
+- Added "Prière" (Clock icon) to admin sidebar in Contenu section
+- Build verified: 44 pages + 22 API routes
+
+Stage Summary:
+- Full admin control over prayer times and Hijri date
+- Two modes per section: Auto (API) or Manual (admin override)
+- Pre-fill from API then adjust manually
+- All stored in SiteConfig table (no schema change needed)

@@ -1,11 +1,8 @@
 import { NextResponse } from 'next/server';
+import { db } from '@/lib/db';
 
 // Aladhan API — free, no key required
-// https://aladhan.com/prayer-times-api
 const ALADHAN_API = 'https://api.aladhan.com/v1/timingsByCity';
-
-// Cache in memory for 24h (prayer times don't change within a day)
-let cachedData: { date: string; timings: PrayerTimings; region: string } | null = null;
 
 interface PrayerTimings {
   Fajr: string;
@@ -25,7 +22,7 @@ interface AladhanResponse {
       hijri: {
         date: string;
         day: string;
-        month: { number: number; en: string; ar: string };
+        month: { number: number; en: string; ar: string; days?: number };
         year: string;
         designation: { abbreviated: string };
       };
@@ -34,7 +31,6 @@ interface AladhanResponse {
         day: string;
         month: { number: number; en: string };
         year: string;
-        weekday: { en: string; fr?: string };
       };
     };
     meta: {
@@ -46,125 +42,184 @@ interface AladhanResponse {
   };
 }
 
-// Senegal regions with approximate coordinates for prayer times
-const SENEGAL_REGIONS: Record<string, { city: string; country: string; lat: number; lng: number }> = {
-  dakar: { city: 'Dakar', country: 'Senegal', lat: 14.6937, lng: -17.4441 },
-  saint_louis: { city: 'Saint-Louis', country: 'Senegal', lat: 16.0326, lng: -16.4818 },
-  thiès: { city: 'Thiès', country: 'Senegal', lat: 14.7937, lng: -16.9361 },
-  louga: { city: 'Louga', country: 'Senegal', lat: 15.6178, lng: -16.2241 },
-  kaolack: { city: 'Kaolack', country: 'Senegal', lat: 14.1645, lng: -16.0779 },
-  diourbel: { city: 'Diourbel', country: 'Senegal', lat: 14.6553, lng: -16.2317 },
-  tambacounda: { city: 'Tambacounda', country: 'Senegal', lat: 13.7701, lng: -13.6668 },
-  ziguinchor: { city: 'Ziguinchor', country: 'Senegal', lat: 12.5833, lng: -16.2667 },
-  kolda: { city: 'Kolda', country: 'Senegal', lat: 12.8833, lng: -14.9500 },
-  matam: { city: 'Matam', country: 'Senegal', lat: 15.6559, lng: -13.2544 },
-  kédougou: { city: 'Kédougou', country: 'Senegal', lat: 12.5602, lng: -12.1737 },
-  sédhiou: { city: 'Sédhiou', country: 'Senegal', lat: 12.7081, lng: -15.5563 },
-  fatick: { city: 'Fatick', country: 'Senegal', lat: 14.3416, lng: -16.4125 },
-  kaffrine: { city: 'Kaffrine', country: 'Senegal', lat: 14.1053, lng: -15.5502 },
+// Senegal regions
+const SENEGAL_REGIONS: Record<string, { city: string; country: string }> = {
+  dakar: { city: 'Dakar', country: 'Senegal' },
+  saint_louis: { city: 'Saint-Louis', country: 'Senegal' },
+  thiès: { city: 'Thiès', country: 'Senegal' },
+  louga: { city: 'Louga', country: 'Senegal' },
+  kaolack: { city: 'Kaolack', country: 'Senegal' },
+  diourbel: { city: 'Diourbel', country: 'Senegal' },
+  tambacounda: { city: 'Tambacounda', country: 'Senegal' },
+  ziguinchor: { city: 'Ziguinchor', country: 'Senegal' },
+  kolda: { city: 'Kolda', country: 'Senegal' },
+  matam: { city: 'Matam', country: 'Senegal' },
+  kédougou: { city: 'Kédougou', country: 'Senegal' },
+  sédhiou: { city: 'Sédhiou', country: 'Senegal' },
+  fatick: { city: 'Fatick', country: 'Senegal' },
+  kaffrine: { city: 'Kaffrine', country: 'Senegal' },
 };
 
 const DEFAULT_REGION = 'dakar';
 
-function getTodayKey(): string {
-  return new Date().toISOString().split('T')[0];
-}
+const HIJRI_MONTHS_FR = [
+  'Muharram', 'Safar', "Rabi\u02BF al-Awwal", "Rabi\u02BF al-Thani",
+  "Jumada al-Ula", 'Jumada al-Thania', 'Rajab', "Sha\u02BFban",
+  'Ramadan', 'Shawwal', "Dhu al-Qi\u02BFdah", 'Dhu al-Hijjah',
+];
+
+const HIJRI_MONTHS_AR = [
+  'محرم', 'صفر', 'ربيع الأول', 'ربيع الثاني',
+  'جمادى الأولى', 'جمادى الآخرة', 'رجب', 'شعبان',
+  'رمضان', 'شوال', 'ذو القعدة', 'ذو الحجة',
+];
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const regionParam = searchParams.get('region')?.toLowerCase() || DEFAULT_REGION;
 
-  // Find matching region config
   const regionKey = Object.keys(SENEGAL_REGIONS).find(k => k === regionParam) || DEFAULT_REGION;
   const regionConfig = SENEGAL_REGIONS[regionKey];
+  const regionName = regionConfig.city;
 
-  // Check cache
-  const todayKey = getTodayKey();
-  if (cachedData && cachedData.date === todayKey && cachedData.region === regionKey) {
-    return NextResponse.json({ success: true, data: cachedData, cached: true });
-  }
-
+  // ─── Check admin overrides from database ─────────────────
+  let adminConfig: Record<string, string> = {};
   try {
-    // Method 3 = Muslim World League (good for West Africa)
-    const url = `${ALADHAN_API}?city=${encodeURIComponent(regionConfig.city)}&country=${encodeURIComponent(regionConfig.country)}&method=3&latitudeAdjustmentMethod=3&school=0`;
-
-    const response = await fetch(url, {
-      next: { revalidate: 86400 }, // Cache for 24h
-      signal: AbortSignal.timeout(8000),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Aladhan API error: ${response.status}`);
+    const configs = await db.siteConfig.findMany();
+    for (const c of configs) {
+      adminConfig[c.key] = c.value;
     }
-
-    const json: AladhanResponse = await response.json();
-
-    if (json.code !== 200 || !json.data?.timings) {
-      throw new Error('Invalid Aladhan response');
-    }
-
-    const t = json.data.timings;
-    const timings: PrayerTimings = {
-      Fajr: t.Fajr,
-      Sunrise: t.Sunrise,
-      Dhuhr: t.Dhuhr,
-      Asr: t.Asr,
-      Maghrib: t.Maghrib,
-      Isha: t.Isha,
-    };
-
-    const hijri = json.data.date.hijri;
-    const gregorian = json.data.date.gregorian;
-
-    const result = {
-      date: todayKey,
-      region: regionKey,
-      regionName: regionConfig.city,
-      timings,
-      hijri: {
-        date: hijri.date,
-        day: hijri.day,
-        month: hijri.month,
-        year: hijri.year,
-        designation: hijri.designation,
-      },
-      gregorian: {
-        date: gregorian.date,
-        day: gregorian.day,
-        month: gregorian.month,
-        year: gregorian.year,
-      },
-      meta: json.data.meta,
-    };
-
-    // Update cache
-    cachedData = result as any;
-
-    return NextResponse.json({ success: true, data: result, cached: false });
-  } catch (error: any) {
-    console.error('Prayer times API error:', error.message);
-
-    // Fallback: approximate times for Dakar
-    const fallbackTimings: PrayerTimings = {
-      Fajr: '05:42',
-      Sunrise: '06:58',
-      Dhuhr: '13:22',
-      Asr: '16:38',
-      Maghrib: '19:10',
-      Isha: '20:26',
-    };
-
-    return NextResponse.json({
-      success: true,
-      data: {
-        date: todayKey,
-        region: regionKey,
-        regionName: regionConfig.city,
-        timings: fallbackTimings,
-        fallback: true,
-        error: error.message,
-      },
-      cached: false,
-    });
+  } catch (err) {
+    console.error('Failed to read admin config:', err);
   }
+
+  const prayerMode = adminConfig['prayer_mode'] || 'auto';    // 'auto' | 'manual'
+  const hijriMode = adminConfig['hijri_mode'] || 'auto';       // 'auto' | 'manual'
+  const adminRegion = adminConfig['prayer_region'] || 'dakar';
+
+  // If admin has set a default region and user didn't specify one, use admin's
+  const effectiveRegion = searchParams.get('region') ? regionKey : (
+    Object.keys(SENEGAL_REGIONS).includes(adminRegion) ? adminRegion : regionKey
+  );
+  const effectiveRegionConfig = SENEGAL_REGIONS[effectiveRegion] || SENEGAL_REGIONS[DEFAULT_REGION];
+  const effectiveRegionName = effectiveRegionConfig.city;
+
+  // ─── Build timings ───────────────────────────────────────
+  let timings: PrayerTimings;
+  let apiHijri: AladhanResponse['data']['date']['hijri'] | null = null;
+  let apiGregorian: AladhanResponse['data']['date']['gregorian'] | null = null;
+  let meta: any = null;
+  let usedFallback = false;
+
+  if (prayerMode === 'manual') {
+    // Use admin-defined times
+    timings = {
+      Fajr: adminConfig['prayer_fajr'] || '05:42',
+      Sunrise: adminConfig['prayer_chourouk'] || '06:58',
+      Dhuhr: adminConfig['prayer_dhuhr'] || '13:22',
+      Asr: adminConfig['prayer_asr'] || '16:38',
+      Maghrib: adminConfig['prayer_maghrib'] || '19:10',
+      Isha: adminConfig['prayer_isha'] || '20:26',
+    };
+  } else {
+    // Try Aladhan API
+    try {
+      const url = `${ALADHAN_API}?city=${encodeURIComponent(effectiveRegionConfig.city)}&country=${encodeURIComponent(effectiveRegionConfig.country)}&method=3&latitudeAdjustmentMethod=3&school=0`;
+
+      const response = await fetch(url, {
+        next: { revalidate: 86400 },
+        signal: AbortSignal.timeout(8000),
+      });
+
+      if (!response.ok) throw new Error(`Aladhan API error: ${response.status}`);
+
+      const json: AladhanResponse = await response.json();
+      if (json.code !== 200 || !json.data?.timings) throw new Error('Invalid Aladhan response');
+
+      const t = json.data.timings;
+      timings = {
+        Fajr: t.Fajr,
+        Sunrise: t.Sunrise,
+        Dhuhr: t.Dhuhr,
+        Asr: t.Asr,
+        Maghrib: t.Maghrib,
+        Isha: t.Isha,
+      };
+
+      apiHijri = json.data.date.hijri;
+      apiGregorian = json.data.date.gregorian;
+      meta = json.data.meta;
+    } catch (error: any) {
+      console.error('Prayer times API error:', error.message);
+      timings = {
+        Fajr: adminConfig['prayer_fajr'] || '05:42',
+        Sunrise: adminConfig['prayer_chourouk'] || '06:58',
+        Dhuhr: adminConfig['prayer_dhuhr'] || '13:22',
+        Asr: adminConfig['prayer_asr'] || '16:38',
+        Maghrib: adminConfig['prayer_maghrib'] || '19:10',
+        Isha: adminConfig['prayer_isha'] || '20:26',
+      };
+      usedFallback = true;
+    }
+  }
+
+  // ─── Build Hijri date ────────────────────────────────────
+  let hijri: any;
+
+  if (hijriMode === 'manual') {
+    const hDay = adminConfig['hijri_day'] || '';
+    const hMonthNum = parseInt(adminConfig['hijri_month'] || '0');
+    const hYear = adminConfig['hijri_year'] || '';
+    const hMonthFr = adminConfig['hijri_month_name_fr'] || HIJRI_MONTHS_FR[hMonthNum - 1] || '';
+    const hMonthAr = adminConfig['hijri_month_name_ar'] || HIJRI_MONTHS_AR[hMonthNum - 1] || '';
+
+    hijri = {
+      day: hDay,
+      month: {
+        number: hMonthNum || 1,
+        en: hMonthFr,
+        ar: hMonthAr,
+      },
+      year: hYear,
+    };
+  } else if (apiHijri) {
+    hijri = {
+      day: apiHijri.day,
+      month: apiHijri.month,
+      year: apiHijri.year,
+    };
+  } else {
+    // Fallback Hijri
+    hijri = {
+      day: '',
+      month: { number: 0, en: '', ar: '' },
+      year: '',
+    };
+  }
+
+  // ─── Build Gregorian date ────────────────────────────────
+  const now = new Date();
+  const gregorian = apiGregorian || {
+    date: now.toISOString().split('T')[0],
+    day: now.getDate().toString(),
+    month: { number: now.getMonth() + 1, en: now.toLocaleDateString('en-US', { month: 'long' }) },
+    year: now.getFullYear().toString(),
+  };
+
+  const result = {
+    date: now.toISOString().split('T')[0],
+    region: effectiveRegion,
+    regionName: effectiveRegionName,
+    timings,
+    hijri,
+    gregorian,
+    meta,
+    mode: {
+      prayer: prayerMode,
+      hijri: hijriMode,
+    },
+    ...(usedFallback && { fallback: true }),
+  };
+
+  return NextResponse.json({ success: true, data: result });
 }
