@@ -118,3 +118,25 @@ Stage Summary:
 - Includes latest features: dark/light auto theme, responsive header, professional login pages
 - 12 data tables, 33 headings, professional cover page
 - File: /home/z/my-project/download/LIPS-Documentation-Technique-SIIN-v3.docx
+
+---
+Task ID: 5
+Agent: Main Agent
+Task: Enhance admin login security + redesign login page + update documentation to v4
+
+Work Log:
+- Created server-side rate limiting module at /src/lib/rate-limit.ts with sliding window, IP tracking, auto-cleanup
+- Updated /src/app/api/admin/login/route.ts: added rate limiting (5 attempts/15min, 30min lockout), timing attack protection (300ms min delay), generic error messages, input validation, Retry-After header
+- Updated /src/app/api/membre/login/route.ts: same security enhancements (5 attempts/15min, 15min lockout)
+- Completely redesigned /src/app/admin/login/page.tsx: professional dark theme with animated grid, glassmorphism card, security info panel, animated password strength bar, visual attempt indicators, shake animation on error, better error messages
+- Generated documentation v4 at /home/z/my-project/download/LIPS-Documentation-Technique-SIIN-v4.docx
+- 10 chapters with 38 headings, FG-1 Forest Mint palette, comprehensive security section
+- Post-check: 8/9 passed (0 errors, 1 minor warning)
+
+Stage Summary:
+- Server-side rate limiting implemented for both admin and member login endpoints
+- Timing attack protection and generic error messages prevent user enumeration
+- Admin login page completely redesigned with professional, security-focused UI
+- Documentation v4 generated with detailed security chapter
+- Build passes successfully
+- File: /home/z/my-project/download/LIPS-Documentation-Technique-SIIN-v4.docx
