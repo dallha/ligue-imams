@@ -2,6 +2,7 @@ import LipsHeader from '@/components/lips/header';
 import HeroSection from '@/components/lips/hero';
 import StatsSection from '@/components/lips/stats';
 import MissionSection from '@/components/lips/mission';
+import CarteMembreSection from '@/components/lips/carte-membre';
 import RegionsSection from '@/components/lips/regions';
 import PublicationsSection from '@/components/lips/publications';
 import VerificationSection from '@/components/lips/verification';
@@ -15,6 +16,7 @@ export default function Home() {
         <HeroSection />
         <StatsSection />
         <MissionSection />
+        <CarteMembreSection />
         <RegionsSection />
         <PublicationsSection />
         <VerificationSection />
