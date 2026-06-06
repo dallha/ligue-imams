@@ -58,7 +58,7 @@ export default function PublicationsSection() {
     <section
       ref={sectionRef}
       id="publications"
-      className="py-20 lg:py-28 bg-white relative"
+      className="py-12 sm:py-20 lg:py-28 bg-white relative"
     >
       <div className="max-w-7xl mx-auto px-4">
         {/* Section header */}

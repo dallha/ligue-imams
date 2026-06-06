@@ -23,7 +23,7 @@ export default function HomeRegions() {
     <section
       ref={sectionRef}
       id="regions"
-      className="py-20 lg:py-28 bg-white relative overflow-hidden"
+      className="py-12 sm:py-20 lg:py-28 bg-white relative overflow-hidden"
     >
       <div className="max-w-7xl mx-auto px-4">
         {/* Section header */}
@@ -96,17 +96,17 @@ export default function HomeRegions() {
           transition={{ duration: 0.6, delay: 0.5 }}
           className="text-center mb-8"
         >
-          <div className="inline-grid grid-cols-3 gap-3 sm:gap-6 bg-lips-cream/80 rounded-xl px-4 sm:px-8 py-4 border border-border/50 shadow-sm">
+          <div className="inline-flex flex-wrap items-center justify-center gap-4 sm:gap-6 bg-lips-cream/80 rounded-xl px-4 sm:px-8 py-4 border border-border/50 shadow-sm">
             <div className="text-center">
               <div className="text-2xl font-bold text-lips-green">14</div>
               <div className="text-xs text-muted-foreground">Régions</div>
             </div>
-            <div className="w-px h-10 bg-border hidden sm:block" />
+            <div className="w-px h-10 bg-border" />
             <div className="text-center">
               <div className="text-2xl font-bold text-lips-gold">15 000+</div>
               <div className="text-xs text-muted-foreground">Mosquées</div>
             </div>
-            <div className="w-px h-10 bg-border hidden sm:block" />
+            <div className="w-px h-10 bg-border" />
             <div className="text-center">
               <div className="text-2xl font-bold text-lips-emerald">5 000+</div>
               <div className="text-xs text-muted-foreground">Membres</div>

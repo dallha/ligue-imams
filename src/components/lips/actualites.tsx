@@ -120,7 +120,7 @@ export default function ActualitesSection() {
     <section
       ref={sectionRef}
       id="actualites"
-      className="py-20 lg:py-28 bg-lips-cream relative overflow-hidden"
+      className="py-12 sm:py-20 lg:py-28 bg-lips-cream relative overflow-hidden"
     >
       <div className="absolute inset-0 islamic-pattern opacity-5" />
 

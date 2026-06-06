@@ -18,7 +18,7 @@ export default function HomeCTA() {
   return (
     <section
       ref={sectionRef}
-      className="py-16 lg:py-24 bg-gradient-to-r from-lips-green-dark via-lips-green to-lips-green-dark text-white relative overflow-hidden"
+      className="py-12 sm:py-16 lg:py-24 bg-gradient-to-r from-lips-green-dark via-lips-green to-lips-green-dark text-white relative overflow-hidden"
     >
       <div className="absolute inset-0 islamic-pattern opacity-10" />
       <div className="absolute top-10 right-10 w-32 h-32 border border-white/5 rotate-45 rounded-sm" />

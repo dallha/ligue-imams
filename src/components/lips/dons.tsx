@@ -45,7 +45,7 @@ export default function DonsSection() {
     <section
       ref={sectionRef}
       id="dons"
-      className="py-20 lg:py-28 bg-gradient-to-b from-lips-green-dark via-lips-green to-lips-green-dark text-white relative overflow-hidden"
+      className="py-12 sm:py-20 lg:py-28 bg-gradient-to-b from-lips-green-dark via-lips-green to-lips-green-dark text-white relative overflow-hidden"
     >
       <div className="absolute inset-0 islamic-pattern opacity-10" />
 
@@ -88,12 +88,12 @@ export default function DonsSection() {
                 <HandCoins className="h-5 w-5 text-lips-gold" />
                 Choisissez un montant (FCFA)
               </h3>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
+              <div className="grid grid-cols-3 sm:grid-cols-3 gap-2 sm:gap-3 mb-4">
                 {MONTANTS.map((m) => (
                   <button
                     key={m}
                     onClick={() => { setSelected(m); setCustom(''); }}
-                    className={`py-3 rounded-lg text-sm font-semibold transition-all ${
+                    className={`py-2.5 sm:py-3 rounded-lg text-xs sm:text-sm font-semibold transition-all ${
                       selected === m && !custom
                         ? 'bg-lips-gold text-lips-green-dark shadow-lg shadow-lips-gold/30'
                         : 'bg-white/10 text-white/80 hover:bg-white/20 border border-white/10'
@@ -157,7 +157,7 @@ export default function DonsSection() {
               </Button>
 
               {/* Trust indicators */}
-              <div className="flex items-center justify-center gap-6 mt-4 text-[10px] text-white/40">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-6 mt-4 text-[10px] text-white/40">
                 <span className="flex items-center gap-1">
                   <ShieldCheck className="h-3 w-3" /> Paiement sécurisé
                 </span>

@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import {
   Phone,
   Mail,
@@ -27,7 +28,11 @@ const RESOURCE_LINKS = [
 ];
 
 export default function LipsFooter() {
-  const currentYear = new Date().getFullYear();
+  const [currentYear, setCurrentYear] = useState(2026);
+
+  useEffect(() => {
+    setCurrentYear(new Date().getFullYear());
+  }, []);
 
   return (
     <footer id="contact" className="bg-lips-green-dark text-white/80 relative">

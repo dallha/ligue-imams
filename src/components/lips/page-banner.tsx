@@ -18,7 +18,7 @@ export default function PageBanner({
   gradient = 'from-lips-green-dark via-lips-green to-lips-green-dark',
 }: PageBannerProps) {
   return (
-    <section className={`relative py-16 lg:py-24 bg-gradient-to-r ${gradient} text-white overflow-hidden`}>
+    <section className={`relative py-10 sm:py-16 lg:py-24 bg-gradient-to-r ${gradient} text-white overflow-hidden`}>
       {/* Decorative elements */}
       <div className="absolute inset-0 islamic-pattern opacity-10" />
       <div className="hidden sm:block absolute top-10 left-10 w-24 h-24 border border-white/10 rotate-45 rounded-sm" />
@@ -37,18 +37,18 @@ export default function PageBanner({
           <span className="text-sm font-semibold text-lips-gold tracking-widest uppercase">
             {label}
           </span>
-          <h1 className="text-3xl md:text-5xl font-bold text-white mt-3 mb-3">
+          <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-white mt-3 mb-3">
             {title}
           </h1>
           {titleAr && (
-            <p className="font-arabic text-xl md:text-2xl text-lips-gold mb-4">
+            <p className="font-arabic text-lg sm:text-xl md:text-2xl text-lips-gold mb-4">
               {titleAr}
             </p>
           )}
           <div className="separator-islamic text-lips-gold text-2xl my-4">
             &#10022;
           </div>
-          <p className="text-white/70 max-w-2xl mx-auto text-base leading-relaxed">
+          <p className="text-white/70 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed">
             {description}
           </p>
         </motion.div>

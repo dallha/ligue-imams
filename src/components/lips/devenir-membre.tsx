@@ -59,7 +59,7 @@ export default function DevenirMembreSection() {
     <section
       ref={sectionRef}
       id="devenir-membre"
-      className="py-20 lg:py-28 bg-gradient-to-b from-lips-cream via-white to-lips-cream relative overflow-hidden"
+      className="py-12 sm:py-20 lg:py-28 bg-gradient-to-b from-lips-cream via-white to-lips-cream relative overflow-hidden"
     >
       <div className="absolute inset-0 islamic-pattern opacity-5" />
 

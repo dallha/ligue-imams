@@ -9,7 +9,7 @@ export default function HeroSection() {
   return (
     <section
       id="accueil"
-      className="relative min-h-[90vh] flex items-center justify-center overflow-hidden"
+      className="relative min-h-[80vh] sm:min-h-[90vh] flex items-center justify-center overflow-hidden"
     >
       {/* Background image — institutional meeting photo */}
       <div
@@ -77,7 +77,7 @@ export default function HeroSection() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-4 tracking-tight"
+            className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-4 tracking-tight"
           >
             Ligue des Imams et
             <br />
@@ -89,7 +89,7 @@ export default function HeroSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.5 }}
-            className="text-white/80 text-base md:text-lg max-w-xl leading-relaxed mb-10"
+            className="text-white/80 text-sm sm:text-base md:text-lg max-w-xl leading-relaxed mb-8 sm:mb-10"
           >
             Au service des imams, de la communauté et de la paix sociale à
             travers les 14 régions du Sénégal. Un cadre institutionnel pour
@@ -101,12 +101,12 @@ export default function HeroSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
-            className="flex flex-col sm:flex-row items-start gap-4"
+            className="flex flex-col sm:flex-row items-stretch sm:items-start gap-3 sm:gap-4"
           >
             <Button
               asChild
               size="lg"
-              className="bg-lips-gold hover:bg-lips-gold-light text-lips-green-dark font-semibold shadow-lg hover:shadow-xl transition-all px-8"
+              className="bg-lips-gold hover:bg-lips-gold-light text-lips-green-dark font-semibold shadow-lg hover:shadow-xl transition-all px-6 sm:px-8 text-sm sm:text-base justify-center"
             >
               <Link href="/verifier-carte">
                 <Shield className="mr-2 h-4 w-4" />
@@ -117,7 +117,7 @@ export default function HeroSection() {
               asChild
               variant="outline"
               size="lg"
-              className="border-white/30 text-white hover:bg-white/10 hover:text-white backdrop-blur-sm px-8"
+              className="border-white/30 text-white hover:bg-white/10 hover:text-white backdrop-blur-sm px-6 sm:px-8 text-sm sm:text-base justify-center"
             >
               <Link href="/a-propos">
                 <BookOpen className="mr-2 h-4 w-4" />

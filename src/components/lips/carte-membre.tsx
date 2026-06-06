@@ -70,7 +70,7 @@ function QrCodeSvg({ size = 80 }: { size?: number }) {
 // --- Membership Card Component ---
 function MembershipCard({ flipped, onFlip }: { flipped: boolean; onFlip: () => void }) {
   return (
-    <div className="perspective-[1200px] w-full max-w-[480px] mx-auto" style={{ perspective: '1200px' }}>
+    <div className="perspective-[1200px] w-full max-w-[480px] mx-auto px-2 sm:px-0" style={{ perspective: '1200px' }}>
       <motion.div
         animate={{ rotateY: flipped ? 180 : 0 }}
         transition={{ duration: 0.6, ease: 'easeInOut' }}
@@ -259,7 +259,7 @@ export default function CarteMembreSection() {
     <section
       ref={sectionRef}
       id="carte-membre"
-      className="py-20 lg:py-28 bg-lips-cream relative overflow-hidden"
+      className="py-12 sm:py-20 lg:py-28 bg-lips-cream relative overflow-hidden"
     >
       {/* Decorative pattern */}
       <div className="absolute inset-0 islamic-pattern opacity-5" />

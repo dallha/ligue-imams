@@ -15,7 +15,7 @@ export default function NewsletterSection() {
     <section
       ref={sectionRef}
       id="newsletter"
-      className="py-16 bg-lips-cream relative"
+      className="py-10 sm:py-16 bg-lips-cream relative"
     >
       <div className="max-w-3xl mx-auto px-4">
         <motion.div

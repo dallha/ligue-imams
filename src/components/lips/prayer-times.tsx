@@ -51,9 +51,13 @@ function getCurrentPrayerIndex(): number {
 export default function PrayerTimesWidget() {
   const [currentPrayer, setCurrentPrayer] = useState(0);
   const [currentTime, setCurrentTime] = useState('');
-  const [hijriDate] = useState(getHijriDate());
+  const [hijriDate, setHijriDate] = useState('');
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+    setHijriDate(getHijriDate());
+
     const update = () => {
       const now = new Date();
       setCurrentTime(now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
@@ -65,6 +69,19 @@ export default function PrayerTimesWidget() {
 
     return () => clearInterval(timer);
   }, []);
+
+  if (!mounted) {
+    return (
+      <div className="bg-gradient-to-r from-lips-green-dark via-lips-green to-lips-green-dark text-white">
+        <div className="max-w-7xl mx-auto px-4 py-3 sm:py-4">
+          <div className="flex items-center justify-center gap-4 text-xs text-white/50">
+            <Clock className="h-3.5 w-3.5 text-lips-gold" />
+            <span>Chargement des horaires de prière...</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-gradient-to-r from-lips-green-dark via-lips-green to-lips-green-dark text-white">

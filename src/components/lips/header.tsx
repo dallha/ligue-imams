@@ -87,16 +87,27 @@ export default function LipsHeader() {
         <div className="max-w-7xl mx-auto px-4 py-1.5 flex justify-between items-center">
           <div className="flex items-center gap-4">
             <span className="flex items-center gap-1.5">
-              <Phone className="h-3 w-3" /> +221 33 800 00 00
+              <Phone className="h-3 w-3" /> <span>+221 33 800 00 00</span>
             </span>
             <span className="flex items-center gap-1.5">
-              <Mail className="h-3 w-3" /> contact@lips.sn
+              <Mail className="h-3 w-3" /> <span>contact@lips.sn</span>
             </span>
           </div>
           <div className="flex items-center gap-1.5">
-            <MapPin className="h-3 w-3" /> Grande Mosquée AN-NOUR, Liberté II,
-            Dakar
+            <MapPin className="h-3 w-3" /> <span>Grande Mosquée AN-NOUR, Liberté II, Dakar</span>
           </div>
+        </div>
+      </div>
+
+      {/* Mobile contact bar - visible on small screens */}
+      <div className="bg-lips-green-dark text-white/80 text-[10px] md:hidden">
+        <div className="px-4 py-1 flex items-center justify-between">
+          <span className="flex items-center gap-1">
+            <Phone className="h-2.5 w-2.5" /> <span>+221 33 800 00 00</span>
+          </span>
+          <span className="flex items-center gap-1">
+            <Mail className="h-2.5 w-2.5" /> <span>contact@lips.sn</span>
+          </span>
         </div>
       </div>
 

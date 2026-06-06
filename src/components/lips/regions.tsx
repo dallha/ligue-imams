@@ -20,7 +20,7 @@ export default function RegionsSection() {
     <section
       ref={sectionRef}
       id="regions"
-      className="py-20 lg:py-28 bg-lips-cream relative overflow-hidden"
+      className="py-12 sm:py-20 lg:py-28 bg-lips-cream relative overflow-hidden"
     >
       {/* Decorative pattern */}
       <div className="absolute inset-0 islamic-pattern opacity-10" />

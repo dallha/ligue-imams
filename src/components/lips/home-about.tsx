@@ -51,7 +51,7 @@ export default function HomeAbout() {
     <section
       ref={sectionRef}
       id="apropos"
-      className="py-20 lg:py-28 relative overflow-hidden"
+      className="py-12 sm:py-20 lg:py-28 relative overflow-hidden"
     >
       {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-b from-white via-lips-cream/50 to-white" />

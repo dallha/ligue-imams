@@ -140,7 +140,7 @@ export default function StatsSection() {
     <section
       ref={sectionRef}
       id="chiffres"
-      className="py-20 lg:py-28 bg-white relative"
+      className="py-12 sm:py-20 lg:py-28 bg-white relative"
     >
       {/* Decorative top border */}
       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-lips-green via-lips-gold to-lips-green" />
@@ -170,7 +170,7 @@ export default function StatsSection() {
         </motion.div>
 
         {/* Stats grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {STATS.map((stat, index) => (
             <motion.div
               key={stat.label}
