@@ -1,0 +1,109 @@
+// LIPS - Ligue des Imams et Prédicateurs du Sénégal
+// Système d'Information Institutionnel National (SIIN)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// --- DOMAINE GOUVERNANCE & INSTITUTIONNEL ---
+
+model Region {
+  id            Int      @id @default(autoincrement())
+  code          String   @unique // DKR, SLG, LGN, etc.
+  nom           String
+  nomAr         String?
+  responsableId Int?
+  mosques       Mosque[]
+  members       User[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// --- DOMAINE MEMBRES ---
+
+model User {
+  id        Int       @id @default(autoincrement())
+  matricule String    @unique // Ex: LIPS-2025-DKR-000124
+  email     String    @unique
+  password  String
+  nom       String
+  prenom    String
+  telephone String
+  photo     String?
+  role      String    @default("IMAM") // IMAM, PREDICATEUR, RESPONSABLE_REGIONAL, ADMIN, PRESIDENT, MEMBRE_CHOURA
+  status    String    @default("EN_ATTENTE") // ACTIF, EXPIRE, EN_ATTENTE
+
+  regionId  Int
+  region    Region    @relation(fields: [regionId], references: [id])
+  mosqueId  Int?
+  mosque    Mosque?   @relation(fields: [mosqueId], references: [id])
+
+  carteMembre   CarteMembre?
+  paiements     Paiement[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Mosque {
+  id       Int    @id @default(autoincrement())
+  nom      String
+  adresse  String
+  regionId Int
+  region   Region @relation(fields: [regionId], references: [id])
+  imams    User[]
+}
+
+// --- DOMAINE CARTE MEMBRE & VÉRIFICATION ---
+
+model CarteMembre {
+  id            Int      @id @default(autoincrement())
+  numeroCarte   String   @unique // Identique au matricule user
+  qrCodeUrl     String
+  dateEmission  DateTime @default(now())
+  dateExpiration DateTime
+  userId        Int      @unique
+  user          User     @relation(fields: [userId], references: [id])
+}
+
+// --- DOMAINE FINANCIER ---
+
+model Paiement {
+  id             Int      @id @default(autoincrement())
+  montant        Float
+  type           String   // COTISATION, DON, ADHESION
+  referenceTrans String   @unique
+  methode        String   // CinetPay, Wave, Espèces
+  datePaiement   DateTime @default(now())
+  userId         Int
+  user           User     @relation(fields: [userId], references: [id])
+}
+
+// --- DOMAINE COMMUNICATION & FORMATION ---
+
+model Content {
+  id         Int      @id @default(autoincrement())
+  titre      String
+  titreAr    String?
+  contenu    String
+  contenuAr  String?
+  type       String   // COMMUNIQUE, ARTICLE, FATWA, COURS, SEMINAIRE
+  categorie  String   // fiqh, aqida, daawa, société
+  fichierUrl String?  // PDF, Audio, Vidéo
+  published  Boolean  @default(false)
+  auteurId   Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+// --- DOMAINE PARAMÈTRES & CONFIGURATION ---
+
+model SiteConfig {
+  id    Int    @id @default(autoincrement())
+  key   String @unique
+  value String
+}
