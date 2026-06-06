@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
-import { Clock, Sun, Sunset, Moon, Sunrise, ChevronDown, ChevronUp, MapPin } from 'lucide-react';
+import { Clock, Sun, Sunset, Moon, ChevronDown, ChevronUp, MapPin } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // ─── Types ────────────────────────────────────────────────────
@@ -57,7 +57,6 @@ const SENEGAL_REGIONS = [
 // ─── Constants ────────────────────────────────────────────────
 const PRAYERS: PrayerInfo[] = [
   { key: 'Fajr',    name: 'Fajr',     nameAr: 'الفجر',   icon: Moon,    color: 'text-sky-300',   bgColor: 'bg-sky-500/25' },
-  { key: 'Sunrise', name: 'Chourouk', nameAr: 'الشروق',  icon: Sunrise, color: 'text-amber-300', bgColor: 'bg-amber-500/25' },
   { key: 'Dhuhr',   name: 'Dhuhr',    nameAr: 'الظهر',   icon: Sun,     color: 'text-yellow-200',bgColor: 'bg-yellow-500/25' },
   { key: 'Asr',     name: 'Asr',      nameAr: 'العصر',   icon: Sun,     color: 'text-orange-300',bgColor: 'bg-orange-500/25' },
   { key: 'Maghrib', name: 'Maghrib',  nameAr: 'المغرب',  icon: Sunset,  color: 'text-red-300',   bgColor: 'bg-red-500/25' },
@@ -78,31 +77,21 @@ function timeToMinutes(timeStr: string): number {
 function getCurrentPrayerIndex(timings: PrayerData['timings']): number {
   const now = new Date();
   const minutes = now.getHours() * 60 + now.getMinutes();
-  const times = [
-    timeToMinutes(timings.Fajr),
-    timeToMinutes(timings.Sunrise),
-    timeToMinutes(timings.Dhuhr),
-    timeToMinutes(timings.Asr),
-    timeToMinutes(timings.Maghrib),
-    timeToMinutes(timings.Isha),
-  ];
+  // Only the 5 obligatory prayers (skip Sunrise)
+  const prayerKeys: (keyof PrayerData['timings'])[] = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+  const times = prayerKeys.map(k => timeToMinutes(timings[k]));
   for (let i = times.length - 1; i >= 0; i--) {
     if (minutes >= times[i]) return i;
   }
-  return 0;
+  return 0; // Before Fajr → Isha is current
 }
 
 function getNextPrayerCountdown(timings: PrayerData['timings']): string {
   const now = new Date();
   const minutes = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
-  const times = [
-    timeToMinutes(timings.Fajr),
-    timeToMinutes(timings.Sunrise),
-    timeToMinutes(timings.Dhuhr),
-    timeToMinutes(timings.Asr),
-    timeToMinutes(timings.Maghrib),
-    timeToMinutes(timings.Isha),
-  ];
+  // Only the 5 obligatory prayers (skip Sunrise)
+  const prayerKeys: (keyof PrayerData['timings'])[] = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+  const times = prayerKeys.map(k => timeToMinutes(timings[k]));
 
   for (let i = 0; i < times.length; i++) {
     if (minutes < times[i]) {
@@ -113,6 +102,7 @@ function getNextPrayerCountdown(timings: PrayerData['timings']): string {
       return `${m} min`;
     }
   }
+  // After Isha → next is Fajr tomorrow
   const diff = (24 * 60 - minutes) + times[0];
   const h = Math.floor(diff / 60);
   const m = Math.floor(diff % 60);
@@ -344,7 +334,7 @@ export default function PrayerTimesWidget() {
             <RegionSelector selected={region} onChange={handleRegionChange} />
           </div>
 
-          {/* Expandable: All 6 prayers */}
+          {/* Expandable: All 5 prayers */}
           <AnimatePresence>
             {expanded && (
               <motion.div
@@ -354,7 +344,7 @@ export default function PrayerTimesWidget() {
                 transition={{ duration: 0.25, ease: 'easeInOut' }}
                 className="overflow-hidden"
               >
-                <div className="grid grid-cols-3 gap-1.5 pt-3 pb-1">
+                <div className="grid grid-cols-5 gap-1.5 pt-3 pb-1">
                   {PRAYERS.map((prayer, index) => {
                     const Icon = prayer.icon;
                     const isCurrent = index === currentPrayer;
@@ -417,8 +407,8 @@ export default function PrayerTimesWidget() {
             </div>
           </div>
 
-          {/* Bottom row: 6 prayer pills — compact, evenly spaced */}
-          <div className="grid grid-cols-6 gap-1.5 lg:gap-2">
+          {/* Bottom row: 5 prayer pills — compact, evenly spaced */}
+          <div className="grid grid-cols-5 gap-1.5 lg:gap-2">
             {PRAYERS.map((prayer, index) => {
               const Icon = prayer.icon;
               const isCurrent = index === currentPrayer;
