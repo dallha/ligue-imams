@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Clock, Sun, Sunset, Moon, ChevronDown, ChevronUp, MapPin, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '@/lib/lips/i18n/language-context';
+import { REGIONS_DATA } from '@/lib/lips/types';
 import type { TranslationDict } from '@/lib/lips/i18n/translations';
 
 // ─── Types ────────────────────────────────────────────────────
@@ -40,20 +41,20 @@ interface PrayerInfo {
 
 // ─── Regions list (must match API route) ──────────────────────
 const SENEGAL_REGIONS = [
-  { key: 'dakar',        label: 'Dakar' },
-  { key: 'saint_louis',  label: 'Saint-Louis' },
-  { key: 'thiès',        label: 'Thiès' },
-  { key: 'louga',        label: 'Louga' },
-  { key: 'kaolack',      label: 'Kaolack' },
-  { key: 'diourbel',     label: 'Diourbel' },
-  { key: 'tambacounda',  label: 'Tambacounda' },
-  { key: 'ziguinchor',   label: 'Ziguinchor' },
-  { key: 'kolda',        label: 'Kolda' },
-  { key: 'matam',        label: 'Matam' },
-  { key: 'kédougou',     label: 'Kédougou' },
-  { key: 'sédhiou',      label: 'Sédhiou' },
-  { key: 'fatick',       label: 'Fatick' },
-  { key: 'kaffrine',     label: 'Kaffrine' },
+  { key: 'dakar',        labelFr: 'Dakar',        labelAr: 'دكار' },
+  { key: 'saint_louis',  labelFr: 'Saint-Louis',  labelAr: 'سان لويس' },
+  { key: 'thiès',        labelFr: 'Thiès',        labelAr: 'ثيس' },
+  { key: 'louga',        labelFr: 'Louga',        labelAr: 'لوغا' },
+  { key: 'kaolack',      labelFr: 'Kaolack',      labelAr: 'كاولاك' },
+  { key: 'diourbel',     labelFr: 'Diourbel',     labelAr: 'ديوربل' },
+  { key: 'tambacounda',  labelFr: 'Tambacounda',  labelAr: 'تامباكوندا' },
+  { key: 'ziguinchor',   labelFr: 'Ziguinchor',   labelAr: 'زيغينكور' },
+  { key: 'kolda',        labelFr: 'Kolda',        labelAr: 'كولدا' },
+  { key: 'matam',        labelFr: 'Matam',        labelAr: 'ماتام' },
+  { key: 'kédougou',     labelFr: 'Kédougou',     labelAr: 'كيدوغو' },
+  { key: 'sédhiou',      labelFr: 'Sédhiou',      labelAr: 'سيدهيو' },
+  { key: 'fatick',       labelFr: 'Fatick',       labelAr: 'فاتيك' },
+  { key: 'kaffrine',     labelFr: 'Kaffrine',     labelAr: 'كفرين' },
 ] as const;
 
 // ─── Constants ────────────────────────────────────────────────
@@ -88,28 +89,36 @@ function getCurrentPrayerIndex(timings: PrayerData['timings']): number {
   return 0; // Before Fajr → Isha is current
 }
 
-function getNextPrayerCountdown(timings: PrayerData['timings']): string {
+function getNextPrayerCountdown(timings: PrayerData['timings'], locale: string): string {
   const now = new Date();
   const minutes = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
   // Only the 5 obligatory prayers (skip Sunrise)
   const prayerKeys: (keyof PrayerData['timings'])[] = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
   const times = prayerKeys.map(k => timeToMinutes(timings[k]));
 
-  for (let i = 0; i < times.length; i++) {
-    if (minutes < times[i]) {
-      const diff = times[i] - minutes;
-      const h = Math.floor(diff / 60);
-      const m = Math.floor(diff % 60);
+  const formatCountdown = (diff: number): string => {
+    const h = Math.floor(diff / 60);
+    const m = Math.floor(diff % 60);
+    if (locale === 'ar') {
+      if (h > 0) return `${toArabicNumerals(h)}س ${toArabicNumerals(m)}د`;
+      return `${toArabicNumerals(m)} د`;
+    } else if (locale === 'en') {
+      if (h > 0) return `${h}h ${m}m`;
+      return `${m} m`;
+    } else {
       if (h > 0) return `${h}h ${m}min`;
       return `${m} min`;
+    }
+  };
+
+  for (let i = 0; i < times.length; i++) {
+    if (minutes < times[i]) {
+      return formatCountdown(times[i] - minutes);
     }
   }
   // After Isha → next is Fajr tomorrow
   const diff = (24 * 60 - minutes) + times[0];
-  const h = Math.floor(diff / 60);
-  const m = Math.floor(diff % 60);
-  if (h > 0) return `${h}h ${m}min`;
-  return `${m} min`;
+  return formatCountdown(diff);
 }
 
 // ─── Region Selector Component ────────────────────────────────
@@ -117,14 +126,18 @@ function RegionSelector({
   selected,
   onChange,
   t,
+  isRTL,
 }: {
   selected: string;
   onChange: (key: string) => void;
   t: TranslationDict;
+  isRTL: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const btnRef = useRef<HTMLButtonElement>(null);
+
+  const getRegionLabel = (r: typeof SENEGAL_REGIONS[number]) => isRTL ? r.labelAr : r.labelFr;
 
   // Close on outside click
   useEffect(() => {
@@ -154,7 +167,8 @@ function RegionSelector({
     }
   }, [open]);
 
-  const selectedLabel = SENEGAL_REGIONS.find(r => r.key === selected)?.label ?? 'Dakar';
+  const selectedRegion = SENEGAL_REGIONS.find(r => r.key === selected);
+  const selectedLabel = selectedRegion ? getRegionLabel(selectedRegion) : 'Dakar';
 
   const handleSelect = (key: string) => {
     onChange(key);
@@ -202,7 +216,7 @@ function RegionSelector({
                 }`}
               >
                 <MapPin className={`h-3 w-3 flex-shrink-0 ${r.key === selected ? 'text-[#0a2e18]' : 'text-lips-gold'}`} />
-                {r.label}
+                {getRegionLabel(r)}
               </button>
             ))}
           </div>
@@ -240,7 +254,7 @@ function RegionSelector({
                   }`}
                 >
                   <MapPin className={`h-4 w-4 flex-shrink-0 ${r.key === selected ? 'text-[#0a2e18]' : 'text-lips-gold'}`} />
-                  {r.label}
+                  {getRegionLabel(r)}
                 </button>
               ))}
             </div>
@@ -253,7 +267,7 @@ function RegionSelector({
 
 // ─── Main Component ───────────────────────────────────────────
 export default function PrayerTimesWidget() {
-  const { t, locale } = useLanguage();
+  const { t, locale, isRTL } = useLanguage();
   const [prayerData, setPrayerData] = useState<PrayerData | null>(null);
   const [currentPrayer, setCurrentPrayer] = useState(0);
   const [currentTime, setCurrentTime] = useState('');
@@ -333,7 +347,7 @@ export default function PrayerTimesWidget() {
       const now = new Date();
       setCurrentTime(now.toLocaleTimeString(locale === 'ar' ? 'ar-SN' : locale === 'en' ? 'en-SN' : 'fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
       setCurrentPrayer(getCurrentPrayerIndex(prayerData.timings));
-      setCountdown(getNextPrayerCountdown(prayerData.timings));
+      setCountdown(getNextPrayerCountdown(prayerData.timings, locale));
       setGregorianDate(now.toLocaleDateString(locale === 'ar' ? 'ar-SN' : locale === 'en' ? 'en-SN' : 'fr-FR', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' }));
     };
     update();
@@ -406,10 +420,9 @@ export default function PrayerTimesWidget() {
           {/* Row 2: Hijri date + Region selector */}
           <div className="flex items-center justify-between mt-1.5 gap-2">
             <Link href="/agenda" className="flex items-center gap-1.5 min-w-0 overflow-hidden">
-              <span className="text-white text-[10px] font-semibold truncate">{hijriDisplay.french}</span>
-              <span className="font-arabic text-white/80 text-[9px] truncate" dir="rtl">{hijriDisplay.arabic}</span>
+              <span className="text-white text-[10px] font-semibold truncate">{isRTL ? hijriDisplay.arabic : hijriDisplay.french}</span>
             </Link>
-            <RegionSelector selected={region} onChange={handleRegionChange} t={t} />
+            <RegionSelector selected={region} onChange={handleRegionChange} t={t} isRTL={isRTL} />
           </div>
 
           {/* Expandable: All 5 prayers */}
@@ -472,8 +485,7 @@ export default function PrayerTimesWidget() {
               <div className="w-px h-4 bg-white/30 flex-shrink-0" />
               <span className="text-white/70 text-[10px] sm:text-xs truncate hidden sm:inline">{gregorianDate}</span>
               <span className="text-white/30 flex-shrink-0 hidden sm:inline">|</span>
-              <span className="font-bold text-white text-xs sm:text-sm truncate">{hijriDisplay.french}</span>
-              <span className="font-arabic text-white/70 text-[10px] sm:text-[11px] truncate hidden md:inline" dir="rtl">{hijriDisplay.arabic}</span>
+              <span className="font-bold text-white text-xs sm:text-sm truncate">{isRTL ? hijriDisplay.arabic : hijriDisplay.french}</span>
             </Link>
             <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
               <div className="flex items-center gap-1 px-1.5 sm:px-2 py-1 bg-white/10 rounded-lg">
@@ -481,7 +493,7 @@ export default function PrayerTimesWidget() {
                 <span className="text-[8px] sm:text-[9px] text-white/70">{t.prayer.next}</span>
                 <span className="font-mono text-[10px] sm:text-xs font-bold text-white">{countdown}</span>
               </div>
-              <RegionSelector selected={region} onChange={handleRegionChange} t={t} />
+              <RegionSelector selected={region} onChange={handleRegionChange} t={t} isRTL={isRTL} />
             </div>
           </div>
 

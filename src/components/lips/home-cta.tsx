@@ -14,7 +14,7 @@ import Link from 'next/link';
 import { useLanguage } from '@/lib/lips/i18n/language-context';
 
 export default function HomeCTA() {
-  const { t } = useLanguage();
+  const { t, isRTL } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
 
@@ -125,9 +125,11 @@ export default function HomeCTA() {
           transition={{ duration: 0.6, delay: 0.5 }}
           className="text-center mt-12"
         >
-          <p className="font-arabic text-lips-gold text-xl mb-2">
-            {t.cta.verseArabic}
-          </p>
+          {!isRTL && (
+            <p className="font-arabic text-lips-gold text-xl mb-2">
+              {t.cta.verseArabic}
+            </p>
+          )}
           <p className="text-white/40 text-xs italic">
             &laquo; {t.cta.verseTranslation} &raquo;
           </p>

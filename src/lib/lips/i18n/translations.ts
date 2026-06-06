@@ -262,6 +262,12 @@ export interface TranslationDict {
     resHifzDesc: string;
   };
 
+  // ─── Preloader ─────────────────────────────────────────────
+  preloader: {
+    bismillah: string;
+    logoAlt: string;
+  };
+
   // ─── Common ────────────────────────────────────────────────
   common: {
     loading: string;
@@ -505,6 +511,10 @@ export const fr: TranslationDict = {
     resHifz: 'Mémorisation (Hifz)',
     resHifzDesc: 'Guide pratique et méthodologie pour la mémorisation du Coran, adapté aux adultes et enfants.',
   },
+  preloader: {
+    bismillah: 'بسم الله الرحمن الرحيم',
+    logoAlt: 'Logo LIPS',
+  },
   common: {
     loading: 'Chargement...',
     error: 'Erreur',
@@ -747,6 +757,10 @@ export const ar: TranslationDict = {
     resHifz: 'الحفظ (حفظ القرآن)',
     resHifzDesc: 'دليل عملي ومنهجية لحفظ القرآن، مناسب للبالغين والأطفال.',
   },
+  preloader: {
+    bismillah: 'بسم الله الرحمن الرحيم',
+    logoAlt: 'شعار الرابطة',
+  },
   common: {
     loading: 'جاري التحميل...',
     error: 'خطأ',
@@ -988,6 +1002,10 @@ export const en: TranslationDict = {
     resTafsirDesc: 'Commentary and exegesis of the Quran in French for deeper understanding.',
     resHifz: 'Memorization (Hifz)',
     resHifzDesc: 'Practical guide and methodology for Quran memorization, suitable for adults and children.',
+  },
+  preloader: {
+    bismillah: 'بسم الله الرحمن الرحيم',
+    logoAlt: 'LIPS Logo',
   },
   common: {
     loading: 'Loading...',

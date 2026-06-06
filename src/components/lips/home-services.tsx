@@ -15,7 +15,7 @@ import Link from 'next/link';
 import { useLanguage } from '@/lib/lips/i18n/language-context';
 
 export default function HomeServices() {
-  const { t, isRTL } = useLanguage();
+  const { t } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-80px' });
 
@@ -23,7 +23,6 @@ export default function HomeServices() {
     {
       icon: Clock,
       title: t.services.items.prayerTimes.title,
-      titleAr: 'مواعيد الصلاة',
       description: t.services.items.prayerTimes.desc,
       href: '/agenda',
       color: 'from-sky-500/20 to-sky-600/10',
@@ -33,7 +32,6 @@ export default function HomeServices() {
     {
       icon: BookOpen,
       title: t.services.items.coran.title,
-      titleAr: 'القرآن الكريم',
       description: t.services.items.coran.desc,
       href: '/coran',
       color: 'from-emerald-500/20 to-emerald-600/10',
@@ -43,7 +41,6 @@ export default function HomeServices() {
     {
       icon: CalendarDays,
       title: t.services.items.agenda.title,
-      titleAr: 'الأجندة والتقويم',
       description: t.services.items.agenda.desc,
       href: '/agenda',
       color: 'from-amber-500/20 to-amber-600/10',
@@ -53,7 +50,6 @@ export default function HomeServices() {
     {
       icon: CreditCard,
       title: t.services.items.memberCard.title,
-      titleAr: 'بطاقة العضوية',
       description: t.services.items.memberCard.desc,
       href: '/a-propos#carte-membre',
       color: 'from-lips-gold/20 to-lips-gold/10',
@@ -63,7 +59,6 @@ export default function HomeServices() {
     {
       icon: Heart,
       title: t.services.items.donate.title,
-      titleAr: 'التبرع',
       description: t.services.items.donate.desc,
       href: '/faire-un-don',
       color: 'from-rose-500/20 to-rose-600/10',
@@ -73,7 +68,6 @@ export default function HomeServices() {
     {
       icon: UserPlus,
       title: t.services.items.join.title,
-      titleAr: 'الانضمام',
       description: t.services.items.join.desc,
       href: '/adherer',
       color: 'from-lips-green/20 to-lips-green/10',
@@ -127,16 +121,11 @@ export default function HomeServices() {
                 href={service.href}
                 className={`group block bg-white border border-border/50 rounded-2xl p-6 sm:p-7 hover:shadow-xl hover:shadow-lips-green/5 transition-all duration-300 ${service.borderColor} h-full`}
               >
-                {/* Icon + Arabic title */}
-                <div className="flex items-start justify-between mb-4">
+                {/* Icon */}
+                <div className="mb-4">
                   <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${service.color} flex items-center justify-center`}>
                     <service.icon className={`h-6 w-6 ${service.iconColor}`} />
                   </div>
-                  {!isRTL && (
-                    <span className="font-arabic text-sm text-lips-gold/60 mt-1">
-                      {service.titleAr}
-                    </span>
-                  )}
                 </div>
 
                 {/* Title */}

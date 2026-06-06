@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '@/lib/lips/i18n/language-context';
 
 function PreloaderText() {
-  const { t } = useLanguage();
+  const { t, isRTL } = useLanguage();
   return (
     <motion.p
       initial={{ opacity: 0, y: 10 }}
@@ -19,6 +19,7 @@ function PreloaderText() {
 }
 
 export default function Preloader() {
+  const { t, isRTL } = useLanguage();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -66,7 +67,7 @@ export default function Preloader() {
             <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-white/10 backdrop-blur-sm border-2 border-lips-gold/40 overflow-hidden p-3">
               <img
                 src="/logo.png"
-                alt="LIPS"
+                alt={t.preloader.logoAlt}
                 className="w-full h-full object-contain"
               />
             </div>
@@ -82,15 +83,17 @@ export default function Preloader() {
           {/* Text */}
           <PreloaderText />
 
-          {/* Arabic text */}
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.4 }}
-            transition={{ delay: 0.6, duration: 0.5 }}
-            className="mt-1 font-arabic text-lips-gold/50 text-xs"
-          >
-            بسم الله الرحمن الرحيم
-          </motion.p>
+          {/* Arabic text — only show when not in Arabic mode */}
+          {!isRTL && (
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.4 }}
+              transition={{ delay: 0.6, duration: 0.5 }}
+              className="mt-1 font-arabic text-lips-gold/50 text-xs"
+            >
+              {t.preloader.bismillah}
+            </motion.p>
+          )}
         </motion.div>
       )}
     </AnimatePresence>

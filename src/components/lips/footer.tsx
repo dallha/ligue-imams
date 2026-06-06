@@ -14,7 +14,7 @@ import Link from 'next/link';
 import { useLanguage } from '@/lib/lips/i18n/language-context';
 
 export default function LipsFooter() {
-  const { t } = useLanguage();
+  const { t, isRTL } = useLanguage();
   const [currentYear] = useState(() => new Date().getFullYear());
 
   const QUICK_LINKS = [
@@ -48,7 +48,7 @@ export default function LipsFooter() {
             <div className="flex items-center gap-3 mb-4">
               <img
                 src="/logo.png"
-                alt="Logo LIPS"
+                alt={t.preloader.logoAlt}
                 className="w-10 h-10 rounded-full object-contain"
               />
               <div>
@@ -63,9 +63,11 @@ export default function LipsFooter() {
             <p className="text-sm text-white/60 leading-relaxed mb-4">
               {t.footer.description}
             </p>
-            <p className="font-arabic text-lips-gold text-sm">
-              بِالصَّبْرِ وَالْيَقِينِ تُنَالُ الْإِمَامَةُ فِي الدِّينِ
-            </p>
+            {!isRTL && (
+              <p className="font-arabic text-lips-gold text-sm">
+                {t.hero.arabicMotto}
+              </p>
+            )}
 
             {/* Social links */}
             <div className="flex items-center gap-3 mt-6">

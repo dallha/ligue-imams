@@ -106,7 +106,7 @@ export default function LipsHeader() {
             <Link href="/" className="flex items-center gap-3 group">
               <img
                 src="/logo.png"
-                alt="Logo LIPS"
+                alt={t.preloader.logoAlt}
                 className="w-10 h-10 lg:w-12 lg:h-12 rounded-full object-contain shadow-lg group-hover:shadow-lips-green/30 transition-shadow"
               />
               <div className="hidden sm:block">
@@ -182,7 +182,7 @@ export default function LipsHeader() {
               <button
                 className="lg:hidden p-2.5 rounded-md hover:bg-lips-green/5 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
                 onClick={() => setMobileOpen(!mobileOpen)}
-                aria-label="Menu"
+                aria-label={t.common.menu}
               >
                 {mobileOpen ? (
                   <X className="h-5 w-5" />

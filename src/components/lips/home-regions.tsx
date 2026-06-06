@@ -13,7 +13,7 @@ import SenegalMap from '@/components/lips/senegal-map';
 import { useLanguage } from '@/lib/lips/i18n/language-context';
 
 export default function HomeRegions() {
-  const { t, locale } = useLanguage();
+  const { t, locale, isRTL } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
 
@@ -75,11 +75,8 @@ export default function HomeRegions() {
                     {region.code}
                   </div>
                   <div className="font-semibold text-lips-green-dark text-sm mb-0.5">
-                    {region.nom}
+                    {isRTL ? region.nomAr : region.nom}
                   </div>
-                  <span className="font-arabic text-xs text-lips-gold">
-                    {region.nomAr}
-                  </span>
                   {region.mosqueCount && (
                     <div className="text-[10px] text-muted-foreground mt-1.5 flex items-center justify-center gap-1">
                       <Building className="h-2.5 w-2.5" />
@@ -118,12 +115,12 @@ export default function HomeRegions() {
             </div>
             <div className="w-px h-10 bg-border" />
             <div className="text-center">
-              <div className="text-2xl font-bold text-lips-gold">15 000+</div>
+              <div className="text-2xl font-bold text-lips-gold">{(15000).toLocaleString(locale === 'ar' ? 'ar-SN' : locale === 'en' ? 'en-SN' : 'fr-FR')}+</div>
               <div className="text-xs text-muted-foreground">{t.regions.mosquesLabel}</div>
             </div>
             <div className="w-px h-10 bg-border" />
             <div className="text-center">
-              <div className="text-2xl font-bold text-lips-emerald">5 000+</div>
+              <div className="text-2xl font-bold text-lips-emerald">{(5000).toLocaleString(locale === 'ar' ? 'ar-SN' : locale === 'en' ? 'en-SN' : 'fr-FR')}+</div>
               <div className="text-xs text-muted-foreground">{t.regions.membersLabel}</div>
             </div>
           </div>

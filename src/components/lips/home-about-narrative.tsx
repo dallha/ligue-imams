@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { useLanguage } from '@/lib/lips/i18n/language-context';
 
 export default function HomeAboutNarrative() {
-  const { t } = useLanguage();
+  const { t, isRTL } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-80px' });
 
@@ -102,14 +102,16 @@ export default function HomeAboutNarrative() {
             </div>
 
             {/* Arabic motto */}
-            <div className="mt-6 p-4 bg-lips-green-dark/5 rounded-xl border border-lips-green-dark/10">
-              <p className="font-arabic text-lips-gold text-lg mb-1">
-                بِالصَّبْرِ وَالْيَقِينِ تُنَالُ الْإِمَامَةُ فِي الدِّينِ
-              </p>
-              <p className="text-xs text-muted-foreground italic">
-                &laquo; {t.aboutNarrative.mottoTranslation} &raquo;
-              </p>
-            </div>
+            {!isRTL && (
+              <div className="mt-6 p-4 bg-lips-green-dark/5 rounded-xl border border-lips-green-dark/10">
+                <p className="font-arabic text-lips-gold text-lg mb-1">
+                  {t.hero.arabicMotto}
+                </p>
+                <p className="text-xs text-muted-foreground italic">
+                  &laquo; {t.aboutNarrative.mottoTranslation} &raquo;
+                </p>
+              </div>
+            )}
 
             {/* CTA */}
             <div className="mt-6">

@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { useLanguage } from '@/lib/lips/i18n/language-context';
 
 export default function HeroSection() {
-  const { t } = useLanguage();
+  const { t, isRTL } = useLanguage();
 
   return (
     <section
@@ -49,18 +49,20 @@ export default function HeroSection() {
           </motion.div>
 
           {/* Arabic motto */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="mb-4"
-          >
-            <p className="font-arabic text-2xl md:text-4xl lg:text-5xl text-lips-gold leading-relaxed">
-              {t.hero.arabicMotto}
-            </p>
-          </motion.div>
+          {!isRTL && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="mb-4"
+            >
+              <p className="font-arabic text-2xl md:text-4xl lg:text-5xl text-lips-gold leading-relaxed">
+                {t.hero.arabicMotto}
+              </p>
+            </motion.div>
+          )}
 
-          {/* French translation */}
+          {/* Motto translation */}
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -131,9 +133,9 @@ export default function HeroSection() {
           className="mt-12 sm:mt-16 lg:mt-20 grid grid-cols-3 gap-4 sm:gap-8 lg:gap-12"
         >
           {[
-            { icon: Users, value: '5 000+', label: t.hero.members },
+            { icon: Users, value: (5000).toLocaleString(isRTL ? 'ar-SN' : 'en-US') + '+', label: t.hero.members },
             { icon: BookOpen, value: '14', label: t.hero.regions },
-            { icon: Shield, value: '15 000+', label: t.hero.mosques },
+            { icon: Shield, value: (15000).toLocaleString(isRTL ? 'ar-SN' : 'en-US') + '+', label: t.hero.mosques },
           ].map((stat) => (
             <div key={stat.label} className="flex items-center gap-2 sm:gap-3">
               <stat.icon className="h-4 w-4 sm:h-5 sm:w-5 text-lips-gold shrink-0" />
