@@ -59,6 +59,27 @@ export default function RootLayout({
   return (
     <html lang="fr" dir="ltr" suppressHydrationWarning>
       <head>
+        {/* Auto day/night theme — runs before React to avoid flash */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){
+              try{
+                var mode=localStorage.getItem('lips-theme-mode');
+                if(mode==='auto'||!mode){
+                  var h=new Date().toLocaleTimeString('en-GB',{hour:'numeric',hour12:false,timeZone:'Africa/Dakar'});
+                  var hr=parseInt(h,10);
+                  if(hr>=19||hr<6) document.documentElement.classList.add('dark');
+                }else if(mode==='dark'){
+                  document.documentElement.classList.add('dark');
+                }else if(mode==='system'&&window.matchMedia('(prefers-color-scheme:dark)').matches){
+                  document.documentElement.classList.add('dark');
+                }
+                // If auto and no saved mode yet, save it
+                if(!mode) localStorage.setItem('lips-theme-mode','auto');
+              }catch(e){}
+            })()`,
+          }}
+        />
         {/* Schema.org pour Organisation Institutionnelle */}
         <script
           type="application/ld+json"
@@ -90,7 +111,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
       >
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
           <LanguageProvider>
             {children}
             <Toaster />

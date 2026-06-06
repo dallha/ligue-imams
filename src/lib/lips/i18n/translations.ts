@@ -279,6 +279,7 @@ export interface TranslationDict {
     theme: string;
     light: string;
     dark: string;
+    auto: string;
     system: string;
   };
 }
@@ -529,6 +530,7 @@ export const fr: TranslationDict = {
     theme: 'Thème',
     light: 'Clair',
     dark: 'Sombre',
+    auto: 'Auto',
     system: 'Système',
   },
 };
@@ -779,6 +781,7 @@ export const ar: TranslationDict = {
     theme: 'المظهر',
     light: 'فاتح',
     dark: 'داكن',
+    auto: 'تلقائي',
     system: 'النظام',
   },
 };
@@ -1029,6 +1032,7 @@ export const en: TranslationDict = {
     theme: 'Theme',
     light: 'Light',
     dark: 'Dark',
+    auto: 'Auto',
     system: 'System',
   },
 };
