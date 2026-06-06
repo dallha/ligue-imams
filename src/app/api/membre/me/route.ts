@@ -4,10 +4,10 @@ import { db } from '@/lib/db'
 
 // Demo member data for when DB has no matching user
 const DEMO_MEMBER = {
-  nom: 'Ndiaye',
-  prenom: 'Abdoulaye',
-  email: 'abdoulaye.ndiaye@lips.sn',
-  telephone: '+221 77 123 45 67',
+  nom: 'Traoré',
+  prenom: 'Amadou',
+  email: 'amadou.traore@lips.sn',
+  telephone: '+221 77 000 00 00',
   matricule: 'LIPS-2025-DKR-000124',
   role: 'IMAM',
   status: 'ACTIF',
@@ -140,7 +140,7 @@ export async function GET() {
           role: session.role,
           matricule: session.matricule,
           status: 'ACTIF',
-          telephone: '+221 77 123 45 67',
+          telephone: '+221 77 000 00 00',
           photo: null,
           region: { nom: 'Dakar', nomAr: 'دكار' },
           mosque: { nom: 'Mosquée An-Nour', adresse: 'Liberté II, Dakar' },

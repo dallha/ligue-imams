@@ -18,13 +18,13 @@ interface Leader {
 
 const BUREAU_NATIONAL: Leader[] = [
   {
-    nom: 'NDAW',
-    prenom: 'Abdoulaye',
+    nom: 'TRAORÉ',
+    prenom: 'Amadou',
     role: 'Président National',
     roleAr: 'الرئيس الوطني',
     region: 'Dakar',
     bio: 'Imam de la Grande Mosquée de la Médina, élu à la tête de la LIPS en 2020 pour un mandat de 5 ans. Figure respectée du dialogue interreligieux au Sénégal.',
-    initiales: 'AN',
+    initiales: 'AT',
   },
   {
     nom: 'BALDE',

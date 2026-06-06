@@ -41,8 +41,8 @@ async function main() {
     create: {
       email: 'admin@lips.sn',
       password: adminPassword,
-      nom: 'NDAW',
-      prenom: 'Abdoulaye',
+      nom: 'TRAORÉ',
+      prenom: 'Amadou',
       telephone: '+221 77 000 00 00',
       matricule: 'LIPS-2025-DKR-000001',
       role: 'ADMIN',
@@ -64,14 +64,14 @@ async function main() {
   });
 
   const member = await prisma.user.upsert({
-    where: { email: 'abdoulaye.ndiaye@lips.sn' },
+    where: { email: 'amadou.traore@lips.sn' },
     update: {},
     create: {
-      email: 'abdoulaye.ndiaye@lips.sn',
+      email: 'amadou.traore@lips.sn',
       password: memberPassword,
-      nom: 'Ndiaye',
-      prenom: 'Abdoulaye',
-      telephone: '+221 77 123 45 67',
+      nom: 'Traoré',
+      prenom: 'Amadou',
+      telephone: '+221 77 000 00 00',
       matricule: 'LIPS-2025-DKR-000124',
       role: 'IMAM',
       status: 'ACTIF',
@@ -109,7 +109,7 @@ async function main() {
 
   // --- Bureau National ---
   const bureauMembers = [
-    { nom: 'NDAW', prenom: 'Abdoulaye', role: 'Président National', roleAr: 'الرئيس الوطني', region: 'Dakar', bio: 'Imam de la Grande Mosquée de la Médina, élu à la tête de la LIPS en 2020 pour un mandat de 5 ans.', initiales: 'AN', ordre: 1 },
+    { nom: 'TRAORÉ', prenom: 'Amadou', role: 'Président National', roleAr: 'الرئيس الوطني', region: 'Dakar', bio: 'Imam de la Grande Mosquée de la Médina, élu à la tête de la LIPS en 2020 pour un mandat de 5 ans.', initiales: 'AT', ordre: 1 },
     { nom: 'BALDE', prenom: 'Mouhammadou', role: 'Vice-Président', roleAr: 'نائب الرئيس', region: 'Tambacounda', bio: 'Prédicateur émérite et ancien responsable régional de Tambacounda.', initiales: 'MB', ordre: 2 },
     { nom: 'SOW', prenom: 'Ibrahima', role: 'Secrétaire Général', roleAr: 'الأمين العام', region: 'Saint-Louis', bio: 'Juriste en droit islamique, formé à l\'Université Al-Azhar.', initiales: 'IS', ordre: 3 },
     { nom: 'DIAKHATE', prenom: 'Ousmane', role: 'Trésorier Général', roleAr: 'أمين الصندوق', region: 'Thiès', bio: 'Expert en gestion financière et administration d\'organisations confessionnelles.', initiales: 'OD', ordre: 4 },

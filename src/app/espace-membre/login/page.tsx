@@ -22,7 +22,7 @@ type LoginFormValues = z.infer<typeof loginSchema>
 
 // Demo credentials for testing
 const DEMO_CREDENTIALS = {
-  email: 'abdoulaye.ndiaye@lips.sn',
+  email: 'amadou.traore@lips.sn',
   password: 'Membre@2025',
   matricule: 'LIPS-2025-DKR-000124',
 }
