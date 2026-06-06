@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, useMemo } from 'react';
+import { useRef, useState, useMemo, useEffect, useCallback } from 'react';
 import { motion, useInView } from 'framer-motion';
 import {
   Play,
@@ -8,6 +8,7 @@ import {
   SkipBack,
   SkipForward,
   Volume2,
+  VolumeX,
   Search,
   BookOpen,
   Headphones,
@@ -16,69 +17,79 @@ import {
   GraduationCap,
   ExternalLink,
   ChevronRight,
+  Loader2,
+  RefreshCw,
+  ListMusic,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 
-// --- Reciters Data ---
+// ─── Types ────────────────────────────────────────────────────
+interface Moshaf {
+  id: number;
+  name: string;
+  server: string;
+  surahTotal: number;
+  rewayaId: number;
+  moshafType: number;
+}
+
 interface Reciter {
   id: number;
   name: string;
-  initials: string;
-  bio: string;
-  gradient: string;
+  letter: string;
+  moshaf: Moshaf[];
 }
 
-const RECITERS: Reciter[] = [
-  {
-    id: 1,
-    name: 'Cheikh Ahmad Tijani Cissé',
-    initials: 'AT',
-    bio: 'Éminent récitateur tijani, spécialiste de la psalmodie coranique selon la lecture de Warsh.',
-    gradient: 'from-lips-green to-lips-emerald',
-  },
-  {
-    id: 2,
-    name: 'Imam Ratib Cissé',
-    initials: 'RC',
-    bio: 'Imam et récitateur renommé de Dakar, connu pour sa belle voix dans la récitation du Coran.',
-    gradient: 'from-lips-gold to-amber-600',
-  },
-  {
-    id: 3,
-    name: 'Cheikh Moustapha Cissé',
-    initials: 'MC',
-    bio: 'Récitateur accompli et enseignant de tajwid, formateur d\'imams dans la région de Thiès.',
-    gradient: 'from-lips-emerald to-lips-green',
-  },
-  {
-    id: 4,
-    name: 'Abdou Karim Diop',
-    initials: 'AK',
-    bio: 'Récitateur de la communauté mouride, spécialiste des qira\'at et de la tradition orale.',
-    gradient: 'from-emerald-600 to-lips-green',
-  },
-  {
-    id: 5,
-    name: 'Mouhammadou Bâ',
-    initials: 'MB',
-    bio: 'Récitateur et imam de la région de Saint-Louis, professeur de coran dans les daaras.',
-    gradient: 'from-lips-green-dark to-lips-green',
-  },
-  {
-    id: 6,
-    name: 'Serigne Moustapha Sy',
-    initials: 'MS',
-    bio: 'Récitateur de la communauté tidiane, voix respectée pour la psalmodie lors des grands événements.',
-    gradient: 'from-lips-gold to-lips-green',
-  },
+interface Surah {
+  id: number;
+  name: string;
+  startPage: number;
+  endPage: number;
+  makkia: boolean;
+}
+
+// ─── Popular reciters (pre-selected IDs from mp3quran.net) ────
+const POPULAR_RECITER_IDS = [
+  102, // Maher Al Meaqli
+  7,   // Mishary Rashid Alafasy
+  128, // Abdul Rahman Al-Sudais
+  171, // Saud Al-Shuraim
+  5,   // Ibrahim Al-Akdar
+  103, // Yasser Al-Dosari
+  170, // Abdullah Basfar
+  82,  // Nasser Al-Qatami
+  56,  // Ali Al-Huthaifi
+  119, // Abdul Basit Abdul Samad
+  9,   // Abu Bakr Al-Shatri
+  101, // Hani Ar-Rifai
 ];
 
-// --- Daily Verses ---
+// ─── Arabic surah names (complete 114) ────────────────────────
+const SURAH_NAMES_AR: Record<number, string> = {
+  1:'الفاتحة',2:'البقرة',3:'آل عمران',4:'النساء',5:'المائدة',6:'الأنعام',7:'الأعراف',
+  8:'الأنفال',9:'التوبة',10:'يونس',11:'هود',12:'يوسف',13:'الرعد',14:'إبراهيم',
+  15:'الحجر',16:'النحل',17:'الإسراء',18:'الكهف',19:'مريم',20:'طه',21:'الأنبياء',
+  22:'الحج',23:'المؤمنون',24:'النور',25:'الفرقان',26:'الشعراء',27:'النمل',28:'القصص',
+  29:'العنكبوت',30:'الروم',31:'لقمان',32:'السجدة',33:'الأحزاب',34:'سبأ',35:'فاطر',
+  36:'يس',37:'الصافات',38:'ص',39:'الزمر',40:'غافر',41:'فصلت',42:'الشورى',43:'الزخرف',
+  44:'الدخان',45:'الجاثية',46:'الأحقاف',47:'محمد',48:'الفتح',49:'الحجرات',50:'ق',
+  51:'الذاريات',52:'الطور',53:'النجم',54:'القمر',55:'الرحمن',56:'الواقعة',57:'الحديد',
+  58:'المجادلة',59:'الحشر',60:'الممتحنة',61:'الصف',62:'الجمعة',63:'المنافقون',
+  64:'التغابن',65:'الطلاق',66:'التحريم',67:'الملك',68:'القلم',69:'الحاقة',70:'المعارج',
+  71:'نوح',72:'الجن',73:'المزمل',74:'المدثر',75:'القيامة',76:'الإنسان',77:'المرسلات',
+  78:'النبأ',79:'النازعات',80:'عبس',81:'التكوير',82:'الانفطار',83:'المطففين',
+  84:'الانشقاق',85:'البروج',86:'الطارق',87:'الأعلى',88:'الغاشية',89:'الفجر',90:'البلد',
+  91:'الشمس',92:'الليل',93:'الضحى',94:'الشرح',95:'التين',96:'العلق',97:'القدر',
+  98:'البينة',99:'الزلزلة',100:'العاديات',101:'القارعة',102:'التكاثر',103:'العصر',
+  104:'الهمزة',105:'الفيل',106:'قريش',107:'الماعون',108:'الكوثر',109:'الكافرون',
+  110:'النصر',111:'المسد',112:'الإخلاص',113:'الفلق',114:'الناس',
+};
+
+// ─── Daily Verses ─────────────────────────────────────────────
 interface DailyVerse {
   arabic: string;
   french: string;
@@ -86,220 +97,266 @@ interface DailyVerse {
 }
 
 const DAILY_VERSES: DailyVerse[] = [
-  {
-    arabic: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
-    french: 'Au nom d\'Allah, le Tout-Miséricordieux, le Très-Miséricordieux.',
-    reference: 'Coran 1:1 — Al-Fatiha',
-  },
-  {
-    arabic: 'اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ',
-    french: 'Allah ! Point de divinité à part Lui, le Vivant, Celui qui subsiste par lui-même.',
-    reference: 'Coran 2:255 — Ayat al-Kursi',
-  },
-  {
-    arabic: 'وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا',
-    french: 'Et quiconque craint Allah, Il lui donnera une issue.',
-    reference: 'Coran 65:2 — At-Talaq',
-  },
-  {
-    arabic: 'إِنَّ مَعَ الْعُسْرِ يُسْرًا',
-    french: 'Certes, avec la difficulté vient la facilité.',
-    reference: 'Coran 94:6 — Ash-Sharh',
-  },
-  {
-    arabic: 'وَلَذِكْرُ اللَّهِ أَكْبَرُ',
-    french: 'Et l\'invocation d\'Allah est certes la plus grande chose.',
-    reference: 'Coran 29:45 — Al-Ankabut',
-  },
-  {
-    arabic: 'وَقُل رَّبِّ زِدْنِي عِلْمًا',
-    french: 'Et dis : « Ô mon Seigneur, augmente mes connaissances. »',
-    reference: 'Coran 20:114 — Taha',
-  },
-  {
-    arabic: 'فَاذْكُرُونِي أَذْكُرْكُمْ وَاشْكُرُوا لِي وَلَا تَكْفُرُونِ',
-    french: 'Souvenez-vous de Moi, Je me souviendrai de vous. Soyez reconnaissants envers Moi et ne Me reniez pas.',
-    reference: 'Coran 2:152 — Al-Baqara',
-  },
+  { arabic: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ', french: 'Au nom d\'Allah, le Tout-Miséricordieux, le Très-Miséricordieux.', reference: 'Coran 1:1 — Al-Fatiha' },
+  { arabic: 'اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ', french: 'Allah ! Point de divinité à part Lui, le Vivant, Celui qui subsiste par lui-même.', reference: 'Coran 2:255 — Ayat al-Kursi' },
+  { arabic: 'وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا', french: 'Et quiconque craint Allah, Il lui donnera une issue.', reference: 'Coran 65:2 — At-Talaq' },
+  { arabic: 'إِنَّ مَعَ الْعُسْرِ يُسْرًا', french: 'Certes, avec la difficulté vient la facilité.', reference: 'Coran 94:6 — Ash-Sharh' },
+  { arabic: 'وَلَذِكْرُ اللَّهِ أَكْبَرُ', french: 'Et l\'invocation d\'Allah est certes la plus grande chose.', reference: 'Coran 29:45 — Al-Ankabut' },
+  { arabic: 'وَقُل رَّبِّ زِدْنِي عِلْمًا', french: 'Et dis : « Ô mon Seigneur, augmente mes connaissances. »', reference: 'Coran 20:114 — Taha' },
+  { arabic: 'فَاذْكُرُونِي أَذْكُرْكُمْ وَاشْكُرُوا لِي وَلَا تَكْفُرُونِ', french: 'Souvenez-vous de Moi, Je me souviendrai de vous. Soyez reconnaissants envers Moi et ne Me reniez pas.', reference: 'Coran 2:152 — Al-Baqara' },
 ];
 
-// --- Surah Data (first 5 Juz, abbreviated) ---
-interface Surah {
-  number: number;
-  nameAr: string;
-  nameFr: string;
-  verses: number;
-  juz: number;
-  type: 'Makki' | 'Madani';
-}
-
-const SURAHS: Surah[] = [
-  // Juz 1
-  { number: 1, nameAr: 'الفاتحة', nameFr: 'L\'Ouverture', verses: 7, juz: 1, type: 'Makki' },
-  { number: 2, nameAr: 'البقرة', nameFr: 'La Vache', verses: 286, juz: 1, type: 'Madani' },
-  // Juz 2
-  { number: 2, nameAr: 'البقرة', nameFr: 'La Vache (suite)', verses: 286, juz: 2, type: 'Madani' },
-  { number: 3, nameAr: 'آل عمران', nameFr: 'La Famille d\'Imran', verses: 200, juz: 2, type: 'Madani' },
-  // Juz 3
-  { number: 3, nameAr: 'آل عمران', nameFr: 'La Famille d\'Imran (suite)', verses: 200, juz: 3, type: 'Madani' },
-  { number: 4, nameAr: 'النساء', nameFr: 'Les Femmes', verses: 176, juz: 3, type: 'Madani' },
-  // Juz 4
-  { number: 4, nameAr: 'النساء', nameFr: 'Les Femmes (suite)', verses: 176, juz: 4, type: 'Madani' },
-  { number: 5, nameAr: 'المائدة', nameFr: 'La Table Servie', verses: 120, juz: 4, type: 'Madani' },
-  // Juz 5
-  { number: 5, nameAr: 'المائدة', nameFr: 'La Table Servie (suite)', verses: 120, juz: 5, type: 'Madani' },
-  { number: 6, nameAr: 'الأنعام', nameFr: 'Les Bestiaux', verses: 165, juz: 5, type: 'Makki' },
-  // Additional surahs for richer display
-  { number: 7, nameAr: 'الأعراف', nameFr: 'Al-A\'raf', verses: 206, juz: 5, type: 'Makki' },
-  { number: 8, nameAr: 'الأنفال', nameFr: 'Le Butin', verses: 75, juz: 5, type: 'Madani' },
-  { number: 9, nameAr: 'التوبة', nameFr: 'Le Repentir', verses: 129, juz: 5, type: 'Madani' },
-  { number: 10, nameAr: 'يونس', nameFr: 'Jonas', verses: 109, juz: 5, type: 'Makki' },
-  { number: 11, nameAr: 'هود', nameFr: 'Hud', verses: 123, juz: 5, type: 'Makki' },
-  { number: 12, nameAr: 'يوسف', nameFr: 'Joseph', verses: 111, juz: 5, type: 'Makki' },
-  { number: 36, nameAr: 'يس', nameFr: 'Ya-Sin', verses: 83, juz: 5, type: 'Makki' },
-  { number: 55, nameAr: 'الرحمن', nameFr: 'Le Tout-Miséricordieux', verses: 78, juz: 5, type: 'Madani' },
-  { number: 56, nameAr: 'الواقعة', nameFr: 'L\'Événement', verses: 96, juz: 5, type: 'Makki' },
-  { number: 67, nameAr: 'الملك', nameFr: 'La Royauté', verses: 30, juz: 5, type: 'Makki' },
-  { number: 78, nameAr: 'النبأ', nameFr: 'La Nouvelle', verses: 40, juz: 5, type: 'Makki' },
-  { number: 87, nameAr: 'الأعلى', nameFr: 'Le Très-Haut', verses: 19, juz: 5, type: 'Makki' },
-  { number: 93, nameAr: 'الضحى', nameFr: 'Le Matin', verses: 11, juz: 5, type: 'Makki' },
-  { number: 94, nameAr: 'الشرح', nameFr: 'L\'Ouverture', verses: 8, juz: 5, type: 'Makki' },
-  { number: 95, nameAr: 'التين', nameFr: 'Le Figuier', verses: 8, juz: 5, type: 'Makki' },
-  { number: 96, nameAr: 'العلق', nameFr: 'L\'Adhérence', verses: 19, juz: 5, type: 'Makki' },
-  { number: 97, nameAr: 'القدر', nameFr: 'La Destinée', verses: 5, juz: 5, type: 'Makki' },
-  { number: 98, nameAr: 'البينة', nameFr: 'La Preuve', verses: 8, juz: 5, type: 'Madani' },
-  { number: 99, nameAr: 'الزلزلة', nameFr: 'Le Tremblement de Terre', verses: 8, juz: 5, type: 'Madani' },
-  { number: 100, nameAr: 'العاديات', nameFr: 'Les Coursiers', verses: 11, juz: 5, type: 'Makki' },
-  { number: 101, nameAr: 'القارعة', nameFr: 'Le Fracas', verses: 11, juz: 5, type: 'Makki' },
-  { number: 102, nameAr: 'التكاثر', nameFr: 'La Convoitise', verses: 8, juz: 5, type: 'Makki' },
-  { number: 103, nameAr: 'العصر', nameFr: 'Le Temps', verses: 3, juz: 5, type: 'Makki' },
-  { number: 104, nameAr: 'الهمزة', nameFr: 'Le Calomniateur', verses: 9, juz: 5, type: 'Makki' },
-  { number: 105, nameAr: 'الفيل', nameFr: 'L\'Éléphant', verses: 5, juz: 5, type: 'Makki' },
-  { number: 106, nameAr: 'قريش', nameFr: 'Quraysh', verses: 4, juz: 5, type: 'Makki' },
-  { number: 107, nameAr: 'الماعون', nameFr: 'L\'Utile', verses: 7, juz: 5, type: 'Makki' },
-  { number: 108, nameAr: 'الكوثر', nameFr: 'L\'Abondance', verses: 3, juz: 5, type: 'Makki' },
-  { number: 109, nameAr: 'الكافرون', nameFr: 'Les Infidèles', verses: 6, juz: 5, type: 'Makki' },
-  { number: 110, nameAr: 'النصر', nameFr: 'Le Secours', verses: 3, juz: 5, type: 'Madani' },
-  { number: 111, nameAr: 'المسد', nameFr: 'La Corde', verses: 5, juz: 5, type: 'Makki' },
-  { number: 112, nameAr: 'الإخلاص', nameFr: 'Le Monothéisme Pur', verses: 4, juz: 5, type: 'Makki' },
-  { number: 113, nameAr: 'الفلق', nameFr: 'L\'Aube Naissante', verses: 5, juz: 5, type: 'Makki' },
-  { number: 114, nameAr: 'الناس', nameFr: 'Les Hommes', verses: 6, juz: 5, type: 'Makki' },
+// ─── Quran Resources ──────────────────────────────────────────
+const QURAN_RESOURCES = [
+  { title: 'Lecture du Coran', description: 'Lisez le Coran en ligne avec traduction française et translittération.', icon: BookOpen, href: 'https://quran.com/fr/', color: 'text-lips-green' },
+  { title: 'MP3Quran.net', description: 'Plateforme complète de récitations audio du Coran par les plus grands récitateurs du monde musulman.', icon: Headphones, href: 'https://www.mp3quran.net/fr', color: 'text-lips-gold' },
+  { title: 'Coran en Wolof', description: 'Écoutez et lisez le Coran avec la traduction en wolof pour les locuteurs sénégalais.', icon: Globe, href: '#', color: 'text-lips-gold' },
+  { title: 'Tafsir en français', description: 'Commentaire et exégèse du Coran en langue française pour une compréhension approfondie.', icon: Mic, href: '#', color: 'text-amber-600' },
+  { title: 'Mémorisation (Hifz)', description: 'Guide pratique et méthodologie pour la mémorisation du Coran, adapté aux adultes et enfants.', icon: GraduationCap, href: '#', color: 'text-lips-green-dark' },
 ];
 
-// --- Quran Resources ---
-interface QuranResource {
-  title: string;
-  description: string;
-  icon: React.ElementType;
-  href: string;
-  color: string;
-}
-
-const QURAN_RESOURCES: QuranResource[] = [
-  {
-    title: 'Lecture du Coran',
-    description: 'Lisez le Coran en ligne avec traduction française et translittération.',
-    icon: BookOpen,
-    href: 'https://quran.com/fr/',
-    color: 'text-lips-green',
-  },
-  {
-    title: 'Coran en Wolof',
-    description: 'Écoutez et lisez le Coran avec la traduction en wolof pour les locuteurs sénégalais.',
-    icon: Globe,
-    href: '#',
-    color: 'text-lips-gold',
-  },
-  {
-    title: 'Coran audio complet',
-    description: 'Récitation intégrale du Saint Coran par les plus grands récitateurs du monde musulman.',
-    icon: Headphones,
-    href: '#',
-    color: 'text-lips-emerald',
-  },
-  {
-    title: 'Tafsir en français',
-    description: 'Commentaire et exégèse du Coran en langue française pour une compréhension approfondie.',
-    icon: Mic,
-    href: '#',
-    color: 'text-amber-600',
-  },
-  {
-    title: 'Mémorisation (Hifz)',
-    description: 'Guide pratique et méthodologie pour la mémorisation du Coran, adapté aux adultes et enfants.',
-    icon: GraduationCap,
-    href: '#',
-    color: 'text-lips-green-dark',
-  },
-];
-
-// --- Get daily verse based on date ---
+// ─── Helpers ──────────────────────────────────────────────────
 function getDailyVerse(): DailyVerse {
-  const dayOfYear = Math.floor(
-    (Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / (1000 * 60 * 60 * 24)
-  );
+  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / (1000 * 60 * 60 * 24));
   return DAILY_VERSES[dayOfYear % DAILY_VERSES.length];
 }
 
+function getAudioUrl(server: string, surahNumber: number): string {
+  const padded = String(surahNumber).padStart(3, '0');
+  return `${server}${padded}.mp3`;
+}
+
+function formatTime(seconds: number): string {
+  if (!seconds || !isFinite(seconds)) return '0:00';
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return `${m}:${s.toString().padStart(2, '0')}`;
+}
+
+// ─── Main Component ───────────────────────────────────────────
 export default function CoranSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
 
-  // Audio player state
+  // Data state
+  const [reciters, setReciters] = useState<Reciter[]>([]);
+  const [suwar, setSuwar] = useState<Surah[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [dataError, setDataError] = useState('');
+
+  // Player state
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [selectedReciter, setSelectedReciter] = useState<Reciter | null>(null);
+  const [selectedMoshaf, setSelectedMoshaf] = useState<Moshaf | null>(null);
+  const [currentSurah, setCurrentSurah] = useState(1);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [activeReciter, setActiveReciter] = useState<number | null>(null);
   const [progress, setProgress] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [audioLoading, setAudioLoading] = useState(false);
+  const [volume, setVolume] = useState(1);
+  const [isMuted, setIsMuted] = useState(false);
 
   // Surah search
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeJuz, setActiveJuz] = useState('1');
+  const [showAllReciters, setShowAllReciters] = useState(false);
 
-  // Daily verse
   const dailyVerse = useMemo(() => getDailyVerse(), []);
 
-  // Filter surahs
-  const filteredSurahs = useMemo(() => {
-    const juzNum = parseInt(activeJuz);
-    let filtered = SURAHS.filter((s) => s.juz === juzNum);
+  // ─── Fetch data ───────────────────────────────────────────
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        setLoading(true);
+        const [recitersRes, suwarRes] = await Promise.all([
+          fetch('/api/coran/reciters?language=fr'),
+          fetch('/api/coran/suwar'),
+        ]);
 
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      filtered = SURAHS.filter(
-        (s) =>
-          s.nameFr.toLowerCase().includes(q) ||
-          s.nameAr.includes(q) ||
-          s.number.toString() === q
-      );
+        if (!recitersRes.ok || !suwarRes.ok) throw new Error('API error');
+
+        const recitersData = await recitersRes.json();
+        const suwarData = await suwarRes.json();
+
+        setSuwar(suwarData.suwar || []);
+
+        // Sort: popular reciters first
+        const all = recitersData.reciters || [];
+        const popular = POPULAR_RECITER_IDS
+          .map(id => all.find((r: Reciter) => r.id === id))
+          .filter(Boolean) as Reciter[];
+        const others = all.filter((r: Reciter) => !POPULAR_RECITER_IDS.includes(r.id));
+
+        setReciters([...popular, ...others]);
+
+        // Auto-select first popular reciter
+        if (popular.length > 0) {
+          setSelectedReciter(popular[0]);
+          // Select first moshaf (murattal preferred)
+          const murattal = popular[0].moshaf.find(m => m.moshafType === 11) || popular[0].moshaf[0];
+          setSelectedMoshaf(murattal);
+        }
+      } catch (err) {
+        console.error('Fetch error:', err);
+        setDataError('Impossible de charger les données. Vérifiez votre connexion.');
+      } finally {
+        setLoading(false);
+      }
     }
+    fetchData();
+  }, []);
 
-    return filtered;
-  }, [searchQuery, activeJuz]);
+  // ─── Audio player logic ──────────────────────────────────
+  useEffect(() => {
+    if (!audioRef.current) {
+      audioRef.current = new Audio();
+    }
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = '';
+      }
+    };
+  }, []);
 
-  function handlePlayReciter(id: number) {
-    if (activeReciter === id && isPlaying) {
+  const playSurah = useCallback((surahNum: number, moshaf?: Moshaf) => {
+    const m = moshaf || selectedMoshaf;
+    if (!m) return;
+
+    const audio = audioRef.current!;
+    const url = getAudioUrl(m.server, surahNum);
+    audio.src = url;
+    audio.volume = isMuted ? 0 : volume;
+    setAudioLoading(true);
+    setCurrentSurah(surahNum);
+    setProgress(0);
+    setCurrentTime(0);
+    setDuration(0);
+
+    audio.play()
+      .then(() => { setIsPlaying(true); setAudioLoading(false); })
+      .catch((err) => { console.error('Play error:', err); setAudioLoading(false); });
+  }, [selectedMoshaf, volume, isMuted]);
+
+  // Audio event listeners
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const onTimeUpdate = () => {
+      setCurrentTime(audio.currentTime);
+      if (audio.duration && isFinite(audio.duration)) {
+        setProgress((audio.currentTime / audio.duration) * 100);
+        setDuration(audio.duration);
+      }
+    };
+    const onEnded = () => {
+      setIsPlaying(false);
+      // Auto-play next surah
+      if (currentSurah < 114 && selectedMoshaf) {
+        playSurah(currentSurah + 1);
+      }
+    };
+    const onLoadedMetadata = () => {
+      if (audio.duration && isFinite(audio.duration)) {
+        setDuration(audio.duration);
+      }
+      setAudioLoading(false);
+    };
+    const onCanPlay = () => setAudioLoading(false);
+    const onWaiting = () => setAudioLoading(true);
+
+    audio.addEventListener('timeupdate', onTimeUpdate);
+    audio.addEventListener('ended', onEnded);
+    audio.addEventListener('loadedmetadata', onLoadedMetadata);
+    audio.addEventListener('canplay', onCanPlay);
+    audio.addEventListener('waiting', onWaiting);
+
+    return () => {
+      audio.removeEventListener('timeupdate', onTimeUpdate);
+      audio.removeEventListener('ended', onEnded);
+      audio.removeEventListener('loadedmetadata', onLoadedMetadata);
+      audio.removeEventListener('canplay', onCanPlay);
+      audio.removeEventListener('waiting', onWaiting);
+    };
+  }, [currentSurah, selectedMoshaf, playSurah]);
+
+  const togglePlay = () => {
+    const audio = audioRef.current!;
+    if (isPlaying) {
+      audio.pause();
       setIsPlaying(false);
     } else {
-      setActiveReciter(id);
-      setIsPlaying(true);
-      setProgress(0);
-      // Simulate progress
-      simulateProgress();
-    }
-  }
-
-  function simulateProgress() {
-    setProgress(0);
-    let p = 0;
-    const interval = setInterval(() => {
-      p += Math.random() * 3;
-      if (p >= 100) {
-        p = 100;
-        clearInterval(interval);
-        setIsPlaying(false);
+      if (!audio.src || audio.src === window.location.href) {
+        playSurah(currentSurah);
+      } else {
+        audio.play().then(() => setIsPlaying(true)).catch(console.error);
       }
-      setProgress(p);
-    }, 500);
-  }
+    }
+  };
+
+  const handlePrev = () => {
+    if (currentSurah > 1) playSurah(currentSurah - 1);
+  };
+  const handleNext = () => {
+    if (currentSurah < 114) playSurah(currentSurah + 1);
+  };
+
+  const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
+    const audio = audioRef.current!;
+    if (!audio.duration || !isFinite(audio.duration)) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    audio.currentTime = ratio * audio.duration;
+  };
+
+  const toggleMute = () => {
+    const audio = audioRef.current!;
+    if (isMuted) {
+      audio.volume = volume;
+      setIsMuted(false);
+    } else {
+      audio.volume = 0;
+      setIsMuted(true);
+    }
+  };
+
+  const handleVolumeChange = (val: number) => {
+    const audio = audioRef.current!;
+    setVolume(val);
+    audio.volume = val;
+    if (val > 0 && isMuted) setIsMuted(false);
+  };
+
+  const selectReciter = (reciter: Reciter, moshaf?: Moshaf) => {
+    setSelectedReciter(reciter);
+    const m = moshaf || reciter.moshaf.find(m2 => m2.moshafType === 11) || reciter.moshaf[0];
+    setSelectedMoshaf(m);
+    // If currently playing, switch to new reciter
+    if (isPlaying) {
+      playSurah(currentSurah, m);
+    }
+  };
+
+  // ─── Filtered surahs ────────────────────────────────────
+  const filteredSurahs = useMemo(() => {
+    if (!searchQuery.trim()) return suwar;
+    const q = searchQuery.toLowerCase();
+    return suwar.filter((s) =>
+      s.name.toLowerCase().includes(q) ||
+      (SURAH_NAMES_AR[s.id] || '').includes(q) ||
+      s.id.toString() === q
+    );
+  }, [searchQuery, suwar]);
+
+  // ─── Displayed reciters ──────────────────────────────────
+  const displayedReciters = useMemo(() => {
+    if (showAllReciters) return reciters;
+    return reciters.slice(0, 12);
+  }, [reciters, showAllReciters]);
+
+  const currentSurahName = suwar.find(s => s.id === currentSurah)?.name || `Sourate ${currentSurah}`;
+  const currentSurahNameAr = SURAH_NAMES_AR[currentSurah] || '';
 
   return (
     <div ref={sectionRef}>
@@ -311,30 +368,16 @@ export default function CoranSection() {
         <div className="absolute top-1/3 right-10 w-12 h-12 border border-white/5 rotate-45 rounded-full" />
 
         <div className="relative max-w-4xl mx-auto px-4 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-          >
-            <span className="text-sm font-semibold text-lips-gold tracking-widest uppercase">
-              Parole Divine
-            </span>
-            <p className="font-arabic text-4xl sm:text-5xl lg:text-7xl text-lips-gold mt-4 mb-4 leading-relaxed">
-              القرآن الكريم
-            </p>
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-4">
-              Le Saint Coran
-            </h1>
-            <div className="separator-islamic text-lips-gold text-2xl my-4">
-              &#10022;
-            </div>
+          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
+            <span className="text-sm font-semibold text-lips-gold tracking-widest uppercase">Parole Divine</span>
+            <p className="font-arabic text-4xl sm:text-5xl lg:text-7xl text-lips-gold mt-4 mb-4 leading-relaxed">القرآن الكريم</p>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-4">Le Saint Coran</h1>
+            <div className="separator-islamic text-lips-gold text-2xl my-4">&#10022;</div>
             <p className="text-white/70 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed">
-              Explorez le Livre Saint, écoutez les récitations de nos imams sénégalais et accédez aux ressources coraniques pour approfondir votre foi.
+              Écoutez les plus belles récitations du Coran par les plus grands récitateurs du monde musulman, par sourate et en streaming direct.
             </p>
           </motion.div>
         </div>
-
-        {/* Bottom gold line */}
         <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-lips-gold/40 to-transparent" />
       </section>
 
@@ -342,32 +385,19 @@ export default function CoranSection() {
       <section className="py-10 sm:py-16 bg-lips-cream relative">
         <div className="absolute inset-0 islamic-pattern opacity-5" />
         <div className="relative max-w-4xl mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.1 }}
-          >
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay: 0.1 }}>
             <Card className="border-lips-gold/30 bg-white/90 backdrop-blur-sm shadow-lg overflow-hidden">
               <CardContent className="p-6 sm:p-8 lg:p-10">
                 <div className="flex items-center gap-2 mb-4">
                   <div className="w-8 h-8 rounded-full bg-lips-gold/20 flex items-center justify-center">
                     <BookOpen className="h-4 w-4 text-lips-gold" />
                   </div>
-                  <Badge className="bg-lips-gold/10 text-lips-gold border-lips-gold/20 text-xs">
-                    Verset du Jour
-                  </Badge>
+                  <Badge className="bg-lips-gold/10 text-lips-gold border-lips-gold/20 text-xs">Verset du Jour</Badge>
                 </div>
-
-                <p className="font-arabic text-2xl sm:text-3xl lg:text-4xl text-lips-green-dark text-right leading-loose mb-4" dir="rtl">
-                  {dailyVerse.arabic}
-                </p>
+                <p className="font-arabic text-2xl sm:text-3xl lg:text-4xl text-lips-green-dark text-right leading-loose mb-4" dir="rtl">{dailyVerse.arabic}</p>
                 <div className="w-16 h-0.5 bg-lips-gold/40 mx-auto my-4" />
-                <p className="text-base sm:text-lg text-foreground/80 italic text-center leading-relaxed mb-3">
-                  &laquo; {dailyVerse.french} &raquo;
-                </p>
-                <p className="text-sm text-lips-gold text-center font-medium">
-                  — {dailyVerse.reference}
-                </p>
+                <p className="text-base sm:text-lg text-foreground/80 italic text-center leading-relaxed mb-3">&laquo; {dailyVerse.french} &raquo;</p>
+                <p className="text-sm text-lips-gold text-center font-medium">— {dailyVerse.reference}</p>
               </CardContent>
             </Card>
           </motion.div>
@@ -377,130 +407,187 @@ export default function CoranSection() {
       {/* ===== B. Audio Player Section ===== */}
       <section className="py-12 sm:py-20 lg:py-28 bg-white relative">
         <div className="max-w-7xl mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-center mb-12"
-          >
-            <span className="text-sm font-semibold text-lips-gold tracking-widest uppercase">
-              Récitation
-            </span>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-lips-green-dark mt-3 mb-4">
-              Récitateurs Sénégalais
-            </h2>
-            <div className="separator-islamic text-lips-gold text-2xl my-4">
-              &#10022;
-            </div>
+          <motion.div initial={{ opacity: 0, y: 30 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay: 0.2 }} className="text-center mb-12">
+            <span className="text-sm font-semibold text-lips-gold tracking-widest uppercase">Récitation</span>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-lips-green-dark mt-3 mb-4">Récitateurs du Coran</h2>
+            <div className="separator-islamic text-lips-gold text-2xl my-4">&#10022;</div>
             <p className="text-muted-foreground max-w-2xl mx-auto text-base">
-              Écoutez la psalmodie du Coran par les voix les plus respectées de l&apos;imamat sénégalais.
+              Sélectionnez un récitateurs et écoutez la psalmodie du Coran en streaming direct depuis MP3Quran.net.
             </p>
           </motion.div>
 
-          {/* Reciters Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            {RECITERS.map((reciter, index) => (
-              <motion.div
-                key={reciter.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={isInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.4, delay: 0.1 * index }}
-              >
-                <Card className={`group hover:shadow-lg hover:shadow-lips-green/10 transition-all duration-300 hover:border-lips-green/30 border-border/50 ${
-                  activeReciter === reciter.id ? 'ring-2 ring-lips-green/30 border-lips-green/30' : ''
-                }`}>
-                  <CardContent className="p-5">
-                    <div className="flex items-start gap-4">
-                      {/* Avatar */}
-                      <div className={`w-14 h-14 rounded-full bg-gradient-to-br ${reciter.gradient} flex items-center justify-center shrink-0 shadow-md`}>
-                        <span className="text-white font-bold text-lg">{reciter.initials}</span>
-                      </div>
-
-                      {/* Info */}
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-lips-green-dark text-sm leading-tight mb-1">
-                          {reciter.name}
-                        </h3>
-                        <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
-                          {reciter.bio}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="mt-4">
-                      <Button
-                        onClick={() => handlePlayReciter(reciter.id)}
-                        className={`w-full gap-2 text-sm ${
-                          activeReciter === reciter.id && isPlaying
-                            ? 'bg-lips-gold hover:bg-lips-gold/90 text-lips-green-dark'
-                            : 'bg-lips-green hover:bg-lips-green-dark text-white'
-                        }`}
-                      >
-                        {activeReciter === reciter.id && isPlaying ? (
-                          <>
-                            <Pause className="h-4 w-4" /> En cours...
-                          </>
-                        ) : (
-                          <>
-                            <Play className="h-4 w-4" /> Écouter
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-
-          {/* Audio Player Bar */}
-          {activeReciter && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <Card className="bg-lips-green-dark text-white border-0 shadow-xl">
-                <CardContent className="p-4 sm:p-6">
-                  <div className="flex items-center gap-4">
-                    {/* Controls */}
-                    <div className="flex items-center gap-2 shrink-0">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-white/60 hover:text-white hover:bg-white/10 h-8 w-8"
-                      >
-                        <SkipBack className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        onClick={() => setIsPlaying(!isPlaying)}
-                        className="h-10 w-10 rounded-full bg-lips-gold hover:bg-lips-gold/90 text-lips-green-dark shrink-0"
-                        size="icon"
-                      >
-                        {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4 ml-0.5" />}
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-white/60 hover:text-white hover:bg-white/10 h-8 w-8"
-                      >
-                        <SkipForward className="h-4 w-4" />
-                      </Button>
-                    </div>
-
-                    {/* Progress */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs text-white/60 truncate">
-                          {RECITERS.find((r) => r.id === activeReciter)?.name}
+          {loading ? (
+            <div className="flex items-center justify-center py-20">
+              <Loader2 className="h-8 w-8 text-lips-green animate-spin" />
+              <span className="ml-3 text-muted-foreground">Chargement des récitateurs...</span>
+            </div>
+          ) : dataError ? (
+            <div className="text-center py-20">
+              <p className="text-red-500 mb-4">{dataError}</p>
+              <Button onClick={() => window.location.reload()} variant="outline" className="gap-2">
+                <RefreshCw className="h-4 w-4" /> Réessayer
+              </Button>
+            </div>
+          ) : (
+            <>
+              {/* Reciters Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 mb-8">
+                {displayedReciters.map((reciter) => {
+                  const isSelected = selectedReciter?.id === reciter.id;
+                  return (
+                    <motion.button
+                      key={reciter.id}
+                      onClick={() => selectReciter(reciter)}
+                      className={`text-left rounded-xl p-3 transition-all duration-200 border ${
+                        isSelected
+                          ? 'bg-lips-green text-white border-lips-green shadow-lg shadow-lips-green/20'
+                          : 'bg-white border-border/50 hover:border-lips-green/30 hover:shadow-md'
+                      }`}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2 ${
+                        isSelected ? 'bg-lips-gold' : 'bg-lips-green/10'
+                      }`}>
+                        <span className={`font-bold text-sm ${isSelected ? 'text-lips-green-dark' : 'text-lips-green'}`}>
+                          {reciter.name.charAt(0)}
                         </span>
                       </div>
-                      <Progress value={progress} className="h-2 bg-white/10 [&>[data-slot=indicator]]:bg-lips-gold" />
+                      <p className={`text-xs font-semibold text-center leading-tight truncate ${
+                        isSelected ? 'text-white' : 'text-lips-green-dark'
+                      }`}>
+                        {reciter.name}
+                      </p>
+                      {reciter.moshaf.length > 1 && (
+                        <p className={`text-[10px] text-center mt-0.5 truncate ${
+                          isSelected ? 'text-white/70' : 'text-muted-foreground'
+                        }`}>
+                          {reciter.moshaf.length} styles
+                        </p>
+                      )}
+                    </motion.button>
+                  );
+                })}
+              </div>
+
+              {/* Show more reciters */}
+              {reciters.length > 12 && (
+                <div className="text-center mb-8">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowAllReciters(!showAllReciters)}
+                    className="gap-2 border-lips-green/20 text-lips-green"
+                  >
+                    {showAllReciters ? 'Voir moins' : `Voir tous les ${reciters.length} récitateurs`}
+                    <ChevronRight className={`h-4 w-4 transition-transform ${showAllReciters ? 'rotate-90' : ''}`} />
+                  </Button>
+                </div>
+              )}
+
+              {/* Moshaf selector (if reciter has multiple styles) */}
+              {selectedReciter && selectedReciter.moshaf.length > 1 && (
+                <div className="flex flex-wrap items-center justify-center gap-2 mb-6">
+                  <span className="text-xs text-muted-foreground mr-1">Style :</span>
+                  {selectedReciter.moshaf.map((m) => (
+                    <button
+                      key={m.id}
+                      onClick={() => {
+                        setSelectedMoshaf(m);
+                        if (isPlaying) playSurah(currentSurah, m);
+                      }}
+                      className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                        selectedMoshaf?.id === m.id
+                          ? 'bg-lips-gold text-lips-green-dark shadow-sm'
+                          : 'bg-lips-green/10 text-lips-green hover:bg-lips-green/20'
+                      }`}
+                    >
+                      {m.name.replace('Rewayat ', '').replace('Almusshaf ', '')}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+
+          {/* ─── Audio Player Bar ──────────────────────────── */}
+          {selectedReciter && selectedMoshaf && (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+              <Card className="bg-lips-green-dark text-white border-0 shadow-xl overflow-hidden">
+                <CardContent className="p-4 sm:p-6">
+                  {/* Surah info */}
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <ListMusic className="h-4 w-4 text-lips-gold flex-shrink-0" />
+                        <span className="font-semibold text-sm truncate">{currentSurahName}</span>
+                        <span className="font-arabic text-lips-gold text-sm" dir="rtl">{currentSurahNameAr}</span>
+                      </div>
+                      <p className="text-[11px] text-white/50 truncate mt-0.5">{selectedReciter.name} — {selectedMoshaf.name}</p>
                     </div>
+                    <Badge className="bg-lips-gold/20 text-lips-gold border-lips-gold/30 text-[10px] ml-2 shrink-0">
+                      {currentSurah}/114
+                    </Badge>
+                  </div>
+
+                  {/* Progress bar (clickable) */}
+                  <div
+                    className="relative h-2 bg-white/10 rounded-full cursor-pointer group mb-3"
+                    onClick={handleSeek}
+                  >
+                    <div
+                      className="absolute top-0 left-0 h-full bg-lips-gold rounded-full transition-all"
+                      style={{ width: `${progress}%` }}
+                    />
+                    <div
+                      className="absolute top-1/2 -translate-y-1/2 w-3.5 h-3.5 bg-lips-gold rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+                      style={{ left: `${progress}%`, transform: `translate(-50%, -50%)` }}
+                    />
+                  </div>
+
+                  {/* Time */}
+                  <div className="flex items-center justify-between text-[10px] text-white/50 mb-3">
+                    <span>{formatTime(currentTime)}</span>
+                    <span>{formatTime(duration)}</span>
+                  </div>
+
+                  {/* Controls */}
+                  <div className="flex items-center justify-center gap-2 sm:gap-4">
+                    <Button variant="ghost" size="icon" onClick={handlePrev} disabled={currentSurah <= 1} className="text-white/60 hover:text-white hover:bg-white/10 h-9 w-9">
+                      <SkipBack className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      onClick={togglePlay}
+                      className="h-12 w-12 rounded-full bg-lips-gold hover:bg-lips-gold/90 text-lips-green-dark shrink-0 shadow-lg"
+                      size="icon"
+                      disabled={audioLoading}
+                    >
+                      {audioLoading ? (
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                      ) : isPlaying ? (
+                        <Pause className="h-5 w-5" />
+                      ) : (
+                        <Play className="h-5 w-5 ml-0.5" />
+                      )}
+                    </Button>
+                    <Button variant="ghost" size="icon" onClick={handleNext} disabled={currentSurah >= 114} className="text-white/60 hover:text-white hover:bg-white/10 h-9 w-9">
+                      <SkipForward className="h-4 w-4" />
+                    </Button>
 
                     {/* Volume */}
-                    <div className="hidden sm:flex items-center gap-2 shrink-0">
-                      <Volume2 className="h-4 w-4 text-white/60" />
+                    <div className="hidden sm:flex items-center gap-2 ml-4">
+                      <button onClick={toggleMute} className="text-white/60 hover:text-white transition-colors">
+                        {isMuted || volume === 0 ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                      </button>
+                      <input
+                        type="range"
+                        min={0}
+                        max={1}
+                        step={0.05}
+                        value={isMuted ? 0 : volume}
+                        onChange={(e) => handleVolumeChange(parseFloat(e.target.value))}
+                        className="w-20 accent-lips-gold"
+                      />
                     </div>
                   </div>
                 </CardContent>
@@ -514,23 +601,12 @@ export default function CoranSection() {
       <section className="py-12 sm:py-20 lg:py-28 bg-lips-cream relative">
         <div className="absolute inset-0 islamic-pattern opacity-5" />
         <div className="relative max-w-7xl mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="text-center mb-12"
-          >
-            <span className="text-sm font-semibold text-lips-gold tracking-widest uppercase">
-              Index
-            </span>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-lips-green-dark mt-3 mb-4">
-              Sourates du Coran
-            </h2>
-            <div className="separator-islamic text-lips-gold text-2xl my-4">
-              &#10022;
-            </div>
+          <motion.div initial={{ opacity: 0, y: 30 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay: 0.3 }} className="text-center mb-12">
+            <span className="text-sm font-semibold text-lips-gold tracking-widest uppercase">Index</span>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-lips-green-dark mt-3 mb-4">Les 114 Sourates</h2>
+            <div className="separator-islamic text-lips-gold text-2xl my-4">&#10022;</div>
             <p className="text-muted-foreground max-w-2xl mx-auto text-base">
-              Retrouvez les 114 sourates du Coran, classées par Juz, avec accès rapide à la lecture en ligne.
+              Cliquez sur une sourate pour l&apos;écouter directement avec le récitateurs sélectionné.
             </p>
           </motion.div>
 
@@ -547,190 +623,107 @@ export default function CoranSection() {
             </div>
           </div>
 
-          {/* Juz Tabs */}
-          <Tabs value={activeJuz} onValueChange={setActiveJuz} className="w-full">
-            <div className="flex justify-center mb-8">
-              <TabsList className="bg-white border border-border/50 shadow-sm">
-                <TabsTrigger value="1" className="data-[state=active]:bg-lips-green data-[state=active]:text-white text-xs sm:text-sm">
-                  Juz 1
-                </TabsTrigger>
-                <TabsTrigger value="2" className="data-[state=active]:bg-lips-green data-[state=active]:text-white text-xs sm:text-sm">
-                  Juz 2
-                </TabsTrigger>
-                <TabsTrigger value="3" className="data-[state=active]:bg-lips-green data-[state=active]:text-white text-xs sm:text-sm">
-                  Juz 3
-                </TabsTrigger>
-                <TabsTrigger value="4" className="data-[state=active]:bg-lips-green data-[state=active]:text-white text-xs sm:text-sm">
-                  Juz 4
-                </TabsTrigger>
-                <TabsTrigger value="5" className="data-[state=active]:bg-lips-green data-[state=active]:text-white text-xs sm:text-sm">
-                  Juz 5
-                </TabsTrigger>
-              </TabsList>
+          {/* Surah grid */}
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-6 w-6 text-lips-green animate-spin" />
+              <span className="ml-2 text-muted-foreground text-sm">Chargement des sourates...</span>
             </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
+              {filteredSurahs.map((surah, idx) => {
+                const isActive = currentSurah === surah.id && isPlaying;
+                const isCurrent = currentSurah === surah.id;
+                const nameAr = SURAH_NAMES_AR[surah.id] || '';
+                return (
+                  <motion.button
+                    key={surah.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.15, delay: Math.min(idx * 0.01, 0.5) }}
+                    onClick={() => {
+                      if (selectedMoshaf) {
+                        playSurah(surah.id);
+                      }
+                    }}
+                    disabled={!selectedMoshaf}
+                    className={`text-left rounded-xl p-2.5 sm:p-3 transition-all duration-200 border relative overflow-hidden ${
+                      isActive
+                        ? 'bg-lips-green text-white border-lips-green shadow-lg shadow-lips-green/20'
+                        : isCurrent
+                        ? 'bg-lips-gold/10 border-lips-gold/30'
+                        : 'bg-white/90 border-border/50 hover:border-lips-green/30 hover:shadow-sm'
+                    } ${!selectedMoshaf ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                  >
+                    {/* Playing indicator */}
+                    {isActive && (
+                      <div className="absolute top-2 right-2 flex items-end gap-0.5 h-3">
+                        <span className="w-0.5 bg-lips-gold rounded-full animate-pulse" style={{ height: '60%', animationDelay: '0ms' }} />
+                        <span className="w-0.5 bg-lips-gold rounded-full animate-pulse" style={{ height: '100%', animationDelay: '150ms' }} />
+                        <span className="w-0.5 bg-lips-gold rounded-full animate-pulse" style={{ height: '40%', animationDelay: '300ms' }} />
+                      </div>
+                    )}
 
-            {['1', '2', '3', '4', '5'].map((juz) => (
-              <TabsContent key={juz} value={juz}>
-                {searchQuery.trim() ? null : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-                    {filteredSurahs.map((surah, idx) => (
-                      <motion.div
-                        key={`${surah.number}-${idx}`}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.2, delay: idx * 0.03 }}
-                      >
-                        <a
-                          href={`https://quran.com/fr/${surah.number}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="block"
-                        >
-                          <Card className="group hover:shadow-md hover:shadow-lips-green/10 transition-all duration-200 hover:border-lips-green/30 cursor-pointer border-border/50 bg-white/90">
-                            <CardContent className="p-3 sm:p-4 flex items-center gap-3">
-                              {/* Surah number */}
-                              <div className="w-9 h-9 rounded-lg bg-lips-green/10 flex items-center justify-center shrink-0">
-                                <span className="text-xs font-bold text-lips-green font-mono">
-                                  {surah.number}
-                                </span>
-                              </div>
+                    <div className="flex items-center gap-2">
+                      <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
+                        isActive ? 'bg-lips-gold' : 'bg-lips-green/10'
+                      }`}>
+                        <span className={`text-[10px] font-bold font-mono ${
+                          isActive ? 'text-lips-green-dark' : 'text-lips-green'
+                        }`}>{surah.id}</span>
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className={`font-arabic text-xs truncate ${isActive ? 'text-lips-gold' : 'text-lips-gold'}`}>{nameAr}</p>
+                        <p className={`text-[10px] truncate leading-tight ${
+                          isActive ? 'text-white/80' : 'text-muted-foreground'
+                        }`}>{surah.name}</p>
+                      </div>
+                    </div>
+                    <div className="mt-1.5">
+                      <Badge variant="secondary" className={`text-[8px] h-3.5 px-1 ${
+                        isActive ? 'bg-white/20 text-white' : 'bg-lips-green/5 text-lips-green'
+                      }`}>
+                        {surah.makkia ? 'Makki' : 'Madani'}
+                      </Badge>
+                    </div>
+                  </motion.button>
+                );
+              })}
+            </div>
+          )}
 
-                              {/* Names */}
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2">
-                                  <span className="font-arabic text-sm text-lips-gold">
-                                    {surah.nameAr}
-                                  </span>
-                                  <Badge variant="secondary" className="text-[10px] h-4 bg-lips-green/5 text-lips-green shrink-0">
-                                    {surah.type}
-                                  </Badge>
-                                </div>
-                                <p className="text-xs text-muted-foreground truncate mt-0.5">
-                                  {surah.nameFr} — {surah.verses} versets
-                                </p>
-                              </div>
-
-                              {/* Arrow */}
-                              <ExternalLink className="h-3.5 w-3.5 text-muted-foreground/30 group-hover:text-lips-green transition-colors shrink-0" />
-                            </CardContent>
-                          </Card>
-                        </a>
-                      </motion.div>
-                    ))}
-                  </div>
-                )}
-              </TabsContent>
-            ))}
-
-            {/* Search results */}
-            {searchQuery.trim() && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-                {filteredSurahs.length > 0 ? (
-                  filteredSurahs.map((surah, idx) => (
-                    <motion.div
-                      key={`search-${surah.number}-${idx}`}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.2, delay: idx * 0.03 }}
-                    >
-                      <a
-                        href={`https://quran.com/fr/${surah.number}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="block"
-                      >
-                        <Card className="group hover:shadow-md hover:shadow-lips-green/10 transition-all duration-200 hover:border-lips-green/30 cursor-pointer border-border/50 bg-white/90">
-                          <CardContent className="p-3 sm:p-4 flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-lg bg-lips-green/10 flex items-center justify-center shrink-0">
-                              <span className="text-xs font-bold text-lips-green font-mono">
-                                {surah.number}
-                              </span>
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2">
-                                <span className="font-arabic text-sm text-lips-gold">
-                                  {surah.nameAr}
-                                </span>
-                                <Badge variant="secondary" className="text-[10px] h-4 bg-lips-green/5 text-lips-green shrink-0">
-                                  {surah.type}
-                                </Badge>
-                              </div>
-                              <p className="text-xs text-muted-foreground truncate mt-0.5">
-                                {surah.nameFr} — {surah.verses} versets
-                              </p>
-                            </div>
-                            <ExternalLink className="h-3.5 w-3.5 text-muted-foreground/30 group-hover:text-lips-green transition-colors shrink-0" />
-                          </CardContent>
-                        </Card>
-                      </a>
-                    </motion.div>
-                  ))
-                ) : (
-                  <div className="col-span-full text-center py-12 text-muted-foreground">
-                    <Search className="h-8 w-8 mx-auto mb-2 opacity-30" />
-                    <p>Aucune sourate trouvée pour &laquo; {searchQuery} &raquo;</p>
-                  </div>
-                )}
-              </div>
-            )}
-          </Tabs>
+          {searchQuery.trim() && filteredSurahs.length === 0 && (
+            <div className="text-center py-12 text-muted-foreground">
+              <Search className="h-8 w-8 mx-auto mb-2 opacity-30" />
+              <p>Aucune sourate trouvée pour &laquo; {searchQuery} &raquo;</p>
+            </div>
+          )}
         </div>
       </section>
 
       {/* ===== D. Quran Resources ===== */}
       <section className="py-12 sm:py-20 lg:py-28 bg-white relative">
         <div className="max-w-7xl mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="text-center mb-12"
-          >
-            <span className="text-sm font-semibold text-lips-gold tracking-widest uppercase">
-              Ressources
-            </span>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-lips-green-dark mt-3 mb-4">
-              Ressources Coraniques
-            </h2>
-            <div className="separator-islamic text-lips-gold text-2xl my-4">
-              &#10022;
-            </div>
-            <p className="text-muted-foreground max-w-2xl mx-auto text-base">
-              Accédez à des outils et ressources pour approfondir votre relation avec le Coran.
-            </p>
+          <motion.div initial={{ opacity: 0, y: 30 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay: 0.4 }} className="text-center mb-12">
+            <span className="text-sm font-semibold text-lips-gold tracking-widest uppercase">Ressources</span>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-lips-green-dark mt-3 mb-4">Ressources Coraniques</h2>
+            <div className="separator-islamic text-lips-gold text-2xl my-4">&#10022;</div>
+            <p className="text-muted-foreground max-w-2xl mx-auto text-base">Accédez à des outils et ressources pour approfondir votre relation avec le Coran.</p>
           </motion.div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {QURAN_RESOURCES.map((resource, index) => (
-              <motion.div
-                key={resource.title}
-                initial={{ opacity: 0, y: 20 }}
-                animate={isInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.4, delay: 0.1 * index }}
-              >
+              <motion.div key={resource.title} initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.4, delay: 0.1 * index }}>
                 <Card className="group hover:shadow-lg hover:shadow-lips-green/10 transition-all duration-300 hover:border-lips-green/30 border-border/50 h-full">
                   <CardContent className="p-6 flex flex-col h-full">
                     <div className="w-12 h-12 rounded-xl bg-lips-green/10 flex items-center justify-center mb-4">
                       <resource.icon className={`h-6 w-6 ${resource.color}`} />
                     </div>
-                    <h3 className="font-semibold text-lips-green-dark text-base mb-2">
-                      {resource.title}
-                    </h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed mb-4 flex-1">
-                      {resource.description}
-                    </p>
-                    <Button
-                      asChild
-                      variant="outline"
-                      className="w-full gap-2 border-lips-green/20 text-lips-green hover:bg-lips-green hover:text-white transition-colors"
-                    >
-                      <a
-                        href={resource.href}
-                        target={resource.href.startsWith('http') ? '_blank' : undefined}
-                        rel={resource.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                      >
-                        Accéder
-                        <ChevronRight className="h-4 w-4" />
+                    <h3 className="font-semibold text-lips-green-dark text-base mb-2">{resource.title}</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed mb-4 flex-1">{resource.description}</p>
+                    <Button asChild variant="outline" className="w-full gap-2 border-lips-green/20 text-lips-green hover:bg-lips-green hover:text-white transition-colors">
+                      <a href={resource.href} target={resource.href.startsWith('http') ? '_blank' : undefined} rel={resource.href.startsWith('http') ? 'noopener noreferrer' : undefined}>
+                        Accéder <ChevronRight className="h-4 w-4" />
                       </a>
                     </Button>
                   </CardContent>
