@@ -1,0 +1,174 @@
+'use client';
+
+import { useRef, useState } from 'react';
+import { motion, useInView } from 'framer-motion';
+import {
+  Heart,
+  Gift,
+  HandCoins,
+  ShieldCheck,
+  CreditCard,
+  Smartphone,
+  Banknote,
+  CheckCircle2,
+} from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+
+const MONTANTS = [1000, 2500, 5000, 10000, 25000, 50000];
+
+const METHODES = [
+  { icon: CreditCard, name: 'CinetPay', desc: 'Carte bancaire & Mobile Money' },
+  { icon: Smartphone, name: 'Wave', desc: 'Paiement mobile instantané' },
+  { icon: Banknote, name: 'Espèces', desc: 'À la délégation régionale' },
+];
+
+const IMPACTS = [
+  { montant: 1000, desc: 'Finance la formation d\'un imam pendant une journée' },
+  { montant: 5000, desc: 'Couvre les frais d\'émission de 5 cartes membres' },
+  { montant: 10000, desc: 'Équipe une mosquée en livres et supports pédagogiques' },
+  { montant: 25000, desc: 'Finance un séminaire régional de formation' },
+  { montant: 50000, desc: 'Contribue au fond de solidarité pour les imams en difficulté' },
+];
+
+export default function DonsSection() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
+  const [selected, setSelected] = useState<number | null>(5000);
+  const [custom, setCustom] = useState('');
+
+  const currentMontant = custom ? parseInt(custom) : selected;
+
+  return (
+    <section
+      ref={sectionRef}
+      id="dons"
+      className="py-20 lg:py-28 bg-gradient-to-b from-lips-green-dark via-lips-green to-lips-green-dark text-white relative overflow-hidden"
+    >
+      <div className="absolute inset-0 islamic-pattern opacity-10" />
+
+      <div className="relative max-w-5xl mx-auto px-4">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-14"
+        >
+          <span className="text-sm font-semibold text-lips-gold tracking-widest uppercase">
+            Soutenir la LIPS
+          </span>
+          <h2 className="text-3xl md:text-4xl font-bold text-white mt-3 mb-4">
+            Faire un Don
+          </h2>
+          <p className="font-arabic text-lips-gold text-xl mb-4">
+            مَّن ذَا الَّذِي يُقْرِضُ اللَّهَ قَرْضًا حَسَنًا
+          </p>
+          <p className="text-white/70 max-w-xl mx-auto text-sm italic">
+            &laquo; Qui est celui qui ferait un prêt généreux à Allah ? &raquo; — Coran 2:245
+          </p>
+          <p className="text-white/60 max-w-2xl mx-auto text-sm mt-4">
+            Votre don contribue au fonctionnement de la LIPS, à la formation des imams,
+            à la solidarité communautaire et au maintien de la paix sociale au Sénégal.
+          </p>
+        </motion.div>
+
+        {/* Donation card */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
+          <Card className="bg-white/10 backdrop-blur-md border-white/20 shadow-2xl">
+            <CardContent className="p-6 lg:p-8">
+              {/* Amount selection */}
+              <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+                <HandCoins className="h-5 w-5 text-lips-gold" />
+                Choisissez un montant (FCFA)
+              </h3>
+              <div className="grid grid-cols-3 gap-3 mb-4">
+                {MONTANTS.map((m) => (
+                  <button
+                    key={m}
+                    onClick={() => { setSelected(m); setCustom(''); }}
+                    className={`py-3 rounded-lg text-sm font-semibold transition-all ${
+                      selected === m && !custom
+                        ? 'bg-lips-gold text-lips-green-dark shadow-lg shadow-lips-gold/30'
+                        : 'bg-white/10 text-white/80 hover:bg-white/20 border border-white/10'
+                    }`}
+                  >
+                    {m.toLocaleString('fr-FR')} F
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex gap-3 mb-6">
+                <Input
+                  type="number"
+                  placeholder="Autre montant..."
+                  value={custom}
+                  onChange={(e) => { setCustom(e.target.value); setSelected(null); }}
+                  className="bg-white/10 border-white/20 text-white placeholder:text-white/40 h-11"
+                />
+              </div>
+
+              {/* Impact indicator */}
+              {currentMontant && (
+                <div className="bg-white/5 rounded-lg p-4 mb-6 border border-white/10">
+                  <div className="flex items-center gap-2 text-lips-gold text-sm font-medium mb-1">
+                    <Gift className="h-4 w-4" />
+                    Impact de votre don
+                  </div>
+                  {(() => {
+                    const impact = IMPACTS.filter((i) => i.montant <= (currentMontant || 0)).pop();
+                    return impact ? (
+                      <p className="text-white/70 text-xs">{impact.desc}</p>
+                    ) : (
+                      <p className="text-white/70 text-xs">Chaque contribution, aussi modeste soit-elle, fait la différence.</p>
+                    );
+                  })()}
+                </div>
+              )}
+
+              {/* Payment methods */}
+              <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+                <CreditCard className="h-5 w-5 text-lips-gold" />
+                Mode de paiement
+              </h3>
+              <div className="grid grid-cols-3 gap-3 mb-6">
+                {METHODES.map((methode) => (
+                  <div
+                    key={methode.name}
+                    className="bg-white/10 rounded-lg p-3 text-center border border-white/10 hover:bg-white/15 cursor-pointer transition-colors"
+                  >
+                    <methode.icon className="h-5 w-5 text-lips-gold mx-auto mb-1.5" />
+                    <div className="text-xs font-medium text-white">{methode.name}</div>
+                    <div className="text-[10px] text-white/50">{methode.desc}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Submit */}
+              <Button className="w-full bg-lips-gold hover:bg-lips-gold-light text-lips-green-dark font-semibold h-12 text-base shadow-lg shadow-lips-gold/30">
+                <Heart className="h-5 w-5 mr-2" />
+                Faire un don de {currentMontant ? currentMontant.toLocaleString('fr-FR') : '0'} FCFA
+              </Button>
+
+              {/* Trust indicators */}
+              <div className="flex items-center justify-center gap-6 mt-4 text-[10px] text-white/40">
+                <span className="flex items-center gap-1">
+                  <ShieldCheck className="h-3 w-3" /> Paiement sécurisé
+                </span>
+                <span className="flex items-center gap-1">
+                  <CheckCircle2 className="h-3 w-3" /> Reçu fiscal
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+    </section>
+  );
+}

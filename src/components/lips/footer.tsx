@@ -12,15 +12,15 @@ import {
 
 const QUICK_LINKS = [
   { label: 'Accueil', href: '#accueil' },
-  { label: 'Notre Mission', href: '#mission' },
+  { label: 'Notre Mission', href: '#apropos' },
   { label: 'Régions', href: '#regions' },
   { label: 'Vérifier une Carte', href: '#verification' },
 ];
 
 const RESOURCE_LINKS = [
-  { label: 'Communiqués', href: '#communiques' },
-  { label: 'Fatwas', href: '#fatwas' },
-  { label: 'Cours & Formations', href: '#cours' },
+  { label: 'Communiqués', href: '#actualites' },
+  { label: 'Fatwas', href: '#actualites' },
+  { label: 'Cours & Formations', href: '#evenements' },
   { label: 'Espace Membre', href: '#verification' },
 ];
 

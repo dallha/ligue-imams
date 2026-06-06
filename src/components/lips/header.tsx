@@ -21,9 +21,18 @@ const NAV_ITEMS = [
     label: 'À Propos',
     href: '#apropos',
     children: [
-      { label: 'Notre Mission', href: '#mission' },
+      { label: 'Notre Mission', href: '#apropos' },
       { label: 'Gouvernance', href: '#gouvernance' },
-      { label: 'Choura', href: '#choura' },
+      { label: 'Carte Membre', href: '#carte-membre' },
+    ],
+  },
+  {
+    label: 'Actualités',
+    href: '#actualites',
+    children: [
+      { label: 'Communiqués & Fatwas', href: '#actualites' },
+      { label: 'Événements', href: '#evenements' },
+      { label: 'Galerie Photos', href: '#galerie' },
     ],
   },
   {
@@ -31,21 +40,16 @@ const NAV_ITEMS = [
     href: '#regions',
   },
   {
-    label: 'Publications',
-    href: '#publications',
-    children: [
-      { label: 'Communiqués', href: '#communiques' },
-      { label: 'Fatwas', href: '#fatwas' },
-      { label: 'Cours & Formations', href: '#cours' },
-    ],
+    label: 'Adhérer',
+    href: '#devenir-membre',
   },
   {
     label: 'Vérifier une Carte',
     href: '#verification',
   },
   {
-    label: 'Contact',
-    href: '#contact',
+    label: 'Faire un Don',
+    href: '#dons',
   },
 ];
 
