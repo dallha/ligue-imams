@@ -36,7 +36,7 @@ const navItems = [
   { href: '/espace-membre#cotisations', label: 'Mes Cotisations', icon: CreditCard },
 ]
 
-function TopNav({ memberUser, onLogout }: { memberUser: MemberUser | null; onLogout: () => void }) {
+function TopNav({ memberUser, onLogout, mounted }: { memberUser: MemberUser | null; onLogout: () => void; mounted: boolean }) {
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
 
@@ -122,83 +122,90 @@ function TopNav({ memberUser, onLogout }: { memberUser: MemberUser | null; onLog
             </Button>
 
             {/* Mobile Menu Button */}
-            <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="md:hidden">
-                  <Menu className="h-5 w-5" />
-                  <span className="sr-only">Menu</span>
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-72 p-0">
-                <SheetTitle className="sr-only">Menu de navigation</SheetTitle>
-                <div className="flex flex-col h-full">
-                  {/* Mobile User Info */}
-                  <div className="p-4 bg-lips-green-dark">
-                    <div className="flex items-center gap-3">
-                      <Avatar className="h-10 w-10 border border-white/20">
-                        <AvatarFallback className="bg-white/10 text-white text-sm font-bold">
-                          {initials}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="text-sm font-medium text-white">
-                          {memberUser ? `${memberUser.prenom} ${memberUser.nom}` : 'Membre'}
-                        </p>
-                        <p className="text-xs text-white/60">
-                          {memberUser ? (roleLabel[memberUser.role] || memberUser.role) : ''}
-                        </p>
-                        {memberUser?.region && (
-                          <p className="text-xs text-lips-gold/80 mt-0.5">
-                            {memberUser.region.nom}
+            {mounted ? (
+              <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon" className="md:hidden">
+                    <Menu className="h-5 w-5" />
+                    <span className="sr-only">Menu</span>
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-72 p-0">
+                  <SheetTitle className="sr-only">Menu de navigation</SheetTitle>
+                  <div className="flex flex-col h-full">
+                    {/* Mobile User Info */}
+                    <div className="p-4 bg-lips-green-dark">
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-10 w-10 border border-white/20">
+                          <AvatarFallback className="bg-white/10 text-white text-sm font-bold">
+                            {initials}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="text-sm font-medium text-white">
+                            {memberUser ? `${memberUser.prenom} ${memberUser.nom}` : 'Membre'}
                           </p>
-                        )}
+                          <p className="text-xs text-white/60">
+                            {memberUser ? (roleLabel[memberUser.role] || memberUser.role) : ''}
+                          </p>
+                          {memberUser?.region && (
+                            <p className="text-xs text-lips-gold/80 mt-0.5">
+                              {memberUser.region.nom}
+                            </p>
+                          )}
+                        </div>
                       </div>
                     </div>
+
+                    <Separator />
+
+                    {/* Mobile Nav Items */}
+                    <nav className="flex-1 p-3 space-y-1">
+                      {navItems.map((item) => {
+                        const isActive = item.href === '/espace-membre'
+                          ? pathname === '/espace-membre'
+                          : pathname.startsWith(item.href.split('#')[0])
+
+                        return (
+                          <Link
+                            key={item.label}
+                            href={item.href}
+                            onClick={() => setMobileOpen(false)}
+                            className={cn(
+                              'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
+                              isActive
+                                ? 'text-lips-green bg-lips-green/5'
+                                : 'text-muted-foreground hover:text-lips-green hover:bg-lips-green/5'
+                            )}
+                          >
+                            <item.icon className="h-4 w-4" />
+                            {item.label}
+                          </Link>
+                        )
+                      })}
+                    </nav>
+
+                    <Separator />
+
+                    <div className="p-3">
+                      <Button
+                        variant="ghost"
+                        onClick={onLogout}
+                        className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 gap-3"
+                      >
+                        <LogOut className="h-4 w-4" />
+                        Déconnexion
+                      </Button>
+                    </div>
                   </div>
-
-                  <Separator />
-
-                  {/* Mobile Nav Items */}
-                  <nav className="flex-1 p-3 space-y-1">
-                    {navItems.map((item) => {
-                      const isActive = item.href === '/espace-membre'
-                        ? pathname === '/espace-membre'
-                        : pathname.startsWith(item.href.split('#')[0])
-
-                      return (
-                        <Link
-                          key={item.label}
-                          href={item.href}
-                          onClick={() => setMobileOpen(false)}
-                          className={cn(
-                            'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
-                            isActive
-                              ? 'text-lips-green bg-lips-green/5'
-                              : 'text-muted-foreground hover:text-lips-green hover:bg-lips-green/5'
-                          )}
-                        >
-                          <item.icon className="h-4 w-4" />
-                          {item.label}
-                        </Link>
-                      )
-                    })}
-                  </nav>
-
-                  <Separator />
-
-                  <div className="p-3">
-                    <Button
-                      variant="ghost"
-                      onClick={onLogout}
-                      className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 gap-3"
-                    >
-                      <LogOut className="h-4 w-4" />
-                      Déconnexion
-                    </Button>
-                  </div>
-                </div>
-              </SheetContent>
-            </Sheet>
+                </SheetContent>
+              </Sheet>
+            ) : (
+              <Button variant="ghost" size="icon" className="md:hidden" disabled aria-hidden>
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Menu</span>
+              </Button>
+            )}
           </div>
         </div>
       </div>
@@ -211,6 +218,11 @@ export default function EspaceMembreLayout({ children }: { children: React.React
   const router = useRouter()
   const [memberUser, setMemberUser] = useState<MemberUser | null>(null)
   const [loading, setLoading] = useState(true)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     fetch('/api/membre/me')
@@ -252,7 +264,7 @@ export default function EspaceMembreLayout({ children }: { children: React.React
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <TopNav memberUser={memberUser} onLogout={handleLogout} />
+      <TopNav memberUser={memberUser} onLogout={handleLogout} mounted={mounted} />
       <main className="flex-1">
         {children}
       </main>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -204,6 +204,11 @@ export default function AdminAgendaPage() {
   const [saving, setSaving] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Calendar settings
   const [defaultCity, setDefaultCity] = useState('Dakar');
@@ -315,7 +320,10 @@ export default function AdminAgendaPage() {
         </div>
       </div>
 
-      {/* Tabs */}
+      {/* Tabs — only render Radix Tabs after mount to prevent hydration mismatch */}
+      {!mounted ? (
+        <div className="text-center py-8 text-muted-foreground">Chargement...</div>
+      ) : (
       <Tabs defaultValue="evenements" className="w-full">
         <TabsList className="bg-white border border-border/50 shadow-sm">
           <TabsTrigger
@@ -596,6 +604,7 @@ export default function AdminAgendaPage() {
           </Card>
         </TabsContent>
       </Tabs>
+      )}
 
       {/* Create/Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>

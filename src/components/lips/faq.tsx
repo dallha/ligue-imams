@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { motion, useInView } from 'framer-motion';
 import {
   Accordion,
@@ -16,6 +16,11 @@ export default function FAQSection() {
   const { p } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const FAQ_ITEMS = [
     { q: p.faq.items.q1.q, a: p.faq.items.q1.a },
@@ -60,25 +65,39 @@ export default function FAQSection() {
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <Accordion type="single" collapsible className="space-y-3">
-            {FAQ_ITEMS.map((item, index) => (
-              <AccordionItem
-                key={index}
-                value={`item-${index}`}
-                className="bg-white border border-border/50 rounded-xl px-5 data-[state=open]:border-lips-green/20 data-[state=open]:shadow-md transition-all"
-              >
-                <AccordionTrigger className="text-sm font-semibold text-lips-green-dark hover:text-lips-green text-left py-4 hover:no-underline">
-                  <div className="flex items-center gap-3">
+          {mounted ? (
+            <Accordion type="single" collapsible className="space-y-3">
+              {FAQ_ITEMS.map((item, index) => (
+                <AccordionItem
+                  key={index}
+                  value={`item-${index}`}
+                  className="bg-white border border-border/50 rounded-xl px-5 data-[state=open]:border-lips-green/20 data-[state=open]:shadow-md transition-all"
+                >
+                  <AccordionTrigger className="text-sm font-semibold text-lips-green-dark hover:text-lips-green text-left py-4 hover:no-underline">
+                    <div className="flex items-center gap-3">
+                      <HelpCircle className="h-4 w-4 text-lips-gold shrink-0" />
+                      {item.q}
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="text-sm text-muted-foreground leading-relaxed pb-4 pl-7">
+                    {item.a}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          ) : (
+            /* SSR fallback: render items as simple divs */
+            <div className="space-y-3">
+              {FAQ_ITEMS.map((item, index) => (
+                <div key={index} className="bg-white border border-border/50 rounded-xl px-5 py-4">
+                  <div className="flex items-center gap-3 text-sm font-semibold text-lips-green-dark">
                     <HelpCircle className="h-4 w-4 text-lips-gold shrink-0" />
                     {item.q}
                   </div>
-                </AccordionTrigger>
-                <AccordionContent className="text-sm text-muted-foreground leading-relaxed pb-4 pl-7">
-                  {item.a}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
+                </div>
+              ))}
+            </div>
+          )}
         </motion.div>
 
         {/* Contact CTA */}

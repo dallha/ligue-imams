@@ -69,7 +69,6 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
   const [adminUser, setAdminUser] = useState<{ nom: string; prenom: string; role: string } | null>(null)
 
   useEffect(() => {
-    // Read admin session from cookie on client side
     fetch('/api/admin/me').then(res => {
       if (res.ok) return res.json()
       throw new Error('Not authenticated')
@@ -184,7 +183,12 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const pathname = usePathname()
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   // Login page should not have sidebar
   if (pathname === '/admin/login') {
@@ -198,28 +202,34 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <SidebarContent />
       </aside>
 
-      {/* Mobile Sidebar */}
-      <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-        <SheetContent side="left" className="w-64 p-0 bg-lips-green-dark border-0">
-          <SheetTitle className="sr-only">Menu de navigation</SheetTitle>
-          <SidebarContent onClose={() => setSidebarOpen(false)} />
-        </SheetContent>
-      </Sheet>
-
       {/* Main Content */}
       <div className="flex-1 lg:pl-64">
         {/* Top Bar */}
         <header className="sticky top-0 z-30 bg-white border-b border-gray-200 shadow-sm">
           <div className="flex items-center h-16 px-4 lg:px-6">
-            {/* Mobile Menu Button */}
-            <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="lg:hidden mr-2">
-                  <Menu className="h-5 w-5" />
-                  <span className="sr-only">Menu</span>
-                </Button>
-              </SheetTrigger>
-            </Sheet>
+            {/* Mobile Menu — Single Sheet instance with trigger + content */}
+            {mounted && (
+              <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon" className="lg:hidden mr-2">
+                    <Menu className="h-5 w-5" />
+                    <span className="sr-only">Menu</span>
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="w-64 p-0 bg-lips-green-dark border-0">
+                  <SheetTitle className="sr-only">Menu de navigation</SheetTitle>
+                  <SidebarContent onClose={() => setSidebarOpen(false)} />
+                </SheetContent>
+              </Sheet>
+            )}
+
+            {/* Fallback button during SSR (before mounted) */}
+            {!mounted && (
+              <Button variant="ghost" size="icon" className="lg:hidden mr-2" disabled aria-hidden>
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Menu</span>
+              </Button>
+            )}
 
             {/* Breadcrumb */}
             <nav className="flex items-center gap-1 text-sm text-muted-foreground">
