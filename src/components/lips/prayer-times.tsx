@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { Clock, Sun, Sunset, Moon, Sunrise, ChevronDown, ChevronUp, MapPin } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -36,6 +36,24 @@ interface PrayerInfo {
   bgColor: string;
 }
 
+// ─── Regions list (must match API route) ──────────────────────
+const SENEGAL_REGIONS = [
+  { key: 'dakar',        label: 'Dakar' },
+  { key: 'saint_louis',  label: 'Saint-Louis' },
+  { key: 'thiès',        label: 'Thiès' },
+  { key: 'louga',        label: 'Louga' },
+  { key: 'kaolack',      label: 'Kaolack' },
+  { key: 'diourbel',     label: 'Diourbel' },
+  { key: 'tambacounda',  label: 'Tambacounda' },
+  { key: 'ziguinchor',   label: 'Ziguinchor' },
+  { key: 'kolda',        label: 'Kolda' },
+  { key: 'matam',        label: 'Matam' },
+  { key: 'kédougou',     label: 'Kédougou' },
+  { key: 'sédhiou',      label: 'Sédhiou' },
+  { key: 'fatick',       label: 'Fatick' },
+  { key: 'kaffrine',     label: 'Kaffrine' },
+] as const;
+
 // ─── Constants ────────────────────────────────────────────────
 const PRAYERS: PrayerInfo[] = [
   { key: 'Fajr',    name: 'Fajr',     nameAr: 'الفجر',   icon: Moon,    color: 'text-sky-300',   bgColor: 'bg-sky-500/25' },
@@ -46,6 +64,7 @@ const PRAYERS: PrayerInfo[] = [
   { key: 'Isha',    name: 'Isha',     nameAr: 'العشاء',  icon: Moon,    color: 'text-indigo-300',bgColor: 'bg-indigo-500/25' },
 ];
 
+// ─── Helpers ──────────────────────────────────────────────────
 function toArabicNumerals(num: number): string {
   const arabicDigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
   return num.toString().split('').map((d) => arabicDigits[parseInt(d)] ?? d).join('');
@@ -94,7 +113,6 @@ function getNextPrayerCountdown(timings: PrayerData['timings']): string {
       return `${m} min`;
     }
   }
-  // After Isha — next Fajr tomorrow
   const diff = (24 * 60 - minutes) + times[0];
   const h = Math.floor(diff / 60);
   const m = Math.floor(diff % 60);
@@ -102,7 +120,75 @@ function getNextPrayerCountdown(timings: PrayerData['timings']): string {
   return `${m} min`;
 }
 
-// ─── Component ────────────────────────────────────────────────
+// ─── Region Selector Component ────────────────────────────────
+function RegionSelector({
+  selected,
+  onChange,
+}: {
+  selected: string;
+  onChange: (key: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  // Close on outside click
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    if (open) document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [open]);
+
+  const selectedLabel = SENEGAL_REGIONS.find(r => r.key === selected)?.label ?? 'Dakar';
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex items-center gap-1 px-2 py-1 rounded-lg bg-white/10 hover:bg-white/20 transition-colors text-white text-[10px] sm:text-xs font-medium"
+        aria-label="Changer de région"
+      >
+        <MapPin className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-lips-gold flex-shrink-0" />
+        <span>{selectedLabel}</span>
+        <ChevronDown className={`h-2.5 w-2.5 sm:h-3 sm:w-3 text-white/60 transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -4, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -4, scale: 0.95 }}
+            transition={{ duration: 0.15 }}
+            className="absolute z-50 bottom-full mb-1 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-0 w-44 bg-[#0f3d22] border border-white/20 rounded-xl shadow-2xl shadow-black/40 overflow-hidden"
+          >
+            <div className="p-1 max-h-64 overflow-y-auto scrollbar-none">
+              {SENEGAL_REGIONS.map(r => (
+                <button
+                  key={r.key}
+                  onClick={() => { onChange(r.key); setOpen(false); }}
+                  className={`w-full text-left px-3 py-2 rounded-lg text-xs transition-colors flex items-center gap-2 ${
+                    r.key === selected
+                      ? 'bg-lips-gold text-[#0a2e18] font-bold'
+                      : 'text-white hover:bg-white/10'
+                  }`}
+                >
+                  <MapPin className={`h-3 w-3 flex-shrink-0 ${r.key === selected ? 'text-[#0a2e18]' : 'text-lips-gold'}`} />
+                  {r.label}
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+// ─── Main Component ───────────────────────────────────────────
 export default function PrayerTimesWidget() {
   const [prayerData, setPrayerData] = useState<PrayerData | null>(null);
   const [currentPrayer, setCurrentPrayer] = useState(0);
@@ -112,11 +198,30 @@ export default function PrayerTimesWidget() {
   const [expanded, setExpanded] = useState(false);
   const [hijriDisplay, setHijriDisplay] = useState({ french: '', arabic: '' });
   const [gregorianDate, setGregorianDate] = useState('');
-  const [region] = useState('dakar');
 
-  const fetchPrayerTimes = useCallback(async () => {
+  // Read saved region from localStorage (default: dakar)
+  const [region, setRegion] = useState('dakar');
+
+  // Load saved region on mount
+  useEffect(() => {
     try {
-      const res = await fetch(`/api/prayer-times?region=${region}`);
+      const saved = localStorage.getItem('lips-prayer-region');
+      if (saved && SENEGAL_REGIONS.some(r => r.key === saved)) {
+        setRegion(saved);
+      }
+    } catch {}
+  }, []);
+
+  // Save region to localStorage when it changes
+  const handleRegionChange = useCallback((newRegion: string) => {
+    setRegion(newRegion);
+    try { localStorage.setItem('lips-prayer-region', newRegion); } catch {}
+  }, []);
+
+  // Fetch prayer times from API
+  const fetchPrayerTimes = useCallback(async (reg: string) => {
+    try {
+      const res = await fetch(`/api/prayer-times?region=${reg}`);
       const json = await res.json();
       if (json.success && json.data) {
         setPrayerData(json.data);
@@ -130,21 +235,27 @@ export default function PrayerTimesWidget() {
       }
     } catch (err) {
       console.error('Failed to fetch prayer times:', err);
+      const regionLabel = SENEGAL_REGIONS.find(r => r.key === reg)?.label ?? 'Dakar';
       setPrayerData({
         date: new Date().toISOString().split('T')[0],
-        region: 'dakar',
-        regionName: 'Dakar',
+        region: reg,
+        regionName: regionLabel,
         timings: { Fajr: '05:42', Sunrise: '06:58', Dhuhr: '13:22', Asr: '16:38', Maghrib: '19:10', Isha: '20:26' },
         fallback: true,
       });
       setHijriDisplay({ french: '7 Dhul Hijjah 1447 H', arabic: '٧ ذو الحجة ١٤٤٧ هـ' });
     }
-  }, [region]);
+  }, []);
 
   useEffect(() => {
     setMounted(true);
-    fetchPrayerTimes();
-  }, [fetchPrayerTimes]);
+  }, []);
+
+  useEffect(() => {
+    if (mounted) {
+      fetchPrayerTimes(region);
+    }
+  }, [mounted, region, fetchPrayerTimes]);
 
   useEffect(() => {
     if (!prayerData) return;
@@ -190,9 +301,8 @@ export default function PrayerTimesWidget() {
             MOBILE VIEW — Compact, high-contrast
         ═══════════════════════════════════════════════════════ */}
         <div className="py-2.5 sm:hidden">
-          {/* Row 1: Current prayer badge + countdown + clock */}
+          {/* Row 1: Current prayer + countdown + clock + expand */}
           <div className="flex items-center justify-between gap-2">
-            {/* Current prayer — gold badge with DARK text for max contrast */}
             <Link href="/agenda" className="flex items-center gap-2 min-w-0 flex-1" title="Voir le calendrier">
               <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-lips-gold">
                 <CurrentIcon className="h-3.5 w-3.5 text-[#0a2e18] flex-shrink-0" />
@@ -203,7 +313,6 @@ export default function PrayerTimesWidget() {
               </div>
             </Link>
 
-            {/* Countdown — white text on semi-transparent bg */}
             <div className="flex items-center gap-1 px-2 py-1 bg-white/15 rounded-lg">
               <NextIcon className="h-3 w-3 text-white flex-shrink-0" />
               <div className="text-center">
@@ -212,13 +321,11 @@ export default function PrayerTimesWidget() {
               </div>
             </div>
 
-            {/* Clock */}
             <div className="flex items-center gap-1 px-1.5 py-1">
               <Clock className="h-3 w-3 text-lips-gold flex-shrink-0" />
               <span className="font-mono text-[11px] font-semibold">{currentTime}</span>
             </div>
 
-            {/* Expand toggle */}
             <button
               onClick={() => setExpanded(!expanded)}
               className="p-1.5 rounded-lg hover:bg-white/15 transition-colors touch-manipulation"
@@ -228,16 +335,13 @@ export default function PrayerTimesWidget() {
             </button>
           </div>
 
-          {/* Row 2: Hijri date + Location */}
+          {/* Row 2: Hijri date + Region selector */}
           <div className="flex items-center justify-between mt-1.5 gap-2">
             <Link href="/agenda" className="flex items-center gap-1.5 min-w-0">
               <span className="text-white text-[10px] font-semibold truncate">{hijriDisplay.french}</span>
               <span className="font-arabic text-white/80 text-[9px] truncate" dir="rtl">{hijriDisplay.arabic}</span>
             </Link>
-            <div className="flex items-center gap-1 text-white/60 flex-shrink-0">
-              <MapPin className="h-2.5 w-2.5" />
-              <span className="text-[9px]">{prayerData.regionName}</span>
-            </div>
+            <RegionSelector selected={region} onChange={handleRegionChange} />
           </div>
 
           {/* Expandable: All 6 prayers */}
@@ -259,9 +363,7 @@ export default function PrayerTimesWidget() {
                       <div
                         key={prayer.key}
                         className={`flex items-center gap-1.5 px-2 py-1.5 rounded-lg transition-all ${
-                          isCurrent
-                            ? 'bg-lips-gold'  // Solid gold background for current prayer
-                            : 'bg-white/10'
+                          isCurrent ? 'bg-lips-gold' : 'bg-white/10'
                         }`}
                       >
                         <Icon className={`h-3.5 w-3.5 flex-shrink-0 ${isCurrent ? 'text-[#0a2e18]' : prayer.color}`} />
@@ -287,7 +389,7 @@ export default function PrayerTimesWidget() {
         </div>
 
         {/* ═══════════════════════════════════════════════════════
-            DESKTOP / TABLET VIEW — Full bar, high-contrast
+            DESKTOP / TABLET VIEW
         ═══════════════════════════════════════════════════════ */}
         <div className="hidden sm:flex items-center justify-between gap-4 py-3 lg:py-3.5">
           {/* Date & Clock */}
@@ -313,7 +415,7 @@ export default function PrayerTimesWidget() {
             </div>
           </Link>
 
-          {/* Prayer Times Bar — each prayer in a pill */}
+          {/* Prayer Times Bar */}
           <div className="flex items-center gap-1.5 md:gap-2 lg:gap-2.5 flex-1 justify-center">
             {PRAYERS.map((prayer, index) => {
               const Icon = prayer.icon;
@@ -324,7 +426,7 @@ export default function PrayerTimesWidget() {
                   key={prayer.key}
                   className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg transition-all ${
                     isCurrent
-                      ? 'bg-lips-gold shadow-md shadow-lips-gold/30' // Solid gold pill
+                      ? 'bg-lips-gold shadow-md shadow-lips-gold/30'
                       : 'bg-white/10 hover:bg-white/15'
                   }`}
                 >
@@ -346,8 +448,8 @@ export default function PrayerTimesWidget() {
             })}
           </div>
 
-          {/* Countdown + Location */}
-          <div className="flex items-center gap-3 flex-shrink-0">
+          {/* Countdown + Region Selector + Location */}
+          <div className="flex items-center gap-2 flex-shrink-0">
             <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white/15 rounded-lg">
               <NextIcon className="h-3.5 w-3.5 text-white" />
               <div>
@@ -355,10 +457,7 @@ export default function PrayerTimesWidget() {
                 <div className="font-mono text-xs font-bold text-white leading-tight">{countdown}</div>
               </div>
             </div>
-            <div className="text-xs text-white/60 flex items-center gap-1 hidden lg:flex">
-              <MapPin className="h-3 w-3" />
-              {prayerData.regionName}, Sénégal
-            </div>
+            <RegionSelector selected={region} onChange={handleRegionChange} />
           </div>
         </div>
       </div>
