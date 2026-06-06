@@ -90,8 +90,8 @@ function MembershipCard({ flipped, onFlip }: { flipped: boolean; onFlip: () => v
             <div className="flex items-center justify-between px-5 pt-4 pb-2">
               <div className="flex items-center gap-2.5">
                 {/* Logo */}
-                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center border border-white/20">
-                  <span className="text-white font-bold text-[9px] sm:text-[10px]">LIPS</span>
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center border border-white/20 overflow-hidden p-0.5">
+                  <img src="/logo.png" alt="LIPS" className="w-full h-full object-contain" />
                 </div>
                 <div>
                   <div className="text-white font-semibold text-[10px] sm:text-[11px] leading-tight">

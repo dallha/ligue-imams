@@ -93,9 +93,11 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
       {/* Logo / Brand */}
       <div className="p-6">
         <Link href="/admin" className="flex items-center gap-3" onClick={onClose}>
-          <div className="w-10 h-10 rounded-lg bg-lips-gold/20 flex items-center justify-center border border-lips-gold/30">
-            <span className="text-lg font-bold text-lips-gold">L</span>
-          </div>
+          <img
+            src="/logo.png"
+            alt="Logo LIPS"
+            className="w-10 h-10 rounded-lg object-contain"
+          />
           <div>
             <h2 className="text-lg font-bold text-white">LIPS</h2>
             <p className="text-xs text-white/50">Administration</p>

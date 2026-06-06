@@ -52,8 +52,8 @@ function LoginForm() {
       <div className="w-full max-w-md mx-4">
         {/* LIPS Branding */}
         <div className="text-center mb-8">
-          <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-white/10 flex items-center justify-center border-2 border-lips-gold/50">
-            <span className="text-3xl font-bold text-lips-gold">L</span>
+          <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-white/10 flex items-center justify-center border-2 border-lips-gold/50 overflow-hidden p-2">
+            <img src="/logo.png" alt="LIPS" className="w-full h-full object-contain" />
           </div>
           <h1 className="text-2xl font-bold text-white">LIPS</h1>
           <p className="text-white/60 text-sm mt-1">

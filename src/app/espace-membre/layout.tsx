@@ -57,9 +57,11 @@ function TopNav({ memberUser, onLogout }: { memberUser: MemberUser | null; onLog
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/espace-membre" className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-lips-green flex items-center justify-center shadow-md">
-              <span className="text-white font-bold text-sm">L</span>
-            </div>
+            <img
+              src="/logo.png"
+              alt="Logo LIPS"
+              className="w-9 h-9 rounded-lg object-contain shadow-md"
+            />
             <div className="hidden sm:block">
               <div className="font-bold text-lips-green-dark text-sm leading-tight">LIPS</div>
               <div className="text-[10px] text-muted-foreground leading-tight">Espace Membre</div>

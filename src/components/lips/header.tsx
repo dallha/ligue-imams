@@ -132,11 +132,11 @@ export default function LipsHeader() {
           <div className="flex items-center justify-between h-16 lg:h-20">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-3 group">
-              <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-gradient-lips flex items-center justify-center shadow-lg group-hover:shadow-lips-green/30 transition-shadow">
-                <span className="text-white font-bold text-sm lg:text-base">
-                  LIPS
-                </span>
-              </div>
+              <img
+                src="/logo.png"
+                alt="Logo LIPS"
+                className="w-10 h-10 lg:w-12 lg:h-12 rounded-full object-contain shadow-lg group-hover:shadow-lips-green/30 transition-shadow"
+              />
               <div className="hidden sm:block">
                 <div className="font-bold text-lips-green-dark text-sm lg:text-base leading-tight">
                   Ligue des Imams

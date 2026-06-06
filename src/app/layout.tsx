@@ -30,7 +30,7 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "LIPS - Ligue des Imams et Prédicateurs du Sénégal" }],
   icons: {
-    icon: "/logo.svg",
+    icon: "/logo-64.png",
   },
   openGraph: {
     title: "Ligue des Imams et Prédicateurs du Sénégal",

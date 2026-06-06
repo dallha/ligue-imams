@@ -46,9 +46,11 @@ export default function LipsFooter() {
           {/* Brand column */}
           <div className="lg:col-span-1">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
-                <span className="text-lips-gold font-bold text-sm">LIPS</span>
-              </div>
+              <img
+                src="/logo.png"
+                alt="Logo LIPS"
+                className="w-10 h-10 rounded-full object-contain"
+              />
               <div>
                 <div className="font-semibold text-white text-sm">
                   Ligue des Imams

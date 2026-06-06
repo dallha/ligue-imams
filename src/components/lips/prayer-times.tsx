@@ -294,8 +294,8 @@ export default function PrayerTimesWidget() {
   const NextIcon = nextPrayerInfo.icon;
 
   return (
-    <div className="bg-[#0a2e18] text-white w-full overflow-hidden">
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
+    <div className="bg-[#0a2e18] text-white w-full overflow-x-hidden">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 min-w-0">
 
         {/* ═══════════════════════════════════════════════════════
             MOBILE VIEW — Compact, high-contrast
@@ -393,25 +393,25 @@ export default function PrayerTimesWidget() {
         ═══════════════════════════════════════════════════════ */}
         <div className="hidden sm:block py-2.5 lg:py-3">
           {/* Top row: Clock + Date | Hijri | Region */}
-          <div className="flex items-center justify-between gap-3 mb-2.5">
+          <div className="flex items-center justify-between gap-2 sm:gap-3 mb-2.5 min-w-0">
             <Link
               href="/agenda"
-              className="flex items-center gap-2 min-w-0 overflow-hidden"
+              className="flex items-center gap-1.5 sm:gap-2 min-w-0 overflow-hidden flex-shrink"
               title="Voir le calendrier"
             >
               <Clock className="h-4 w-4 text-lips-gold flex-shrink-0" />
-              <span className="font-mono text-sm font-semibold flex-shrink-0">{currentTime}</span>
+              <span className="font-mono text-xs sm:text-sm font-semibold flex-shrink-0">{currentTime}</span>
               <div className="w-px h-4 bg-white/30 flex-shrink-0" />
-              <span className="text-white/70 text-xs truncate">{gregorianDate}</span>
-              <span className="text-white/30 flex-shrink-0">|</span>
-              <span className="font-bold text-white text-sm truncate">{hijriDisplay.french}</span>
-              <span className="font-arabic text-white/70 text-[11px] truncate" dir="rtl">{hijriDisplay.arabic}</span>
+              <span className="text-white/70 text-[10px] sm:text-xs truncate hidden sm:inline">{gregorianDate}</span>
+              <span className="text-white/30 flex-shrink-0 hidden sm:inline">|</span>
+              <span className="font-bold text-white text-xs sm:text-sm truncate">{hijriDisplay.french}</span>
+              <span className="font-arabic text-white/70 text-[10px] sm:text-[11px] truncate hidden md:inline" dir="rtl">{hijriDisplay.arabic}</span>
             </Link>
-            <div className="flex items-center gap-2 flex-shrink-0">
-              <div className="flex items-center gap-1 px-2 py-1 bg-white/10 rounded-lg">
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+              <div className="flex items-center gap-1 px-1.5 sm:px-2 py-1 bg-white/10 rounded-lg">
                 <NextIcon className="h-3 w-3 text-white" />
-                <span className="text-[9px] text-white/70">Prochaine</span>
-                <span className="font-mono text-xs font-bold text-white">{countdown}</span>
+                <span className="text-[8px] sm:text-[9px] text-white/70">Prochaine</span>
+                <span className="font-mono text-[10px] sm:text-xs font-bold text-white">{countdown}</span>
               </div>
               <RegionSelector selected={region} onChange={handleRegionChange} />
             </div>
