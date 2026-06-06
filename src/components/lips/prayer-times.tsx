@@ -294,7 +294,7 @@ export default function PrayerTimesWidget() {
   const NextIcon = nextPrayerInfo.icon;
 
   return (
-    <div className="bg-[#0a2e18] text-white">
+    <div className="bg-[#0a2e18] text-white w-full overflow-hidden">
       <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
 
         {/* ═══════════════════════════════════════════════════════
@@ -313,7 +313,7 @@ export default function PrayerTimesWidget() {
               </div>
             </Link>
 
-            <div className="flex items-center gap-1 px-2 py-1 bg-white/15 rounded-lg">
+            <div className="flex items-center gap-1 px-2 py-1 bg-white/15 rounded-lg flex-shrink-0">
               <NextIcon className="h-3 w-3 text-white flex-shrink-0" />
               <div className="text-center">
                 <div className="text-[9px] text-white/70 leading-tight">Prochaine</div>
@@ -321,14 +321,14 @@ export default function PrayerTimesWidget() {
               </div>
             </div>
 
-            <div className="flex items-center gap-1 px-1.5 py-1">
+            <div className="flex items-center gap-1 px-1.5 py-1 flex-shrink-0">
               <Clock className="h-3 w-3 text-lips-gold flex-shrink-0" />
               <span className="font-mono text-[11px] font-semibold">{currentTime}</span>
             </div>
 
             <button
               onClick={() => setExpanded(!expanded)}
-              className="p-1.5 rounded-lg hover:bg-white/15 transition-colors touch-manipulation"
+              className="p-1.5 rounded-lg hover:bg-white/15 transition-colors touch-manipulation flex-shrink-0"
               aria-label={expanded ? 'Réduire' : 'Voir toutes les prières'}
             >
               {expanded ? <ChevronUp className="h-4 w-4 text-white" /> : <ChevronDown className="h-4 w-4 text-white" />}
@@ -337,7 +337,7 @@ export default function PrayerTimesWidget() {
 
           {/* Row 2: Hijri date + Region selector */}
           <div className="flex items-center justify-between mt-1.5 gap-2">
-            <Link href="/agenda" className="flex items-center gap-1.5 min-w-0">
+            <Link href="/agenda" className="flex items-center gap-1.5 min-w-0 overflow-hidden">
               <span className="text-white text-[10px] font-semibold truncate">{hijriDisplay.french}</span>
               <span className="font-arabic text-white/80 text-[9px] truncate" dir="rtl">{hijriDisplay.arabic}</span>
             </Link>
@@ -362,12 +362,12 @@ export default function PrayerTimesWidget() {
                     return (
                       <div
                         key={prayer.key}
-                        className={`flex items-center gap-1.5 px-2 py-1.5 rounded-lg transition-all ${
+                        className={`flex items-center gap-1.5 px-2 py-1.5 rounded-lg transition-all overflow-hidden ${
                           isCurrent ? 'bg-lips-gold' : 'bg-white/10'
                         }`}
                       >
                         <Icon className={`h-3.5 w-3.5 flex-shrink-0 ${isCurrent ? 'text-[#0a2e18]' : prayer.color}`} />
-                        <div className="min-w-0">
+                        <div className="min-w-0 overflow-hidden">
                           <div className={`text-[10px] leading-tight truncate font-semibold ${
                             isCurrent ? 'text-[#0a2e18]' : 'text-white'
                           }`}>
@@ -389,34 +389,36 @@ export default function PrayerTimesWidget() {
         </div>
 
         {/* ═══════════════════════════════════════════════════════
-            DESKTOP / TABLET VIEW
+            DESKTOP / TABLET VIEW — 3-row layout, no overflow
         ═══════════════════════════════════════════════════════ */}
-        <div className="hidden sm:flex items-center justify-between gap-4 py-3 lg:py-3.5">
-          {/* Date & Clock */}
-          <Link
-            href="/agenda"
-            className="flex items-center gap-2 sm:gap-3 group flex-shrink-0"
-            title="Voir le calendrier"
-          >
-            <div className="flex items-center gap-1.5">
-              <Clock className="h-4 w-4 text-lips-gold" />
-              <span className="font-mono text-sm font-semibold">{currentTime}</span>
-            </div>
-            <div className="w-px h-4 bg-white/30" />
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-white/70 text-xs">{gregorianDate}</span>
-                <span className="text-white/30">|</span>
-                <span className="font-bold text-white text-sm">{hijriDisplay.french}</span>
+        <div className="hidden sm:block py-2.5 lg:py-3">
+          {/* Top row: Clock + Date | Hijri | Region */}
+          <div className="flex items-center justify-between gap-3 mb-2.5">
+            <Link
+              href="/agenda"
+              className="flex items-center gap-2 min-w-0 overflow-hidden"
+              title="Voir le calendrier"
+            >
+              <Clock className="h-4 w-4 text-lips-gold flex-shrink-0" />
+              <span className="font-mono text-sm font-semibold flex-shrink-0">{currentTime}</span>
+              <div className="w-px h-4 bg-white/30 flex-shrink-0" />
+              <span className="text-white/70 text-xs truncate">{gregorianDate}</span>
+              <span className="text-white/30 flex-shrink-0">|</span>
+              <span className="font-bold text-white text-sm truncate">{hijriDisplay.french}</span>
+              <span className="font-arabic text-white/70 text-[11px] truncate" dir="rtl">{hijriDisplay.arabic}</span>
+            </Link>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <div className="flex items-center gap-1 px-2 py-1 bg-white/10 rounded-lg">
+                <NextIcon className="h-3 w-3 text-white" />
+                <span className="text-[9px] text-white/70">Prochaine</span>
+                <span className="font-mono text-xs font-bold text-white">{countdown}</span>
               </div>
-              <span className="font-arabic text-white/70 text-[11px] leading-none" dir="rtl">
-                {hijriDisplay.arabic}
-              </span>
+              <RegionSelector selected={region} onChange={handleRegionChange} />
             </div>
-          </Link>
+          </div>
 
-          {/* Prayer Times Bar */}
-          <div className="flex items-center gap-1.5 md:gap-2 lg:gap-2.5 flex-1 justify-center">
+          {/* Bottom row: 6 prayer pills — compact, evenly spaced */}
+          <div className="grid grid-cols-6 gap-1.5 lg:gap-2">
             {PRAYERS.map((prayer, index) => {
               const Icon = prayer.icon;
               const isCurrent = index === currentPrayer;
@@ -424,20 +426,20 @@ export default function PrayerTimesWidget() {
               return (
                 <div
                   key={prayer.key}
-                  className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg transition-all ${
+                  className={`flex items-center justify-center gap-1.5 px-1.5 py-1.5 lg:px-2.5 rounded-lg transition-all overflow-hidden ${
                     isCurrent
                       ? 'bg-lips-gold shadow-md shadow-lips-gold/30'
                       : 'bg-white/10 hover:bg-white/15'
                   }`}
                 >
                   <Icon className={`h-3.5 w-3.5 flex-shrink-0 ${isCurrent ? 'text-[#0a2e18]' : prayer.color}`} />
-                  <div>
-                    <div className={`text-xs leading-tight font-semibold ${
+                  <div className="min-w-0 overflow-hidden">
+                    <div className={`text-[10px] lg:text-xs leading-tight font-semibold truncate ${
                       isCurrent ? 'text-[#0a2e18]' : 'text-white'
                     }`}>
                       {prayer.name}
                     </div>
-                    <div className={`font-mono text-[11px] leading-tight font-bold ${
+                    <div className={`font-mono text-[10px] lg:text-[11px] leading-tight font-bold truncate ${
                       isCurrent ? 'text-[#0a2e18]/80' : 'text-white'
                     }`}>
                       {time}
@@ -446,18 +448,6 @@ export default function PrayerTimesWidget() {
                 </div>
               );
             })}
-          </div>
-
-          {/* Countdown + Region Selector + Location */}
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white/15 rounded-lg">
-              <NextIcon className="h-3.5 w-3.5 text-white" />
-              <div>
-                <div className="text-[9px] text-white/70 leading-tight">Prochaine prière</div>
-                <div className="font-mono text-xs font-bold text-white leading-tight">{countdown}</div>
-              </div>
-            </div>
-            <RegionSelector selected={region} onChange={handleRegionChange} />
           </div>
         </div>
       </div>
