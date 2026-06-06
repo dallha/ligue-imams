@@ -170,85 +170,79 @@ function RegionSelector({
         <ChevronDown className={`h-2.5 w-2.5 sm:h-3 sm:w-3 text-white/60 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
 
-      <AnimatePresence>
-        {open && (
-          <>
-            {/* Desktop: dropdown anchored to button */}
-            <motion.div
-              initial={{ opacity: 0, y: -8, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -8, scale: 0.95 }}
-              transition={{ duration: 0.15 }}
-              className="fixed z-[9999] hidden sm:block bg-[#0f3d22] border border-white/20 rounded-xl shadow-2xl shadow-black/50 w-48 overflow-visible"
-              style={{
-                top: btnRef.current
-                  ? btnRef.current.getBoundingClientRect().bottom + 6
-                  : 'auto',
-                right: btnRef.current
-                  ? window.innerWidth - btnRef.current.getBoundingClientRect().right
-                  : 'auto',
-              }}
-            >
-              <div className="p-1.5 max-h-72 overflow-y-auto">
-                {SENEGAL_REGIONS.map(r => (
-                  <button
-                    key={r.key}
-                    onClick={() => handleSelect(r.key)}
-                    className={`w-full text-left px-3 py-2 rounded-lg text-xs transition-colors flex items-center gap-2 ${
-                      r.key === selected
-                        ? 'bg-lips-gold text-[#0a2e18] font-bold'
-                        : 'text-white hover:bg-white/10'
-                    }`}
-                  >
-                    <MapPin className={`h-3 w-3 flex-shrink-0 ${r.key === selected ? 'text-[#0a2e18]' : 'text-lips-gold'}`} />
-                    {r.label}
-                  </button>
-                ))}
-              </div>
-            </motion.div>
+      {/* Desktop: dropdown */}
+      {open && (
+        <motion.div
+          initial={{ opacity: 0, y: -8, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.15 }}
+          className="fixed z-[9999] hidden sm:block bg-[#0f3d22] border border-white/20 rounded-xl shadow-2xl shadow-black/50 w-48"
+          style={{
+            top: btnRef.current
+              ? btnRef.current.getBoundingClientRect().bottom + 6
+              : 'auto',
+            right: btnRef.current
+              ? window.innerWidth - btnRef.current.getBoundingClientRect().right
+              : 'auto',
+          }}
+        >
+          <div className="p-1.5 max-h-72 overflow-y-auto">
+            {SENEGAL_REGIONS.map(r => (
+              <button
+                key={r.key}
+                onClick={() => handleSelect(r.key)}
+                className={`w-full text-left px-3 py-2 rounded-lg text-xs transition-colors flex items-center gap-2 ${
+                  r.key === selected
+                    ? 'bg-lips-gold text-[#0a2e18] font-bold'
+                    : 'text-white hover:bg-white/10'
+                }`}
+              >
+                <MapPin className={`h-3 w-3 flex-shrink-0 ${r.key === selected ? 'text-[#0a2e18]' : 'text-lips-gold'}`} />
+                {r.label}
+              </button>
+            ))}
+          </div>
+        </motion.div>
+      )}
 
-            {/* Mobile: full-screen overlay */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
-              className="fixed inset-0 z-[9998] bg-black/60 sm:hidden"
-              onClick={() => setOpen(false)}
-            />
-            <motion.div
-              initial={{ opacity: 0, y: '100%' }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: '100%' }}
-              transition={{ duration: 0.25, ease: 'easeOut' }}
-              className="fixed bottom-0 left-0 right-0 z-[9999] sm:hidden bg-[#0f3d22] border-t border-white/20 rounded-t-2xl shadow-2xl"
-            >
-              <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
-                <h3 className="text-white font-bold text-sm">Choisir une région</h3>
-                <button onClick={() => setOpen(false)} className="p-1 rounded-lg hover:bg-white/10 transition-colors">
-                  <X className="h-5 w-5 text-white" />
+      {/* Mobile: overlay + bottom sheet */}
+      {open && (
+        <>
+          <div
+            className="fixed inset-0 z-[9998] bg-black/60 sm:hidden"
+            onClick={() => setOpen(false)}
+          />
+          <motion.div
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            transition={{ duration: 0.25, ease: 'easeOut' }}
+            className="fixed bottom-0 left-0 right-0 z-[9999] sm:hidden bg-[#0f3d22] border-t border-white/20 rounded-t-2xl shadow-2xl"
+          >
+            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+              <h3 className="text-white font-bold text-sm">Choisir une région</h3>
+              <button onClick={() => setOpen(false)} className="p-1 rounded-lg hover:bg-white/10 transition-colors">
+                <X className="h-5 w-5 text-white" />
+              </button>
+            </div>
+            <div className="p-2 max-h-[60vh] overflow-y-auto">
+              {SENEGAL_REGIONS.map(r => (
+                <button
+                  key={r.key}
+                  onClick={() => handleSelect(r.key)}
+                  className={`w-full text-left px-4 py-3 rounded-xl text-sm transition-colors flex items-center gap-3 ${
+                    r.key === selected
+                      ? 'bg-lips-gold text-[#0a2e18] font-bold'
+                      : 'text-white hover:bg-white/10'
+                  }`}
+                >
+                  <MapPin className={`h-4 w-4 flex-shrink-0 ${r.key === selected ? 'text-[#0a2e18]' : 'text-lips-gold'}`} />
+                  {r.label}
                 </button>
-              </div>
-              <div className="p-2 max-h-[60vh] overflow-y-auto">
-                {SENEGAL_REGIONS.map(r => (
-                  <button
-                    key={r.key}
-                    onClick={() => handleSelect(r.key)}
-                    className={`w-full text-left px-4 py-3 rounded-xl text-sm transition-colors flex items-center gap-3 ${
-                      r.key === selected
-                        ? 'bg-lips-gold text-[#0a2e18] font-bold'
-                        : 'text-white hover:bg-white/10'
-                    }`}
-                  >
-                    <MapPin className={`h-4 w-4 flex-shrink-0 ${r.key === selected ? 'text-[#0a2e18]' : 'text-lips-gold'}`} />
-                    {r.label}
-                  </button>
-                ))}
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+              ))}
+            </div>
+          </motion.div>
+        </>
+      )}
     </div>
   );
 }
