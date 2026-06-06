@@ -41,14 +41,14 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  /* LIPS Custom Colors */
-  --color-lips-green: var(--lips-green);
-  --color-lips-green-light: var(--lips-green-light);
-  --color-lips-green-dark: var(--lips-green-dark);
-  --color-lips-gold: var(--lips-gold);
-  --color-lips-gold-light: var(--lips-gold-light);
-  --color-lips-cream: var(--lips-cream);
-  --color-lips-emerald: var(--lips-emerald);
+  /* LIPS Custom Colors — defined directly for Tailwind v4 opacity support */
+  --color-lips-green: #1B6B3A;
+  --color-lips-green-light: #2E8B57;
+  --color-lips-green-dark: #0D3B1F;
+  --color-lips-gold: #C9962A;
+  --color-lips-gold-light: #E5BE5A;
+  --color-lips-cream: #FBF8F0;
+  --color-lips-emerald: #0D7D5E;
 }
 
 :root {
@@ -86,13 +86,13 @@
   --sidebar-border: oklch(0.92 0.005 100);
   --sidebar-ring: oklch(0.38 0.12 155);
   /* LIPS Brand Colors */
-  --lips-green: oklch(0.38 0.12 155);
-  --lips-green-light: oklch(0.55 0.1 155);
-  --lips-green-dark: oklch(0.25 0.1 155);
-  --lips-gold: oklch(0.78 0.14 85);
-  --lips-gold-light: oklch(0.88 0.1 85);
-  --lips-cream: oklch(0.99 0.005 100);
-  --lips-emerald: oklch(0.48 0.11 165);
+  --lips-green: #1B6B3A;
+  --lips-green-light: #2E8B57;
+  --lips-green-dark: #0D3B1F;
+  --lips-gold: #C9962A;
+  --lips-gold-light: #E5BE5A;
+  --lips-cream: #FBF8F0;
+  --lips-emerald: #0D7D5E;
 }
 
 .dark {
@@ -127,13 +127,13 @@
   --sidebar-accent-foreground: oklch(0.96 0.005 100);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.55 0.12 155);
-  --lips-green: oklch(0.55 0.12 155);
-  --lips-green-light: oklch(0.65 0.1 155);
-  --lips-green-dark: oklch(0.38 0.1 155);
-  --lips-gold: oklch(0.68 0.14 85);
-  --lips-gold-light: oklch(0.78 0.1 85);
-  --lips-cream: oklch(0.15 0.01 155);
-  --lips-emerald: oklch(0.48 0.11 165);
+  --lips-green: #2E8B57;
+  --lips-green-light: #3CA06A;
+  --lips-green-dark: #1B6B3A;
+  --lips-gold: #E5BE5A;
+  --lips-gold-light: #F0D47A;
+  --lips-cream: #1A2E20;
+  --lips-emerald: #0D7D5E;
 }
 
 @layer base {
