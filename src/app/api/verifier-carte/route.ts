@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { validateMatricule, parseMatricule } from '@/lib/lips/matricule';
-import { REGIONS_DATA } from '@/lib/lips/types';
+import { validateMatricule } from '@/lib/lips/matricule';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -19,7 +18,7 @@ export async function GET(request: NextRequest) {
       {
         status: 'not_found',
         message:
-          'Format de matricule invalide. Format attendu : LIPS-2025-DKR-000124',
+          'Format de matricule invalide. Format attendu : LIPS-0001',
       },
       { status: 400 }
     );
@@ -37,31 +36,19 @@ export async function GET(request: NextRequest) {
 
     if (!user) {
       // Return demo data for testing if no real data exists
-      const parsed = parseMatricule(matricule);
-      if (parsed) {
-        const regionInfo = REGIONS_DATA.find(
-          (r) => r.code === parsed.regionCode
-        );
-
-        // For demo purposes, generate a sample response
-        // In production, this would return not_found
-        return NextResponse.json({
-          status: 'valid',
-          message: 'Membre actif',
-          data: {
-            nom: 'Mamadou SY',
-            region: regionInfo?.nom || parsed.regionCode,
-            role: 'IMAM',
-            validite: `31/12/${parsed.year + 1}`,
-            matricule: matricule,
-          },
-        });
-      }
-
-      return NextResponse.json(
-        { status: 'not_found', message: 'Carte non reconnue' },
-        { status: 404 }
-      );
+      // For demo purposes, generate a sample response
+      // In production, this would return not_found
+      return NextResponse.json({
+        status: 'valid',
+        message: 'Membre actif',
+        data: {
+          nom: 'Mamadou SY',
+          region: 'Dakar',
+          role: 'IMAM',
+          validite: '31/12/2026',
+          matricule: matricule,
+        },
+      });
     }
 
     // Real database result

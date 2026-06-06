@@ -44,7 +44,7 @@ async function main() {
       nom: 'TRAORÉ',
       prenom: 'Amadou',
       telephone: '+221 77 000 00 00',
-      matricule: 'LIPS-2025-DKR-000001',
+      matricule: 'LIPS-0001',
       role: 'ADMIN',
       status: 'ACTIF',
       regionId: 1,
@@ -72,7 +72,7 @@ async function main() {
       nom: 'Traoré',
       prenom: 'Amadou',
       telephone: '+221 77 000 00 00',
-      matricule: 'LIPS-2025-DKR-000124',
+      matricule: 'LIPS-0002',
       role: 'IMAM',
       status: 'ACTIF',
       regionId: dkrRegion!.id,
@@ -85,8 +85,8 @@ async function main() {
     where: { userId: member.id },
     update: {},
     create: {
-      numeroCarte: 'LIPS-2025-DKR-000124',
-      qrCodeUrl: 'https://lips.sn/verifier/LIPS-2025-DKR-000124',
+      numeroCarte: 'LIPS-0002',
+      qrCodeUrl: 'https://lips.sn/verifier/LIPS-0002',
       dateEmission: new Date('2025-01-15'),
       dateExpiration: new Date('2026-01-15'),
       userId: member.id,
@@ -138,7 +138,7 @@ async function main() {
   // --- FAQ ---
   const faqs = [
     { question: 'Quelles sont les conditions pour adhérer à la LIPS ?', reponse: 'Pour adhérer à la LIPS, vous devez être un imam ou prédicateur exerçant au Sénégal, être parrainé par un membre actif ou un responsable régional, et vous acquitter de la cotisation annuelle.', ordre: 1 },
-    { question: 'Comment obtenir la carte membre nationale ?', reponse: 'La carte membre nationale est délivrée après validation de votre candidature et paiement de la cotisation annuelle. Elle porte un matricule unique au format LIPS-ANNÉE-RÉGION-NUMÉRO.', ordre: 2 },
+    { question: 'Comment obtenir la carte membre nationale ?', reponse: 'La carte membre nationale est délivrée après validation de votre candidature et paiement de la cotisation annuelle. Elle porte un matricule unique au format LIPS-NNNN.', ordre: 2 },
     { question: 'Quel est le montant de la cotisation annuelle ?', reponse: 'La cotisation annuelle est fixée à 5 000 FCFA pour les imams et prédicateurs, et 10 000 FCFA pour les responsables régionaux et membres du Choura.', ordre: 3 },
     { question: 'La LIPS est-elle reconnue par les autorités de l\'État ?', reponse: 'Oui, la LIPS est reconnue comme organisation confessionnelle de référence par les autorités sénégalaises. Elle siège au Haut Conseil Islamique.', ordre: 4 },
     { question: 'Comment vérifier l\'authenticité d\'une carte membre ?', reponse: 'Chaque carte membre intègre un QR code qui, une fois scanné, redirige vers la page de vérification du site lips.sn. Vous pouvez également saisir le matricule directement.', ordre: 5 },

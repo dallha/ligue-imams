@@ -148,7 +148,7 @@ function MembershipCard({ flipped, onFlip }: { flipped: boolean; onFlip: () => v
                   <div>
                     <div className="text-white/50 text-[9px] sm:text-[10px] uppercase tracking-wider">{p.carteMembre.matriculeLabel}</div>
                     <div className="text-white font-mono font-bold text-xs sm:text-sm tracking-wide">
-                      LIPS-2025-DKR-000124
+                      LIPS-0001
                     </div>
                   </div>
                 </div>
@@ -209,7 +209,7 @@ function MembershipCard({ flipped, onFlip }: { flipped: boolean; onFlip: () => v
                   {p.carteMembre.verifyText}
                 </div>
                 <div className="text-center text-white font-mono text-[10px] sm:text-xs">
-                  https://lips.sn/verifier/LIPS-2025-DKR-000124
+                  https://lips.sn/verifier/LIPS-0001
                 </div>
               </div>
 
@@ -253,7 +253,7 @@ function MembershipCard({ flipped, onFlip }: { flipped: boolean; onFlip: () => v
 // --- Main Section ---
 export default function CarteMembreSection() {
   const { p } = useLanguage();
-  const [matricule, setMatricule] = useState('LIPS-2025-DKR-000124');
+  const [matricule, setMatricule] = useState('LIPS-0001');
   const [flipped, setFlipped] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-100px' });

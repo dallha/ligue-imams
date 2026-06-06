@@ -25,7 +25,6 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { validateMatricule, parseMatricule } from '@/lib/lips/matricule';
-import { REGIONS_DATA } from '@/lib/lips/types';
 import { useLanguage } from '@/lib/lips/i18n/language-context';
 
 interface VerificationResult {
@@ -135,9 +134,6 @@ export default function VerificationSection() {
   const parsed = matricule.trim()
     ? parseMatricule(matricule.trim().toUpperCase())
     : null;
-  const matchedRegion = parsed
-    ? REGIONS_DATA.find((r) => r.code === parsed.regionCode)
-    : null;
 
   return (
     <section
@@ -201,7 +197,7 @@ export default function VerificationSection() {
                       value={matricule}
                       onChange={(e) => setMatricule(e.target.value)}
                       onKeyDown={handleKeyDown}
-                      placeholder="LIPS-2025-DKR-000124"
+                      placeholder="LIPS-0001"
                       className="pl-10 font-mono text-base h-12 border-lips-green/20 focus:border-lips-green"
                       disabled={loading}
                     />
@@ -221,7 +217,7 @@ export default function VerificationSection() {
                 </div>
 
                 {/* Live preview of parsed matricule */}
-                {parsed && matchedRegion && (
+                {parsed && (
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
@@ -229,11 +225,7 @@ export default function VerificationSection() {
                   >
                     <QrCode className="h-4 w-4 text-lips-green" />
                     <span>
-                      {p.verification.resultYear} : <strong>{parsed.year}</strong> | {p.verification.resultRegion} :{' '}
-                      <strong>
-                        {matchedRegion.nom} ({matchedRegion.nomAr})
-                      </strong>{' '}
-                      | N° : <strong>{parsed.sequential}</strong>
+                      Matricule : <strong>LIPS-{String(parsed.sequential).padStart(4, '0')}</strong> | N° : <strong>{parsed.sequential}</strong>
                     </span>
                   </motion.div>
                 )}

@@ -1,47 +1,34 @@
 // LIPS - Générateur de Matricule National
-// Format : LIPS-{ANNÉE}-{RÉGION}-{SÉQUENCE}
-// Exemple : LIPS-2025-DKR-000124
-
-import { type RegionCode, REGION_CODES } from './types';
+// Format : LIPS-{SÉQUENCE 4 chiffres}
+// Exemple : LIPS-0001, LIPS-0002, LIPS-0124
 
 /**
  * Valide le format d'un matricule LIPS
- * @param matricule - Le matricule à valider (ex: LIPS-2025-DKR-000124)
+ * @param matricule - Le matricule à valider (ex: LIPS-0001)
  * @returns true si le format est valide
  */
 export function validateMatricule(matricule: string): boolean {
-  const regex = /^LIPS-\d{4}-[A-Z]{2,4}-\d{6}$/;
-  if (!regex.test(matricule)) return false;
-
-  const parts = matricule.split('-');
-  const regionCode = parts[2] as RegionCode;
-  return REGION_CODES.includes(regionCode);
+  const regex = /^LIPS-\d{4}$/;
+  return regex.test(matricule);
 }
 
 /**
  * Génère un matricule LIPS au format national
- * @param regionCode - Code de la région (ex: DKR)
- * @param sequentialNumber - Numéro séquentiel (ex: 124)
- * @returns Matricule formaté (ex: LIPS-2025-DKR-000124)
+ * @param sequentialNumber - Numéro séquentiel (ex: 1, 2, 124)
+ * @returns Matricule formaté (ex: LIPS-0001, LIPS-0124)
  */
-export function generateMatricule(
-  regionCode: RegionCode,
-  sequentialNumber: number
-): string {
-  const currentYear = new Date().getFullYear();
-  const formattedSeq = String(sequentialNumber).padStart(6, '0');
-  return `LIPS-${currentYear}-${regionCode}-${formattedSeq}`;
+export function generateMatricule(sequentialNumber: number): string {
+  const formattedSeq = String(sequentialNumber).padStart(4, '0');
+  return `LIPS-${formattedSeq}`;
 }
 
 /**
  * Extrait les composants d'un matricule LIPS
  * @param matricule - Le matricule à parser
- * @returns Objet avec année, région et numéro séquentiel
+ * @returns Objet avec préfixe et numéro séquentiel
  */
 export function parseMatricule(matricule: string): {
   prefix: string;
-  year: number;
-  regionCode: RegionCode;
   sequential: number;
 } | null {
   if (!validateMatricule(matricule)) return null;
@@ -49,17 +36,15 @@ export function parseMatricule(matricule: string): {
   const parts = matricule.split('-');
   return {
     prefix: parts[0],
-    year: parseInt(parts[1], 10),
-    regionCode: parts[2] as RegionCode,
-    sequential: parseInt(parts[3], 10),
+    sequential: parseInt(parts[1], 10),
   };
 }
 
 /**
- * Génère le prochain numéro séquentiel pour une région donnée
+ * Génère le prochain numéro séquentiel
  * En production, cette logique sera gérée par la base de données
  */
-export function getNextSequential(_regionCode: RegionCode): number {
-  // TODO: Interroger la base pour le dernier numéro de la région
+export function getNextSequential(): number {
+  // TODO: Interroger la base pour le dernier numéro
   return 1;
 }
