@@ -17,7 +17,6 @@ import {
 import {
   Clock,
   Moon,
-  Sunrise,
   Sun,
   Sunset,
   Save,
@@ -37,7 +36,6 @@ interface PrayerConfig {
 
 const PRAYER_FIELDS = [
   { key: 'prayer_fajr', label: 'Fajr (Sobh)', icon: Moon, color: 'text-indigo-500' },
-  { key: 'prayer_chourouk', label: 'Chourouk (Lever)', icon: Sunrise, color: 'text-orange-500' },
   { key: 'prayer_dhuhr', label: 'Dhuhr (Tisbar)', icon: Sun, color: 'text-yellow-500' },
   { key: 'prayer_asr', label: 'Asr (Takussan)', icon: Sun, color: 'text-amber-600' },
   { key: 'prayer_maghrib', label: 'Maghrib (Timis)', icon: Sunset, color: 'text-red-500' },
@@ -142,7 +140,6 @@ export default function PrieresPage() {
     setConfig(prev => ({
       ...prev,
       prayer_fajr: t.Fajr?.substring(0, 5) || prev.prayer_fajr,
-      prayer_chourouk: t.Sunrise?.substring(0, 5) || prev.prayer_chourouk,
       prayer_dhuhr: t.Dhuhr?.substring(0, 5) || prev.prayer_dhuhr,
       prayer_asr: t.Asr?.substring(0, 5) || prev.prayer_asr,
       prayer_maghrib: t.Maghrib?.substring(0, 5) || prev.prayer_maghrib,
@@ -230,7 +227,7 @@ export default function PrieresPage() {
               </div>
               <div>
                 <CardTitle className="text-lg">Horaires de Prière</CardTitle>
-                <CardDescription>Choisissez le mode et les horaires des 6 prières</CardDescription>
+                <CardDescription>Choisissez le mode et les horaires des 5 prières</CardDescription>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -336,9 +333,9 @@ export default function PrieresPage() {
                   <RefreshCw className="h-3.5 w-3.5" />
                   Aperçu API Aladhan pour {REGIONS.find(r => r.key === (config.prayer_region || 'dakar'))?.label || 'Dakar'}
                 </p>
-                <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 text-center">
+                <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 text-center">
                   {PRAYER_FIELDS.map(({ key, label, icon: Icon, color }) => {
-                    const apiKey = key.replace('prayer_', '').replace('chourouk', 'Sunrise')
+                    const apiKey = key.replace('prayer_', '')
                     const apiTime = apiPreview.timings[apiKey.charAt(0).toUpperCase() + apiKey.slice(1)]
                     return (
                       <div key={key} className="p-2 rounded bg-white border text-xs">

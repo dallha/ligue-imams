@@ -19,7 +19,7 @@ const SERVICES = [
     title: 'Horaires de Prière',
     titleAr: 'مواعيد الصلاة',
     description:
-      'Horaires précis des 6 prières quotidiennes pour les 14 régions du Sénégal, avec date Hijri et compte à rebours de la prochaine prière.',
+      'Horaires précis des 5 prières quotidiennes pour les 14 régions du Sénégal, avec date Hijri et compte à rebours de la prochaine prière.',
     href: '/agenda',
     color: 'from-sky-500/20 to-sky-600/10',
     iconColor: 'text-sky-600',
