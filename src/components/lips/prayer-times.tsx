@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import Link from 'next/link';
 import { Clock, Sun, Sunset, Moon, Sunrise } from 'lucide-react';
 
 // Dakar prayer times (approximate for 2025)
@@ -14,7 +14,12 @@ const PRAYER_SCHEDULE = [
   { name: 'Isha', nameAr: 'العشاء', icon: Moon, time: '20:26', color: 'text-blue-400' },
 ];
 
-function getHijriDate(): string {
+function toArabicNumerals(num: number): string {
+  const arabicDigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+  return num.toString().split('').map((d) => arabicDigits[parseInt(d)] ?? d).join('');
+}
+
+function getHijriDate(): { french: string; arabic: string } {
   // Approximate Hijri date calculation
   const now = new Date();
   const islamicEpoch = new Date(622, 6, 16);
@@ -25,13 +30,22 @@ function getHijriDate(): string {
   const islamicMonthNum = Math.floor(lunarCycles % 12) + 1;
   const islamicDay = Math.floor((lunarCycles % 1) * 29.53) + 1;
 
-  const months = [
+  const monthsFr = [
     'Muharram', 'Safar', 'Rabi\u02BF al-Awwal', 'Rabi\u02BF al-Thani',
     'Jumada al-Ula', 'Jumada al-Thania', 'Rajab', 'Sha\u02BFban',
     'Ramadan', 'Shawwal', 'Dhu al-Qi\u02BFdah', 'Dhu al-Hijjah'
   ];
 
-  return `${islamicDay} ${months[islamicMonthNum - 1]} ${islamicYear} H`;
+  const monthsAr = [
+    'محرم', 'صفر', 'ربيع الأول', 'ربيع الثاني',
+    'جمادى الأولى', 'جمادى الآخرة', 'رجب', 'شعبان',
+    'رمضان', 'شوال', 'ذو القعدة', 'ذو الحجة'
+  ];
+
+  return {
+    french: `${islamicDay} ${monthsFr[islamicMonthNum - 1]} ${islamicYear} H`,
+    arabic: `${toArabicNumerals(islamicDay)} ${monthsAr[islamicMonthNum - 1]} ${toArabicNumerals(islamicYear)} هـ`,
+  };
 }
 
 function getCurrentPrayerIndex(): number {
@@ -51,12 +65,14 @@ function getCurrentPrayerIndex(): number {
 export default function PrayerTimesWidget() {
   const [currentPrayer, setCurrentPrayer] = useState(0);
   const [currentTime, setCurrentTime] = useState('');
-  const [hijriDate, setHijriDate] = useState('');
+  const [hijriDate, setHijriDate] = useState<{ french: string; arabic: string }>({ french: '', arabic: '' });
+  const [gregorianDate, setGregorianDate] = useState('');
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
     setHijriDate(getHijriDate());
+    setGregorianDate(new Date().toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' }));
 
     const update = () => {
       const now = new Date();
@@ -87,18 +103,29 @@ export default function PrayerTimesWidget() {
     <div className="bg-gradient-to-r from-lips-green-dark via-lips-green to-lips-green-dark text-white">
       <div className="max-w-7xl mx-auto px-4 py-3 sm:py-4">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-          {/* Hijri Date & Clock */}
-          <div className="flex items-center gap-3 sm:gap-4">
+          {/* Date & Clock — clickable to /agenda */}
+          <Link
+            href="/agenda"
+            className="flex items-center gap-3 sm:gap-4 group"
+            title="Voir le calendrier"
+          >
             <div className="flex items-center gap-1.5 sm:gap-2">
               <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-lips-gold" />
               <span className="font-mono text-xs sm:text-sm">{currentTime}</span>
             </div>
             <div className="w-px h-4 bg-white/20 hidden sm:block" />
             <div className="text-xs sm:text-sm">
-              <span className="text-white/50 text-[10px] sm:text-xs">Hijri :</span>{' '}
-              <span className="font-semibold text-lips-gold text-xs sm:text-sm">{hijriDate}</span>
+              <div className="flex items-center gap-2">
+                <span className="text-white/50 text-[10px] sm:text-xs hidden sm:inline">{gregorianDate}</span>
+                <span className="text-white/20 hidden sm:inline">|</span>
+                <span className="font-semibold text-lips-gold text-xs sm:text-sm">{hijriDate.french}</span>
+              </div>
+              <span className="font-arabic text-lips-gold/80 text-[10px] sm:text-xs leading-none" dir="rtl">{hijriDate.arabic}</span>
             </div>
-          </div>
+            <div className="hidden sm:flex items-center text-white/30 group-hover:text-lips-gold/60 transition-colors">
+              <Sunrise className="h-3 w-3" />
+            </div>
+          </Link>
 
           {/* Prayer Times — grid on mobile, flex on desktop */}
           <div className="grid grid-cols-3 sm:flex sm:items-center sm:gap-2 md:gap-5 gap-1.5 sm:gap-3 w-full sm:w-auto">

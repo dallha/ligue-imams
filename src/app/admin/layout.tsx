@@ -18,21 +18,47 @@ import {
   Building2,
   Handshake,
   HelpCircle,
+  BookOpen,
+  CalendarDays,
+  Trophy,
   Settings,
   LogOut,
   Menu,
   ChevronRight,
 } from 'lucide-react'
 
-const sidebarItems = [
-  { href: '/admin', label: 'Tableau de Bord', icon: LayoutDashboard },
-  { href: '/admin/contenus', label: 'Contenus', icon: FileText },
-  { href: '/admin/membres', label: 'Membres', icon: Users },
-  { href: '/admin/regions', label: 'Régions', icon: Globe },
-  { href: '/admin/bureau', label: 'Bureau National', icon: Building2 },
-  { href: '/admin/commissions', label: 'Commissions', icon: Handshake },
-  { href: '/admin/faq', label: 'FAQ', icon: HelpCircle },
-  { href: '/admin/parametres', label: 'Paramètres', icon: Settings },
+const sidebarSections = [
+  {
+    label: null as string | null, // no header for main
+    items: [
+      { href: '/admin', label: 'Tableau de Bord', icon: LayoutDashboard },
+    ],
+  },
+  {
+    label: 'Contenu',
+    items: [
+      { href: '/admin/contenus', label: 'Contenus', icon: FileText },
+      { href: '/admin/coran', label: 'Coran', icon: BookOpen },
+      { href: '/admin/agenda', label: 'Agenda', icon: CalendarDays },
+      { href: '/admin/concours', label: 'Concours', icon: Trophy },
+      { href: '/admin/faq', label: 'FAQ', icon: HelpCircle },
+    ],
+  },
+  {
+    label: 'Organisation',
+    items: [
+      { href: '/admin/membres', label: 'Membres', icon: Users },
+      { href: '/admin/regions', label: 'Régions', icon: Globe },
+      { href: '/admin/bureau', label: 'Bureau National', icon: Building2 },
+      { href: '/admin/commissions', label: 'Commissions', icon: Handshake },
+    ],
+  },
+  {
+    label: 'Système',
+    items: [
+      { href: '/admin/parametres', label: 'Paramètres', icon: Settings },
+    ],
+  },
 ]
 
 function SidebarContent({ onClose }: { onClose?: () => void }) {
@@ -79,30 +105,44 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
 
       {/* Navigation */}
       <ScrollArea className="flex-1 py-4">
-        <nav className="space-y-1 px-3">
-          {sidebarItems.map((item) => {
-            const isActive = item.href === '/admin'
-              ? pathname === '/admin'
-              : pathname.startsWith(item.href)
+        <nav className="px-3">
+          {sidebarSections.map((section, sectionIndex) => (
+            <div key={sectionIndex}>
+              {section.label && (
+                <span className={cn(
+                  'px-3 text-[10px] uppercase tracking-wider text-white/30 font-semibold block',
+                  sectionIndex > 0 && 'mt-4'
+                )}>
+                  {section.label}
+                </span>
+              )}
+              <div className="space-y-1 mt-1">
+                {section.items.map((item) => {
+                  const isActive = item.href === '/admin'
+                    ? pathname === '/admin'
+                    : pathname.startsWith(item.href)
 
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={onClose}
-                className={cn(
-                  'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200',
-                  isActive
-                    ? 'bg-white/10 text-white shadow-sm'
-                    : 'text-white/60 hover:text-white hover:bg-white/5'
-                )}
-              >
-                <item.icon className={cn('h-5 w-5', isActive && 'text-lips-gold')} />
-                <span className="flex-1">{item.label}</span>
-                {isActive && <ChevronRight className="h-4 w-4 text-lips-gold" />}
-              </Link>
-            )
-          })}
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={onClose}
+                      className={cn(
+                        'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200',
+                        isActive
+                          ? 'bg-white/10 text-white shadow-sm'
+                          : 'text-white/60 hover:text-white hover:bg-white/5'
+                      )}
+                    >
+                      <item.icon className={cn('h-5 w-5', isActive && 'text-lips-gold')} />
+                      <span className="flex-1">{item.label}</span>
+                      {isActive && <ChevronRight className="h-4 w-4 text-lips-gold" />}
+                    </Link>
+                  )
+                })}
+              </div>
+            </div>
+          ))}
         </nav>
       </ScrollArea>
 

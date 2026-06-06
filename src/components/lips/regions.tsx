@@ -59,7 +59,7 @@ export default function RegionsSection() {
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.4, delay: index * 0.05 }}
             >
-              <Card className="group hover:shadow-lg hover:shadow-lips-green/10 transition-all duration-300 hover:border-lips-green/30 cursor-pointer border-border/50 bg-white/80 backdrop-blur-sm">
+              <Card id={`region-${region.code}`} className="group hover:shadow-lg hover:shadow-lips-green/10 transition-all duration-300 hover:border-lips-green/30 cursor-pointer border-border/50 bg-white/80 backdrop-blur-sm transition-shadow">
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between mb-3">
                     <div>

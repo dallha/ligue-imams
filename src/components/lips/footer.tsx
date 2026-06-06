@@ -16,12 +16,14 @@ const QUICK_LINKS = [
   { label: 'Accueil', href: '/' },
   { label: 'À Propos', href: '/a-propos' },
   { label: 'Régions', href: '/regions' },
+  { label: 'Espace Membre', href: '/espace-membre' },
   { label: 'Vérifier une Carte', href: '/verifier-carte' },
 ];
 
 const RESOURCE_LINKS = [
   { label: 'Communiqués', href: '/actualites' },
   { label: 'Fatwas', href: '/actualites' },
+  { label: 'Coran', href: '/coran' },
   { label: 'Événements', href: '/actualites' },
   { label: 'Adhérer', href: '/adherer' },
   { label: 'Faire un Don', href: '/faire-un-don' },

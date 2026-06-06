@@ -36,11 +36,20 @@ const NAV_ITEMS = [
       { label: 'Communiqués & Fatwas', href: '/actualites#actualites' },
       { label: 'Événements', href: '/actualites#evenements' },
       { label: 'Galerie Photos', href: '/actualites#galerie' },
+      { label: 'Agenda & Calendrier', href: '/agenda' },
     ],
+  },
+  {
+    label: 'Agenda',
+    href: '/agenda',
   },
   {
     label: 'Régions',
     href: '/regions',
+  },
+  {
+    label: 'Coran',
+    href: '/coran',
   },
   {
     label: 'Adhérer',
@@ -195,7 +204,7 @@ export default function LipsHeader() {
                 asChild
                 className="hidden sm:inline-flex bg-lips-green hover:bg-lips-green-dark text-white shadow-md"
               >
-                <Link href="/verifier-carte">Espace Membre</Link>
+                <Link href="/espace-membre">Espace Membre</Link>
               </Button>
               <button
                 className="lg:hidden p-2.5 rounded-md hover:bg-lips-green/5 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
@@ -257,7 +266,7 @@ export default function LipsHeader() {
                     asChild
                     className="w-full bg-lips-green hover:bg-lips-green-dark text-white"
                   >
-                    <Link href="/verifier-carte" onClick={() => setMobileOpen(false)}>
+                    <Link href="/espace-membre" onClick={() => setMobileOpen(false)}>
                       Espace Membre
                     </Link>
                   </Button>

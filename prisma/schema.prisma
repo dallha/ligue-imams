@@ -155,3 +155,23 @@ model Commission {
   icon    String? // lucide icon name
   ordre   Int    @default(0)
 }
+
+// --- DOMAINE CONCOURS ---
+
+model Concours {
+  id                    Int      @id @default(autoincrement())
+  nom                   String
+  type                  String   // CONCOURS_CORAN, CONCOURS_HADITH, CONCOURS_MEMORISATION, QUIZ_ISLAMIQUE
+  dateDebut             DateTime
+  dateFin               DateTime?
+  lieu                  String?
+  description           String?
+  descriptionAr         String?
+  participantsEst       Int?
+  visiblePublic         Boolean  @default(false)
+  inscriptionsOuvertes  Boolean  @default(false)
+  statut                String   @default("PLANIFIE") // PLANIFIE, EN_COURS, TERMINE
+  imageUrl              String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}

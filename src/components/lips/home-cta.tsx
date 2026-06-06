@@ -6,6 +6,7 @@ import {
   UserPlus,
   Heart,
   Shield,
+  BookOpen,
   ArrowRight,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -25,7 +26,7 @@ export default function HomeCTA() {
       <div className="absolute bottom-10 left-16 w-20 h-20 border border-lips-gold/10 rotate-12 rounded-sm" />
 
       <div className="relative max-w-7xl mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Adhérer */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -74,11 +75,34 @@ export default function HomeCTA() {
             </Button>
           </motion.div>
 
-          {/* Don */}
+          {/* Coran */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.5, delay: 0.3 }}
+            className="text-center"
+          >
+            <div className="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-4">
+              <BookOpen className="h-6 w-6 text-lips-gold" />
+            </div>
+            <h3 className="text-xl font-bold mb-2">Le Saint Coran</h3>
+            <p className="text-white/60 text-sm mb-5 leading-relaxed">
+              Explorez le Livre Saint, écoutez les récitations de nos imams et
+              accédez aux ressources coraniques pour approfondir votre foi.
+            </p>
+            <Button asChild className="bg-lips-gold hover:bg-lips-gold-light text-lips-green-dark font-semibold">
+              <Link href="/coran">
+                Lire le Coran
+                <ArrowRight className="h-4 w-4 ml-2" />
+              </Link>
+            </Button>
+          </motion.div>
+
+          {/* Don */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.5, delay: 0.4 }}
             className="text-center"
           >
             <div className="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-4">

@@ -52,6 +52,61 @@ async function main() {
   });
   console.log('✅ Admin user created:', admin.email);
 
+  // --- Demo Member User ---
+  const memberPassword = await bcrypt.hash('Membre@2025', 10);
+  const dkrRegion = await prisma.region.findFirst({ where: { code: 'DKR' } });
+  const mosque = await prisma.mosque.create({
+    data: {
+      nom: 'Mosquée An-Nour',
+      adresse: 'Liberté II, Dakar',
+      regionId: dkrRegion!.id,
+    },
+  });
+
+  const member = await prisma.user.upsert({
+    where: { email: 'abdoulaye.ndiaye@lips.sn' },
+    update: {},
+    create: {
+      email: 'abdoulaye.ndiaye@lips.sn',
+      password: memberPassword,
+      nom: 'Ndiaye',
+      prenom: 'Abdoulaye',
+      telephone: '+221 77 123 45 67',
+      matricule: 'LIPS-2025-DKR-000124',
+      role: 'IMAM',
+      status: 'ACTIF',
+      regionId: dkrRegion!.id,
+      mosqueId: mosque.id,
+    },
+  });
+
+  // Create carte membre for demo member
+  await prisma.carteMembre.upsert({
+    where: { userId: member.id },
+    update: {},
+    create: {
+      numeroCarte: 'LIPS-2025-DKR-000124',
+      qrCodeUrl: 'https://lips.sn/verifier/LIPS-2025-DKR-000124',
+      dateEmission: new Date('2025-01-15'),
+      dateExpiration: new Date('2026-01-15'),
+      userId: member.id,
+    },
+  });
+
+  // Create sample payments for demo member
+  const payments = [
+    { montant: 10000, type: 'COTISATION', methode: 'Wave', datePaiement: new Date('2025-01-15'), referenceTrans: 'WAV-2025-001', userId: member.id },
+    { montant: 50000, type: 'DON', methode: 'CinetPay', datePaiement: new Date('2025-03-20'), referenceTrans: 'CIN-2025-042', userId: member.id },
+    { montant: 10000, type: 'COTISATION', methode: 'Espèces', datePaiement: new Date('2026-01-10'), referenceTrans: 'ESP-2026-003', userId: member.id },
+  ];
+
+  for (const p of payments) {
+    await prisma.paiement.create({ data: p });
+  }
+
+  console.log('✅ Demo member created:', member.email);
+  console.log('🔑 Member Password: Membre@2025');
+
   // --- Bureau National ---
   const bureauMembers = [
     { nom: 'NDAW', prenom: 'Abdoulaye', role: 'Président National', roleAr: 'الرئيس الوطني', region: 'Dakar', bio: 'Imam de la Grande Mosquée de la Médina, élu à la tête de la LIPS en 2020 pour un mandat de 5 ans.', initiales: 'AN', ordre: 1 },
@@ -197,6 +252,75 @@ async function main() {
     });
   }
   console.log('✅ SiteConfig seeded');
+
+  // --- Concours ---
+  const concoursData = [
+    {
+      nom: '7e Concours de Mémorisation du Saint Coran',
+      type: 'CONCOURS_CORAN',
+      dateDebut: new Date('2026-03-27'),
+      dateFin: new Date('2026-04-02'),
+      lieu: 'Dakar',
+      description: 'La septième édition du concours national de mémorisation du Saint Coran, réunissant les meilleurs mémorisateurs des 14 régions.',
+      participantsEst: 250,
+      visiblePublic: true,
+      inscriptionsOuvertes: true,
+      statut: 'EN_COURS',
+    },
+    {
+      nom: '2e Concours du Hadith Nabawi',
+      type: 'CONCOURS_HADITH',
+      dateDebut: new Date('2025-11-07'),
+      dateFin: new Date('2025-11-10'),
+      lieu: 'Saint-Louis',
+      description: 'Deuxième édition du concours dédié à la connaissance et la mémorisation des hadiths du Prophète (paix et salut sur lui).',
+      participantsEst: 180,
+      visiblePublic: true,
+      inscriptionsOuvertes: false,
+      statut: 'TERMINE',
+    },
+    {
+      nom: 'Concours Régional de Récitation — Dakar',
+      type: 'CONCOURS_CORAN',
+      dateDebut: new Date('2026-05-15'),
+      dateFin: new Date('2026-05-17'),
+      lieu: 'Dakar',
+      description: 'Concours régional de récitation du Coran réservé aux imams et prédicateurs de la région de Dakar.',
+      participantsEst: 80,
+      visiblePublic: false,
+      inscriptionsOuvertes: false,
+      statut: 'PLANIFIE',
+    },
+    {
+      nom: 'Quiz Islamique National',
+      type: 'QUIZ_ISLAMIQUE',
+      dateDebut: new Date('2026-06-20'),
+      dateFin: new Date('2026-06-22'),
+      lieu: 'Thiès',
+      description: 'Compétition nationale de quiz sur les sciences islamiques, ouvertes à tous les membres de la LIPS.',
+      participantsEst: 300,
+      visiblePublic: false,
+      inscriptionsOuvertes: false,
+      statut: 'PLANIFIE',
+    },
+    {
+      nom: 'Concours de Mémorisation — Kaolack',
+      type: 'CONCOURS_MEMORISATION',
+      dateDebut: new Date('2026-04-10'),
+      dateFin: new Date('2026-04-12'),
+      lieu: 'Kaolack',
+      description: 'Concours régional de mémorisation du Coran et des hadiths pour la région de Kaolack.',
+      participantsEst: 120,
+      visiblePublic: false,
+      inscriptionsOuvertes: false,
+      statut: 'PLANIFIE',
+    },
+  ];
+
+  for (const c of concoursData) {
+    await prisma.concours.create({ data: c });
+  }
+  console.log('✅ Concours seeded');
 
   console.log('\n🎉 Seed complete!');
   console.log('📧 Admin: admin@lips.sn');
