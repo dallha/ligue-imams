@@ -17,6 +17,10 @@ model Region {
   code          String   @unique // DKR, SLG, LGN, etc.
   nom           String
   nomAr         String?
+  population    Int?
+  mosqueCount   Int?
+  latitude      Float?
+  longitude     Float?
   responsableId Int?
   mosques       Mosque[]
   members       User[]
@@ -86,18 +90,21 @@ model Paiement {
 // --- DOMAINE COMMUNICATION & FORMATION ---
 
 model Content {
-  id         Int      @id @default(autoincrement())
-  titre      String
-  titreAr    String?
-  contenu    String
-  contenuAr  String?
-  type       String   // COMMUNIQUE, ARTICLE, FATWA, COURS, SEMINAIRE
-  categorie  String   // fiqh, aqida, daawa, société
-  fichierUrl String?  // PDF, Audio, Vidéo
-  published  Boolean  @default(false)
-  auteurId   Int
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id          Int      @id @default(autoincrement())
+  titre       String
+  titreAr     String?
+  contenu     String
+  contenuAr   String?
+  type        String   // COMMUNIQUE, ARTICLE, FATWA, COURS, SEMINAIRE, EVENEMENT
+  categorie   String?  // fiqh, aqida, daawa, société
+  fichierUrl  String?  // PDF, Audio, Vidéo
+  imageUrl    String?  // Image de couverture
+  published   Boolean  @default(false)
+  dateEvenement DateTime? // Pour les événements
+  lieu        String?    // Pour les événements
+  auteurId    Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 // --- DOMAINE PARAMÈTRES & CONFIGURATION ---
@@ -106,4 +113,45 @@ model SiteConfig {
   id    Int    @id @default(autoincrement())
   key   String @unique
   value String
+}
+
+// --- DOMAINE FAQ ---
+
+model FAQ {
+  id        Int      @id @default(autoincrement())
+  question  String
+  reponse   String
+  ordre     Int      @default(0)
+  published Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// --- DOMAINE MEMBRES BUREAU ---
+
+model BureauMember {
+  id        Int      @id @default(autoincrement())
+  nom       String
+  prenom    String
+  role      String
+  roleAr    String?
+  region    String?
+  bio       String?
+  initiales String?
+  ordre     Int      @default(0)
+  photo     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// --- DOMAINE COMMISSIONS ---
+
+model Commission {
+  id      Int    @id @default(autoincrement())
+  nom     String
+  nomAr   String?
+  members Int    @default(0)
+  desc    String?
+  icon    String? // lucide icon name
+  ordre   Int    @default(0)
 }
