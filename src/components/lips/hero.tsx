@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { ArrowDown, Shield, BookOpen, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 export default function HeroSection() {
   return (
@@ -107,10 +108,10 @@ export default function HeroSection() {
               size="lg"
               className="bg-lips-gold hover:bg-lips-gold-light text-lips-green-dark font-semibold shadow-lg hover:shadow-xl transition-all px-8"
             >
-              <a href="#verification">
+              <Link href="/verifier-carte">
                 <Shield className="mr-2 h-4 w-4" />
                 Vérifier une Carte Membre
-              </a>
+              </Link>
             </Button>
             <Button
               asChild
@@ -118,10 +119,10 @@ export default function HeroSection() {
               size="lg"
               className="border-white/30 text-white hover:bg-white/10 hover:text-white backdrop-blur-sm px-8"
             >
-              <a href="#apropos">
+              <Link href="/a-propos">
                 <BookOpen className="mr-2 h-4 w-4" />
                 Découvrir la LIPS
-              </a>
+              </Link>
             </Button>
           </motion.div>
         </div>

@@ -9,19 +9,21 @@ import {
   Twitter,
   Youtube,
 } from 'lucide-react';
+import Link from 'next/link';
 
 const QUICK_LINKS = [
-  { label: 'Accueil', href: '#accueil' },
-  { label: 'Notre Mission', href: '#apropos' },
-  { label: 'Régions', href: '#regions' },
-  { label: 'Vérifier une Carte', href: '#verification' },
+  { label: 'Accueil', href: '/' },
+  { label: 'À Propos', href: '/a-propos' },
+  { label: 'Régions', href: '/regions' },
+  { label: 'Vérifier une Carte', href: '/verifier-carte' },
 ];
 
 const RESOURCE_LINKS = [
-  { label: 'Communiqués', href: '#actualites' },
-  { label: 'Fatwas', href: '#actualites' },
-  { label: 'Cours & Formations', href: '#evenements' },
-  { label: 'Espace Membre', href: '#verification' },
+  { label: 'Communiqués', href: '/actualites' },
+  { label: 'Fatwas', href: '/actualites' },
+  { label: 'Événements', href: '/actualites' },
+  { label: 'Adhérer', href: '/adherer' },
+  { label: 'Faire un Don', href: '/faire-un-don' },
 ];
 
 export default function LipsFooter() {
@@ -84,13 +86,13 @@ export default function LipsFooter() {
             <ul className="space-y-2.5">
               {QUICK_LINKS.map((link) => (
                 <li key={link.label}>
-                  <a
+                  <Link
                     href={link.href}
                     className="text-sm text-white/60 hover:text-lips-gold transition-colors flex items-center gap-1.5"
                   >
                     <ExternalLink className="h-3 w-3 opacity-50" />
                     {link.label}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -104,13 +106,13 @@ export default function LipsFooter() {
             <ul className="space-y-2.5">
               {RESOURCE_LINKS.map((link) => (
                 <li key={link.label}>
-                  <a
+                  <Link
                     href={link.href}
                     className="text-sm text-white/60 hover:text-lips-gold transition-colors flex items-center gap-1.5"
                   >
                     <ExternalLink className="h-3 w-3 opacity-50" />
                     {link.label}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>

@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Menu,
@@ -15,41 +17,42 @@ import { Button } from '@/components/ui/button';
 const NAV_ITEMS = [
   {
     label: 'Accueil',
-    href: '#accueil',
+    href: '/',
   },
   {
     label: 'À Propos',
-    href: '#apropos',
+    href: '/a-propos',
     children: [
-      { label: 'Notre Mission', href: '#apropos' },
-      { label: 'Gouvernance', href: '#gouvernance' },
-      { label: 'Carte Membre', href: '#carte-membre' },
+      { label: 'Notre Mission', href: '/a-propos' },
+      { label: 'Gouvernance', href: '/a-propos#gouvernance' },
+      { label: 'Carte Membre', href: '/a-propos#carte-membre' },
+      { label: 'FAQ', href: '/a-propos#faq' },
     ],
   },
   {
     label: 'Actualités',
-    href: '#actualites',
+    href: '/actualites',
     children: [
-      { label: 'Communiqués & Fatwas', href: '#actualites' },
-      { label: 'Événements', href: '#evenements' },
-      { label: 'Galerie Photos', href: '#galerie' },
+      { label: 'Communiqués & Fatwas', href: '/actualites#actualites' },
+      { label: 'Événements', href: '/actualites#evenements' },
+      { label: 'Galerie Photos', href: '/actualites#galerie' },
     ],
   },
   {
     label: 'Régions',
-    href: '#regions',
+    href: '/regions',
   },
   {
     label: 'Adhérer',
-    href: '#devenir-membre',
+    href: '/adherer',
   },
   {
     label: 'Vérifier une Carte',
-    href: '#verification',
+    href: '/verifier-carte',
   },
   {
     label: 'Faire un Don',
-    href: '#dons',
+    href: '/faire-un-don',
   },
 ];
 
@@ -57,6 +60,7 @@ export default function LipsHeader() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const pathname = usePathname();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -65,6 +69,16 @@ export default function LipsHeader() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
+
+  const isActive = (href: string) => {
+    if (href === '/') return pathname === '/';
+    return pathname.startsWith(href.split('#')[0]);
+  };
 
   return (
     <>
@@ -97,7 +111,7 @@ export default function LipsHeader() {
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-16 lg:h-20">
             {/* Logo */}
-            <a href="#accueil" className="flex items-center gap-3 group">
+            <Link href="/" className="flex items-center gap-3 group">
               <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-gradient-lips flex items-center justify-center shadow-lg group-hover:shadow-lips-green/30 transition-shadow">
                 <span className="text-white font-bold text-sm lg:text-base">
                   LIPS
@@ -111,7 +125,7 @@ export default function LipsHeader() {
                   & Prédicateurs du Sénégal
                 </div>
               </div>
-            </a>
+            </Link>
 
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center gap-1">
@@ -124,15 +138,19 @@ export default function LipsHeader() {
                   }
                   onMouseLeave={() => setActiveDropdown(null)}
                 >
-                  <a
+                  <Link
                     href={item.href}
-                    className="px-3 py-2 text-sm font-medium text-foreground/80 hover:text-lips-green transition-colors rounded-md hover:bg-lips-green/5 flex items-center gap-1"
+                    className={`px-3 py-2 text-sm font-medium transition-colors rounded-md flex items-center gap-1 ${
+                      isActive(item.href)
+                        ? 'text-lips-green bg-lips-green/5'
+                        : 'text-foreground/80 hover:text-lips-green hover:bg-lips-green/5'
+                    }`}
                   >
                     {item.label}
                     {item.children && (
                       <ChevronDown className="h-3.5 w-3.5 opacity-50" />
                     )}
-                  </a>
+                  </Link>
 
                   {/* Dropdown */}
                   <AnimatePresence>
@@ -145,13 +163,13 @@ export default function LipsHeader() {
                         className="absolute top-full left-0 mt-1 w-48 bg-white rounded-lg shadow-xl border border-border/50 py-1 z-50"
                       >
                         {item.children.map((child) => (
-                          <a
+                          <Link
                             key={child.label}
                             href={child.href}
                             className="block px-4 py-2 text-sm text-foreground/70 hover:text-lips-green hover:bg-lips-green/5 transition-colors"
                           >
                             {child.label}
-                          </a>
+                          </Link>
                         ))}
                       </motion.div>
                     )}
@@ -166,7 +184,7 @@ export default function LipsHeader() {
                 asChild
                 className="hidden sm:inline-flex bg-lips-green hover:bg-lips-green-dark text-white shadow-md"
               >
-                <a href="#verification">Espace Membre</a>
+                <Link href="/verifier-carte">Espace Membre</Link>
               </Button>
               <button
                 className="lg:hidden p-2 rounded-md hover:bg-lips-green/5 transition-colors"
@@ -196,24 +214,28 @@ export default function LipsHeader() {
               <nav className="max-w-7xl mx-auto px-4 py-3 space-y-1">
                 {NAV_ITEMS.map((item) => (
                   <div key={item.label}>
-                    <a
+                    <Link
                       href={item.href}
-                      className="block px-3 py-2.5 text-sm font-medium text-foreground/80 hover:text-lips-green hover:bg-lips-green/5 rounded-md transition-colors"
+                      className={`block px-3 py-2.5 text-sm font-medium rounded-md transition-colors ${
+                        isActive(item.href)
+                          ? 'text-lips-green bg-lips-green/5'
+                          : 'text-foreground/80 hover:text-lips-green hover:bg-lips-green/5'
+                      }`}
                       onClick={() => setMobileOpen(false)}
                     >
                       {item.label}
-                    </a>
+                    </Link>
                     {item.children && (
                       <div className="ml-4 space-y-0.5">
                         {item.children.map((child) => (
-                          <a
+                          <Link
                             key={child.label}
                             href={child.href}
                             className="block px-3 py-2 text-xs text-muted-foreground hover:text-lips-green hover:bg-lips-green/5 rounded-md transition-colors"
                             onClick={() => setMobileOpen(false)}
                           >
                             {child.label}
-                          </a>
+                          </Link>
                         ))}
                       </div>
                     )}
@@ -224,9 +246,9 @@ export default function LipsHeader() {
                     asChild
                     className="w-full bg-lips-green hover:bg-lips-green-dark text-white"
                   >
-                    <a href="#verification" onClick={() => setMobileOpen(false)}>
+                    <Link href="/verifier-carte" onClick={() => setMobileOpen(false)}>
                       Espace Membre
-                    </a>
+                    </Link>
                   </Button>
                 </div>
               </nav>
