@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Lock, Eye, EyeOff, AlertCircle, User, LogIn } from 'lucide-react'
+import { Lock, Eye, EyeOff, AlertCircle, User } from 'lucide-react'
 import { motion } from 'framer-motion'
 
 const loginSchema = z.object({
@@ -20,19 +20,11 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>
 
-// Demo credentials for testing
-const DEMO_CREDENTIALS = {
-  email: 'amadou.traore@lips.sn',
-  password: 'Membre@2025',
-  matricule: 'LIPS-2025-DKR-000124',
-}
-
 function MemberLoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [demoLoading, setDemoLoading] = useState(false)
   const [error, setError] = useState('')
 
   const redirect = searchParams.get('redirect') || '/espace-membre'
@@ -75,38 +67,6 @@ function MemberLoginForm() {
     } finally {
       setLoading(false)
     }
-  }
-
-  async function handleDemoLogin() {
-    setDemoLoading(true)
-    setError('')
-
-    try {
-      const res = await fetch('/api/membre/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: DEMO_CREDENTIALS.email, password: DEMO_CREDENTIALS.password }),
-      })
-
-      const resData = await res.json()
-
-      if (!res.ok) {
-        setError(resData.error || 'Erreur de connexion démo')
-        return
-      }
-
-      router.push(redirect)
-      router.refresh()
-    } catch {
-      setError('Erreur de connexion au serveur')
-    } finally {
-      setDemoLoading(false)
-    }
-  }
-
-  function fillDemoCredentials() {
-    setValue('email', DEMO_CREDENTIALS.email)
-    setValue('password', DEMO_CREDENTIALS.password)
   }
 
   return (
@@ -219,7 +179,7 @@ function MemberLoginForm() {
                 <Button
                   type="submit"
                   className="w-full bg-lips-green hover:bg-lips-green-dark text-white"
-                  disabled={loading || demoLoading}
+                  disabled={loading}
                 >
                   {loading ? (
                     <span className="flex items-center gap-2">
@@ -231,66 +191,6 @@ function MemberLoginForm() {
                   )}
                 </Button>
               </form>
-
-              {/* Demo access section */}
-              <div className="mt-5 pt-4 border-t">
-                <div className="bg-lips-cream/50 rounded-lg p-3 border border-lips-gold/20">
-                  <div className="flex items-center gap-2 mb-2">
-                    <LogIn className="h-4 w-4 text-lips-gold" />
-                    <span className="text-sm font-semibold text-lips-green-dark">Accès Démo</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mb-3">
-                    Testez l&apos;espace membre avec le compte de démonstration :
-                  </p>
-                  <div className="space-y-1.5 mb-3">
-                    <div className="flex items-center gap-2 text-xs">
-                      <span className="text-muted-foreground min-w-[60px]">Email :</span>
-                      <code className="bg-white px-1.5 py-0.5 rounded text-lips-green-dark font-mono text-[11px]">
-                        {DEMO_CREDENTIALS.email}
-                      </code>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs">
-                      <span className="text-muted-foreground min-w-[60px]">Mot de passe :</span>
-                      <code className="bg-white px-1.5 py-0.5 rounded text-lips-green-dark font-mono text-[11px]">
-                        {DEMO_CREDENTIALS.password}
-                      </code>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs">
-                      <span className="text-muted-foreground min-w-[60px]">Matricule :</span>
-                      <code className="bg-white px-1.5 py-0.5 rounded text-lips-green-dark font-mono text-[11px]">
-                        {DEMO_CREDENTIALS.matricule}
-                      </code>
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className="flex-1 border-lips-gold/30 text-lips-green hover:bg-lips-gold/10 text-xs"
-                      onClick={fillDemoCredentials}
-                    >
-                      Remplir
-                    </Button>
-                    <Button
-                      type="button"
-                      size="sm"
-                      className="flex-1 bg-lips-gold hover:bg-lips-gold-light text-lips-green-dark text-xs font-semibold"
-                      onClick={handleDemoLogin}
-                      disabled={demoLoading || loading}
-                    >
-                      {demoLoading ? (
-                        <span className="flex items-center gap-1.5">
-                          <span className="h-3 w-3 border-2 border-lips-green-dark/30 border-t-lips-green-dark rounded-full animate-spin" />
-                          Connexion...
-                        </span>
-                      ) : (
-                        'Connexion Démo'
-                      )}
-                    </Button>
-                  </div>
-                </div>
-              </div>
 
               <div className="mt-5 pt-4 border-t text-center">
                 <p className="text-sm text-muted-foreground">
