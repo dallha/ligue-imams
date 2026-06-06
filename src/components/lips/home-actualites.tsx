@@ -3,7 +3,6 @@
 import { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import {
-  Calendar,
   Clock,
   ChevronRight,
   ArrowRight,
@@ -15,46 +14,9 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useLanguage } from '@/lib/lips/i18n/language-context';
 
-interface Article {
-  id: number;
-  titre: string;
-  categorie: string;
-  date: string;
-  auteur: string;
-  type: 'communique' | 'fatwa' | 'article' | 'evenement';
-}
-
-const LATEST_ARTICLES: Article[] = [
-  {
-    id: 1,
-    titre: 'Communiqué : Position de la LIPS sur le dialogue interreligieux',
-    categorie: 'Communiqué',
-    date: '4 Juin 2026',
-    auteur: 'Bureau National',
-    type: 'communique',
-  },
-  {
-    id: 2,
-    titre: 'Fatwa : Conditions de la prière du Vendredi en voyage',
-    categorie: 'Fatwa',
-    date: '1 Juin 2026',
-    auteur: 'Commission Fatwa',
-    type: 'fatwa',
-  },
-  {
-    id: 3,
-    titre: 'Formation régionale à Thiès — 15 au 18 Juin',
-    categorie: 'Formation',
-    date: '29 Mai 2026',
-    auteur: 'Commission Formation',
-    type: 'evenement',
-  },
-];
-
 const TYPE_COLORS: Record<string, string> = {
   communique: 'bg-red-500/10 text-red-600',
   fatwa: 'bg-purple-500/10 text-purple-600',
-  article: 'bg-blue-500/10 text-blue-600',
   evenement: 'bg-green-500/10 text-green-600',
 };
 
@@ -62,6 +24,33 @@ export default function HomeActualites() {
   const { t } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
+
+  const LATEST_ARTICLES = [
+    {
+      id: 1,
+      titre: t.actualites.art1Title,
+      categorie: t.actualites.catCommunique,
+      date: t.actualites.art1Date,
+      auteur: t.actualites.art1Author,
+      type: 'communique' as const,
+    },
+    {
+      id: 2,
+      titre: t.actualites.art2Title,
+      categorie: t.actualites.catFatwa,
+      date: t.actualites.art2Date,
+      auteur: t.actualites.art2Author,
+      type: 'fatwa' as const,
+    },
+    {
+      id: 3,
+      titre: t.actualites.art3Title,
+      categorie: t.actualites.catFormation,
+      date: t.actualites.art3Date,
+      auteur: t.actualites.art3Author,
+      type: 'evenement' as const,
+    },
+  ];
 
   return (
     <section

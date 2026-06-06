@@ -13,7 +13,7 @@ import SenegalMap from '@/components/lips/senegal-map';
 import { useLanguage } from '@/lib/lips/i18n/language-context';
 
 export default function HomeRegions() {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
 
@@ -83,7 +83,7 @@ export default function HomeRegions() {
                   {region.mosqueCount && (
                     <div className="text-[10px] text-muted-foreground mt-1.5 flex items-center justify-center gap-1">
                       <Building className="h-2.5 w-2.5" />
-                      {region.mosqueCount.toLocaleString('fr-FR')}
+                      {region.mosqueCount?.toLocaleString(locale === 'ar' ? 'ar-SN' : locale === 'en' ? 'en-SN' : 'fr-FR')}
                     </div>
                   )}
                 </motion.div>

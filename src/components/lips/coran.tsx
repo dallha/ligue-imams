@@ -89,27 +89,18 @@ const SURAH_NAMES_AR: Record<number, string> = {
   110:'النصر',111:'المسد',112:'الإخلاص',113:'الفلق',114:'الناس',
 };
 
-// ─── Daily Verses ─────────────────────────────────────────────
+// ─── Daily Verses (now from translations) ────────────────────
 interface DailyVerse {
   arabic: string;
-  french: string;
+  translation: string;
   reference: string;
 }
 
-const DAILY_VERSES: DailyVerse[] = [
-  { arabic: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ', french: 'Au nom d\'Allah, le Tout-Miséricordieux, le Très-Miséricordieux.', reference: 'Coran 1:1 — Al-Fatiha' },
-  { arabic: 'اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ', french: 'Allah ! Point de divinité à part Lui, le Vivant, Celui qui subsiste par lui-même.', reference: 'Coran 2:255 — Ayat al-Kursi' },
-  { arabic: 'وَمَن يَتَّقِ اللَّهِ يَجْعَل لَّهُ مَخْرَجًا', french: 'Et quiconque craint Allah, Il lui donnera une issue.', reference: 'Coran 65:2 — At-Talaq' },
-  { arabic: 'إِنَّ مَعَ الْعُسْرِ يُسْرًا', french: 'Certes, avec la difficulté vient la facilité.', reference: 'Coran 94:6 — Ash-Sharh' },
-  { arabic: 'وَلَذِكْرُ اللَّهِ أَكْبَرُ', french: 'Et l\'invocation d\'Allah est certes la plus grande chose.', reference: 'Coran 29:45 — Al-Ankabut' },
-  { arabic: 'وَقُل رَّبِّ زِدْنِي عِلْمًا', french: 'Et dis : « Ô mon Seigneur, augmente mes connaissances. »', reference: 'Coran 20:114 — Taha' },
-  { arabic: 'فَاذْكُرُونِي أَذْكُرْكُمْ وَاشْكُرُوا لِي وَلَا تَكْفُرُونِ', french: 'Souvenez-vous de Moi, Je me souviendrai de vous. Soyez reconnaissants envers Moi et ne Me reniez pas.', reference: 'Coran 2:152 — Al-Baqara' },
-];
-
-// ─── Helpers ──────────────────────────────────────────────────
-function getDailyVerse(): DailyVerse {
+function getDailyVerse(t: { coran: { verses: Record<string, DailyVerse> } }): DailyVerse {
   const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / (1000 * 60 * 60 * 24));
-  return DAILY_VERSES[dayOfYear % DAILY_VERSES.length];
+  const keys = ['v1', 'v2', 'v3', 'v4', 'v5', 'v6', 'v7'];
+  const key = keys[dayOfYear % keys.length];
+  return t.coran.verses[key];
 }
 
 function getAudioUrl(server: string, surahNumber: number): string {
@@ -214,7 +205,7 @@ export default function CoranSection() {
   const [reciterSearch, setReciterSearch] = useState('');
   const [showReciterSearch, setShowReciterSearch] = useState(false);
 
-  const dailyVerse = useMemo(() => getDailyVerse(), []);
+  const dailyVerse = useMemo(() => getDailyVerse(t), [t]);
 
   // ─── Quran Resources (computed inside component for i18n) ──
   const quranResources = useMemo(() => [
@@ -423,7 +414,7 @@ export default function CoranSection() {
     ).slice(0, 20);
   }, [reciterSearch, reciters]);
 
-  const currentSurahName = suwar.find(s => s.id === currentSurah)?.name || 'Sourate ' + currentSurah;
+  const currentSurahName = suwar.find(s => s.id === currentSurah)?.name || t.coran.surahLabel + ' ' + currentSurah;
   const currentSurahNameAr = SURAH_NAMES_AR[currentSurah] || '';
 
   return (
@@ -464,7 +455,7 @@ export default function CoranSection() {
                 </div>
                 <p className="font-arabic text-2xl sm:text-3xl lg:text-4xl text-lips-green-dark text-right leading-loose mb-4" dir="rtl">{dailyVerse.arabic}</p>
                 <div className="w-16 h-0.5 bg-lips-gold/40 mx-auto my-4" />
-                <p className="text-base sm:text-lg text-foreground/80 italic text-center leading-relaxed mb-3">&laquo; {dailyVerse.french} &raquo;</p>
+                <p className="text-base sm:text-lg text-foreground/80 italic text-center leading-relaxed mb-3">&laquo; {dailyVerse.translation} &raquo;</p>
                 <p className="text-sm text-lips-gold text-center font-medium">— {dailyVerse.reference}</p>
               </CardContent>
             </Card>

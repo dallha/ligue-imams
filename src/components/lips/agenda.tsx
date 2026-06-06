@@ -51,11 +51,6 @@ function hijriToGregorian(hYear: number, hMonth: number, hDay: number): Date | n
 
 // ─── Constants ───────────────────────────────────────────────────
 
-const GREGORIAN_MONTHS = [
-  'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
-  'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre',
-];
-
 const HIJRI_MONTHS_FR = [
   'Muharram', 'Safar', 'Rabi\u02BF al-Awwal', 'Rabi\u02BF al-Thani',
   'Jumada al-Ula', 'Jumada al-Thania', 'Rajab', 'Sha\u02BFban',
@@ -68,8 +63,30 @@ const HIJRI_MONTHS_AR = [
   'رمضان', 'شوال', 'ذو القعدة', 'ذو الحجة',
 ];
 
-const WEEKDAYS_SHORT = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
-const WEEKDAYS_AR = ['اثن', 'ثلا', 'أرب', 'خمي', 'جمع', 'سبت', 'أحد'];
+// Locale-aware helpers (no more hardcoded French arrays)
+function getGregorianMonthNames(locale: string): string[] {
+  const months: string[] = [];
+  for (let m = 0; m < 12; m++) {
+    const d = new Date(2026, m, 1);
+    months.push(d.toLocaleDateString(locale === 'ar' ? 'ar-SN' : locale === 'en' ? 'en-SN' : 'fr-FR', { month: 'long' }));
+  }
+  return months;
+}
+
+function getWeekdayShortNames(locale: string): string[] {
+  const names: string[] = [];
+  // Monday=0 through Sunday=6
+  const baseDate = new Date(2026, 0, 5); // Monday Jan 5 2026
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(baseDate.getTime() + i * 86400000);
+    names.push(d.toLocaleDateString(locale === 'ar' ? 'ar-SN' : locale === 'en' ? 'en-SN' : 'fr-FR', { weekday: 'short' }));
+  }
+  return names;
+}
+
+function getLocaleStr(locale: string): string {
+  return locale === 'ar' ? 'ar-SN' : locale === 'en' ? 'en-SN' : 'fr-FR';
+}
 
 // Arabic numeral conversion
 function toArabicNumerals(num: number): string {
@@ -220,12 +237,12 @@ function getFirstDayOfMonth(year: number, month: number): number {
   return day === 0 ? 6 : day - 1;
 }
 
-function formatDateFR(date: Date): string {
-  return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+function formatDate(date: Date, locale: string): string {
+  return date.toLocaleDateString(getLocaleStr(locale), { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
-function formatDateShort(date: Date): string {
-  return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+function formatDateShort(date: Date, locale: string): string {
+  return date.toLocaleDateString(getLocaleStr(locale), { day: 'numeric', month: 'short' });
 }
 
 function daysUntil(date: Date): number {
@@ -250,9 +267,12 @@ interface CalendarGridProps {
 }
 
 function CalendarGrid({ year, month, type, onNavigate }: CalendarGridProps) {
-  const { p } = useLanguage();
+  const { p, locale } = useLanguage();
   const today = new Date();
   const todayHijri = gregorianToHijri(today);
+
+  const GREGORIAN_MONTHS = getGregorianMonthNames(locale);
+  const WEEKDAYS_SHORT = getWeekdayShortNames(locale);
 
   const daysInMonth = getDaysInMonth(year, month);
   const firstDay = getFirstDayOfMonth(year, month);
@@ -302,7 +322,7 @@ function CalendarGrid({ year, month, type, onNavigate }: CalendarGridProps) {
       <CardContent className="p-2 sm:p-3">
         {/* Weekday headers */}
         <div className="grid grid-cols-7 gap-0 mb-1">
-          {(type === 'hijri' ? WEEKDAYS_AR : WEEKDAYS_SHORT).map((day, i) => (
+          {(type === 'hijri' && locale === 'ar' ? getWeekdayShortNames('ar') : WEEKDAYS_SHORT).map((day, i) => (
             <div
               key={i}
               className="text-center text-[10px] sm:text-xs font-medium text-muted-foreground py-1"
@@ -394,7 +414,7 @@ function CalendarGrid({ year, month, type, onNavigate }: CalendarGridProps) {
 // ─── Islamic Events List ──────────────────────────────────────────
 
 function IslamicEventsList() {
-  const { p } = useLanguage();
+  const { p, locale } = useLanguage();
   const today = new Date();
   const todayHijri = gregorianToHijri(today);
 
@@ -466,7 +486,7 @@ function IslamicEventsList() {
                 </span>
               </div>
               <div className="text-xs text-muted-foreground">
-                {event.hijriDay} {HIJRI_MONTHS_FR[event.hijriMonth - 1]} {hijriYear} H — {formatDateShort(gregorianDate)}
+                {event.hijriDay} {HIJRI_MONTHS_FR[event.hijriMonth - 1]} {hijriYear} H — {formatDateShort(gregorianDate, locale)}
               </div>
             </div>
 
@@ -492,7 +512,7 @@ function IslamicEventsList() {
 // ─── LIPS Events List View ────────────────────────────────────────
 
 function LIPSEventsListView({ filter }: { filter: string }) {
-  const { p } = useLanguage();
+  const { p, locale } = useLanguage();
   const filteredEvents = useMemo(() => {
     if (filter === p.agendaComp.filterAll) return LIPS_EVENTS;
     return LIPS_EVENTS.filter((e) => e.category === filter);
@@ -523,7 +543,7 @@ function LIPSEventsListView({ filter }: { filter: string }) {
                     {event.date.getDate()}
                   </span>
                   <span className="text-xs uppercase tracking-wider text-lips-gold">
-                    {event.date.toLocaleDateString('fr-FR', { month: 'short' })}
+                    {event.date.toLocaleDateString(getLocaleStr(locale), { month: 'short' })}
                   </span>
                   <span className="text-[10px] text-white/50">
                     {event.date.getFullYear()}
@@ -557,8 +577,8 @@ function LIPSEventsListView({ filter }: { filter: string }) {
                         <span className="flex items-center gap-1">
                           <Clock className="h-3 w-3" />
                           {event.dateEnd
-                            ? `${formatDateShort(event.date)} — ${formatDateShort(event.dateEnd)}`
-                            : formatDateFR(event.date)}
+                            ? `${formatDateShort(event.date, locale)} — ${formatDateShort(event.dateEnd, locale)}`
+                            : formatDate(event.date, locale)}
                         </span>
                         <span className="font-arabic text-lips-gold text-xs">
                           {event.hijriDate || `${hijri.day} ${HIJRI_MONTHS_FR[hijri.month - 1]} ${hijri.year} H`}
@@ -604,7 +624,7 @@ function CalendarLegend() {
 // ─── Main AgendaSection ───────────────────────────────────────────
 
 export default function AgendaSection() {
-  const { p } = useLanguage();
+  const { p, locale } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
 
@@ -781,7 +801,7 @@ export default function AgendaSection() {
                               <div className="flex flex-col items-center justify-center bg-lips-green-dark text-white rounded-lg px-2 py-1.5 min-w-[48px]">
                                 <span className="text-lg font-bold leading-none">{event.date.getDate()}</span>
                                 <span className="text-[9px] uppercase text-lips-gold leading-none mt-0.5">
-                                  {event.date.toLocaleDateString('fr-FR', { month: 'short' })}
+                                  {event.date.toLocaleDateString(getLocaleStr(locale), { month: 'short' })}
                                 </span>
                               </div>
                               <div className="flex-1 min-w-0">

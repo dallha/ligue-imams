@@ -253,7 +253,7 @@ function RegionSelector({
 
 // ─── Main Component ───────────────────────────────────────────
 export default function PrayerTimesWidget() {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const [prayerData, setPrayerData] = useState<PrayerData | null>(null);
   const [currentPrayer, setCurrentPrayer] = useState(0);
   const [currentTime, setCurrentTime] = useState('');
@@ -331,17 +331,15 @@ export default function PrayerTimesWidget() {
     if (!prayerData) return;
     const update = () => {
       const now = new Date();
-      setCurrentTime(now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+      setCurrentTime(now.toLocaleTimeString(locale === 'ar' ? 'ar-SN' : locale === 'en' ? 'en-SN' : 'fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
       setCurrentPrayer(getCurrentPrayerIndex(prayerData.timings));
       setCountdown(getNextPrayerCountdown(prayerData.timings));
-      if (!gregorianDate) {
-        setGregorianDate(now.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' }));
-      }
+      setGregorianDate(now.toLocaleDateString(locale === 'ar' ? 'ar-SN' : locale === 'en' ? 'en-SN' : 'fr-FR', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' }));
     };
     update();
     const timer = setInterval(update, 1000);
     return () => clearInterval(timer);
-  }, [prayerData, gregorianDate]);
+  }, [prayerData, gregorianDate, locale]);
 
   // Loading skeleton
   if (!mounted || !prayerData) {

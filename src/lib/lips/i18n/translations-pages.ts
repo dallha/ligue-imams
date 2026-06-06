@@ -117,6 +117,9 @@ export interface PageTranslations {
     selectPlaceholder: string;
     submit: string; submitted: string; newApplication: string;
     conditions: string;
+    // Role options
+    roleImam: string; rolePreacher: string; roleRegionalHead: string; roleShura: string; roleOther: string;
+    mosquePlaceholder: string;
   };
 
   // ─── Verification Component ────────────────────────────────
@@ -352,6 +355,8 @@ export const frPages: PageTranslations = {
     selectPlaceholder: 'Sélectionner',
     submit: 'Soumettre ma candidature', submitted: 'Candidature soumise !',
     newApplication: 'Nouvelle candidature', conditions: "En soumettant ce formulaire, vous acceptez les conditions d'adhésion de la LIPS et certifiez l'exactitude des informations fournies.",
+    roleImam: 'Imam', rolePreacher: 'Prédicateur', roleRegionalHead: 'Responsable régional', roleShura: 'Membre du Choura', roleOther: 'Autre',
+    mosquePlaceholder: 'Grande Mosquée de la Médina',
   },
   verification: {
     sectionTag: 'Vérification', sectionTitle: 'Vérifier une Carte Membre', sectionDesc: "Saisissez le numéro de matricule figurant sur la carte membre pour vérifier instantanément sa validité.",
@@ -564,6 +569,8 @@ export const arPages: PageTranslations = {
     selectPlaceholder: 'اختر',
     submit: 'إرسال ترشحي', submitted: 'تم إرسال الترشح!',
     newApplication: 'ترشح جديد', conditions: 'بإرسال هذه الاستمارة، أنت تقبل شروط انضمام الرابطة وتصرح بصحة المعلومات المقدمة.',
+    roleImam: 'إمام', rolePreacher: 'خطيب', roleRegionalHead: 'مسؤول جهوي', roleShura: 'عضو شورى', roleOther: 'آخر',
+    mosquePlaceholder: 'الجامع الكبير للمدينة',
   },
   verification: {
     sectionTag: 'التحقق', sectionTitle: 'التحقق من بطاقة عضوية', sectionDesc: 'أدخل رقم التسجيل الموجود على بطاقة العضوية للتحقق الفوري من صلاحيتها.',
@@ -772,6 +779,8 @@ export const enPages: PageTranslations = {
     selectPlaceholder: 'Select',
     submit: 'Submit My Application', submitted: 'Application Submitted!',
     newApplication: 'New Application', conditions: 'By submitting this form, you accept the LIPS membership conditions and certify the accuracy of the information provided.',
+    roleImam: 'Imam', rolePreacher: 'Preacher', roleRegionalHead: 'Regional Head', roleShura: 'Shura Member', roleOther: 'Other',
+    mosquePlaceholder: 'Grand Mosque of the Medina',
   },
   verification: {
     sectionTag: 'Verification', sectionTitle: 'Verify a Member Card', sectionDesc: 'Enter the registration number on the member card to instantly verify its validity.',

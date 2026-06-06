@@ -21,7 +21,7 @@ import { useLanguage } from '@/lib/lips/i18n/language-context';
 const MONTANTS = [1000, 2500, 5000, 10000, 25000, 50000];
 
 export default function DonsSection() {
-  const { p } = useLanguage();
+  const { p, locale } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
   const [selected, setSelected] = useState<number | null>(5000);
@@ -100,7 +100,7 @@ export default function DonsSection() {
                         : 'bg-white/10 text-white/80 hover:bg-white/20 border border-white/10'
                     }`}
                   >
-                    {m.toLocaleString('fr-FR')} F
+                    {m.toLocaleString(locale === 'ar' ? 'ar-SN' : locale === 'en' ? 'en-SN' : 'fr-FR')} FCFA
                   </button>
                 ))}
               </div>
@@ -154,7 +154,7 @@ export default function DonsSection() {
               {/* Submit */}
               <Button className="w-full bg-lips-gold hover:bg-lips-gold-light text-lips-green-dark font-semibold h-12 text-base shadow-lg shadow-lips-gold/30">
                 <Heart className="h-5 w-5 mr-2" />
-                {p.dons.donateAmount.replace('{amount}', currentMontant ? currentMontant.toLocaleString('fr-FR') : '0')}
+                {p.dons.donateAmount.replace('{amount}', currentMontant ? currentMontant.toLocaleString(locale === 'ar' ? 'ar-SN' : locale === 'en' ? 'en-SN' : 'fr-FR') : '0')}
               </Button>
 
               {/* Trust indicators */}

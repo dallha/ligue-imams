@@ -2,6 +2,21 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLanguage } from '@/lib/lips/i18n/language-context';
+
+function PreloaderText() {
+  const { t } = useLanguage();
+  return (
+    <motion.p
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.4, duration: 0.5 }}
+      className="mt-4 text-white/50 text-sm tracking-wider uppercase"
+    >
+      {t.common.loading}
+    </motion.p>
+  );
+}
 
 export default function Preloader() {
   const [isLoading, setIsLoading] = useState(true);
@@ -65,14 +80,7 @@ export default function Preloader() {
           />
 
           {/* Text */}
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.5 }}
-            className="mt-4 text-white/50 text-sm tracking-wider uppercase"
-          >
-            Chargement...
-          </motion.p>
+          <PreloaderText />
 
           {/* Arabic text */}
           <motion.p

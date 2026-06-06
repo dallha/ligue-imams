@@ -26,10 +26,9 @@ const REGIONS = [
   'Ziguinchor', 'Sédhiou', 'Diourbel', 'Kaffrine',
 ];
 
-const ROLES = ['Imam', 'Prédicateur', 'Responsable régional', 'Membre du Choura', 'Autre'];
-
 export default function DevenirMembreSection() {
   const { p } = useLanguage();
+  const ROLES = [p.devenirMembre.roleImam, p.devenirMembre.rolePreacher, p.devenirMembre.roleRegionalHead, p.devenirMembre.roleShura, p.devenirMembre.roleOther];
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
   const [submitted, setSubmitted] = useState(false);
@@ -225,7 +224,7 @@ export default function DevenirMembreSection() {
 
                     <div className="space-y-1.5">
                       <label className="text-xs font-medium text-foreground">{p.devenirMembre.mosque}</label>
-                      <Input placeholder="Grande Mosquée de la Médina" className="h-10 text-sm" />
+                      <Input placeholder={p.devenirMembre.mosquePlaceholder} className="h-10 text-sm" />
                     </div>
 
                     <div className="pt-2">

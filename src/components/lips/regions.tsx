@@ -14,7 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { useLanguage } from '@/lib/lips/i18n/language-context';
 
 export default function RegionsSection() {
-  const { p } = useLanguage();
+  const { p, locale } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
 
@@ -85,7 +85,7 @@ export default function RegionsSection() {
                       <div className="flex items-center gap-1.5">
                         <Users className="h-3 w-3 text-lips-green-light" />
                         <span>
-                          {region.population.toLocaleString('fr-FR')} {p.regionsPage.inhabitants}
+                          {region.population.toLocaleString(locale === 'ar' ? 'ar-SN' : locale === 'en' ? 'en-SN' : 'fr-FR')} {p.regionsPage.inhabitants}
                         </span>
                       </div>
                     )}
@@ -93,7 +93,7 @@ export default function RegionsSection() {
                       <div className="flex items-center gap-1.5">
                         <Building className="h-3 w-3 text-lips-gold" />
                         <span>
-                          {region.mosqueCount.toLocaleString('fr-FR')} {p.regionsPage.mosques}
+                          {region.mosqueCount.toLocaleString(locale === 'ar' ? 'ar-SN' : locale === 'en' ? 'en-SN' : 'fr-FR')} {p.regionsPage.mosques}
                         </span>
                       </div>
                     )}

@@ -161,6 +161,20 @@ export interface TranslationDict {
     fatwas: string;
     events: string;
     gallery: string;
+    // Article categories
+    catCommunique: string;
+    catFatwa: string;
+    catFormation: string;
+    // Latest articles
+    art1Title: string;
+    art1Date: string;
+    art1Author: string;
+    art2Title: string;
+    art2Date: string;
+    art2Author: string;
+    art3Title: string;
+    art3Date: string;
+    art3Author: string;
   };
 
   // ─── Regions ───────────────────────────────────────────────
@@ -196,6 +210,18 @@ export interface TranslationDict {
     heroSubtitle: string;
     // Daily verse
     verseOfDay: string;
+    // Daily verses data (7 verses, one per day of week)
+    verses: {
+      v1: { arabic: string; translation: string; reference: string };
+      v2: { arabic: string; translation: string; reference: string };
+      v3: { arabic: string; translation: string; reference: string };
+      v4: { arabic: string; translation: string; reference: string };
+      v5: { arabic: string; translation: string; reference: string };
+      v6: { arabic: string; translation: string; reference: string };
+      v7: { arabic: string; translation: string; reference: string };
+    };
+    // Surah fallback label
+    surahLabel: string;
     // Reciters section
     recitationTag: string;
     recitationTitle: string;
@@ -393,6 +419,18 @@ export const fr: TranslationDict = {
     fatwas: 'Fatwas',
     events: 'Événements',
     gallery: 'Galerie Photos',
+    catCommunique: 'Communiqué',
+    catFatwa: 'Fatwa',
+    catFormation: 'Formation',
+    art1Title: 'Communiqué : Position de la LIPS sur le dialogue interreligieux',
+    art1Date: '4 Juin 2026',
+    art1Author: 'Bureau National',
+    art2Title: 'Fatwa : Conditions de la prière du Vendredi en voyage',
+    art2Date: '1 Juin 2026',
+    art2Author: 'Commission Fatwa',
+    art3Title: 'Formation régionale à Thiès — 15 au 18 Juin',
+    art3Date: '29 Mai 2026',
+    art3Author: 'Commission Formation',
   },
   regions: {
     sectionTag: 'Présence Nationale',
@@ -421,6 +459,16 @@ export const fr: TranslationDict = {
     heroTitle: 'Le Saint Coran',
     heroSubtitle: 'Écoutez les plus belles récitations du Coran par les plus grands récitateurs du monde musulman, par sourate et en streaming direct.',
     verseOfDay: 'Verset du Jour',
+    verses: {
+      v1: { arabic: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ', translation: 'Au nom d\'Allah, le Tout-Miséricordieux, le Très-Miséricordieux.', reference: 'Coran 1:1 — Al-Fatiha' },
+      v2: { arabic: 'اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ', translation: 'Allah ! Point de divinité à part Lui, le Vivant, Celui qui subsiste par lui-même.', reference: 'Coran 2:255 — Ayat al-Kursi' },
+      v3: { arabic: 'وَمَن يَتَّقِ اللَّهِ يَجْعَل لَّهُ مَخْرَجًا', translation: 'Et quiconque craint Allah, Il lui donnera une issue.', reference: 'Coran 65:2 — At-Talaq' },
+      v4: { arabic: 'إِنَّ مَعَ الْعُسْرِ يُسْرًا', translation: 'Certes, avec la difficulté vient la facilité.', reference: 'Coran 94:6 — Ash-Sharh' },
+      v5: { arabic: 'وَلَذِكْرُ اللَّهِ أَكْبَرُ', translation: 'Et l\'invocation d\'Allah est certes la plus grande chose.', reference: 'Coran 29:45 — Al-Ankabut' },
+      v6: { arabic: 'وَقُل رَّبِّ زِدْنِي عِلْمًا', translation: 'Et dis : « Ô mon Seigneur, augmente mes connaissances. »', reference: 'Coran 20:114 — Taha' },
+      v7: { arabic: 'فَاذْكُرُونِي أَذْكُرْكُمْ وَاشْكُرُوا لِي وَلَا تَكْفُرُونِ', translation: 'Souvenez-vous de Moi, Je me souviendrai de vous. Soyez reconnaissants envers Moi et ne Me reniez pas.', reference: 'Coran 2:152 — Al-Baqara' },
+    },
+    surahLabel: 'Sourate',
     recitationTag: 'Récitation',
     recitationTitle: 'Récitateurs du Coran',
     recitationSubtitle: 'Sélectionnez un récitateurs et écoutez la psalmodie du Coran en streaming direct depuis MP3Quran.net.',
@@ -613,6 +661,18 @@ export const ar: TranslationDict = {
     fatwas: 'فتاوى',
     events: 'فعاليات',
     gallery: 'معرض الصور',
+    catCommunique: 'بيان',
+    catFatwa: 'فتوى',
+    catFormation: 'تكوين',
+    art1Title: 'بيان: موقف الرابطة حول الحوار بين الأديان',
+    art1Date: '4 يونيو 2026',
+    art1Author: 'المكتب الوطني',
+    art2Title: 'فتوى: شروط صلاة الجمعة في السفر',
+    art2Date: '1 يونيو 2026',
+    art2Author: 'لجنة الفتوى',
+    art3Title: 'تكوين جهوي في ثيس — 15 إلى 18 يونيو',
+    art3Date: '29 مايو 2026',
+    art3Author: 'لجنة التكوين',
   },
   regions: {
     sectionTag: 'الحضور الوطني',
@@ -641,6 +701,16 @@ export const ar: TranslationDict = {
     heroTitle: 'القرآن الكريم',
     heroSubtitle: 'استمع إلى أجمل تلاوات القرآن لأكبر القراء في العالم الإسلامي، بالسورة والبث المباشر.',
     verseOfDay: 'آية اليوم',
+    verses: {
+      v1: { arabic: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ', translation: 'بسم الله الرحمن الرحيم.', reference: 'القرآن 1:1 — الفاتحة' },
+      v2: { arabic: 'اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ', translation: 'الله لا إله إلا هو الحي القيوم.', reference: 'القرآن 2:255 — آية الكرسي' },
+      v3: { arabic: 'وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا', translation: 'ومن يتق الله يجعل له مخرجاً.', reference: 'القرآن 65:2 — الطلاق' },
+      v4: { arabic: 'إِنَّ مَعَ الْعُسْرِ يُسْرًا', translation: 'إن مع العسر يسراً.', reference: 'القرآن 94:6 — الشرح' },
+      v5: { arabic: 'وَلَذِكْرُ اللَّهِ أَكْبَرُ', translation: 'ولذكر الله أكبر.', reference: 'القرآن 29:45 — العنكبوت' },
+      v6: { arabic: 'وَقُل رَّبِّ زِدْنِي عِلْمًا', translation: 'وقل رب زدني علماً.', reference: 'القرآن 20:114 — طه' },
+      v7: { arabic: 'فَاذْكُرُونِي أَذْكُرْكُمْ وَاشْكُرُوا لِي وَلَا تَكْفُرُونِ', translation: 'فاذكروني أذكركم واشكروا لي ولا تكفرون.', reference: 'القرآن 2:152 — البقرة' },
+    },
+    surahLabel: 'سورة',
     recitationTag: 'تلاوة',
     recitationTitle: 'قراء القرآن',
     recitationSubtitle: 'اختر قارئاً واستمع إلى تلاوة القرآن بالبث المباشر من MP3Quran.net.',
@@ -833,6 +903,18 @@ export const en: TranslationDict = {
     fatwas: 'Fatwas',
     events: 'Events',
     gallery: 'Photo Gallery',
+    catCommunique: 'Communiqué',
+    catFatwa: 'Fatwa',
+    catFormation: 'Training',
+    art1Title: 'Communiqué: LIPS Position on Interfaith Dialogue',
+    art1Date: 'June 4, 2026',
+    art1Author: 'National Bureau',
+    art2Title: 'Fatwa: Conditions for Friday Prayer While Traveling',
+    art2Date: 'June 1, 2026',
+    art2Author: 'Fatwa Commission',
+    art3Title: 'Regional Training in Thiès — June 15-18',
+    art3Date: 'May 29, 2026',
+    art3Author: 'Training Commission',
   },
   regions: {
     sectionTag: 'National Presence',
@@ -861,6 +943,16 @@ export const en: TranslationDict = {
     heroTitle: 'The Holy Quran',
     heroSubtitle: 'Listen to the most beautiful recitations of the Quran by the greatest reciters of the Muslim world, by surah and in direct streaming.',
     verseOfDay: 'Verse of the Day',
+    verses: {
+      v1: { arabic: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ', translation: 'In the name of Allah, the Most Gracious, the Most Merciful.', reference: 'Quran 1:1 — Al-Fatiha' },
+      v2: { arabic: 'اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ', translation: 'Allah! There is no deity except Him, the Ever-Living, the Sustainer of existence.', reference: 'Quran 2:255 — Ayat al-Kursi' },
+      v3: { arabic: 'وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا', translation: 'And whoever fears Allah — He will make for him a way out.', reference: 'Quran 65:2 — At-Talaq' },
+      v4: { arabic: 'إِنَّ مَعَ الْعُسْرِ يُسْرًا', translation: 'Indeed, with hardship comes ease.', reference: 'Quran 94:6 — Ash-Sharh' },
+      v5: { arabic: 'وَلَذِكْرُ اللَّهِ أَكْبَرُ', translation: 'And the remembrance of Allah is indeed the greatest thing.', reference: 'Quran 29:45 — Al-Ankabut' },
+      v6: { arabic: 'وَقُل رَّبِّ زِدْنِي عِلْمًا', translation: 'And say: "My Lord, increase me in knowledge."', reference: 'Quran 20:114 — Taha' },
+      v7: { arabic: 'فَاذْكُرُونِي أَذْكُرْكُمْ وَاشْكُرُوا لِي وَلَا تَكْفُرُونِ', translation: 'Remember Me, and I will remember you. Be grateful to Me and do not deny Me.', reference: 'Quran 2:152 — Al-Baqara' },
+    },
+    surahLabel: 'Surah',
     recitationTag: 'Recitation',
     recitationTitle: 'Quran Reciters',
     recitationSubtitle: 'Select a reciter and listen to the chanting of the Quran in direct streaming from MP3Quran.net.',

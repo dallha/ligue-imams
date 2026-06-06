@@ -15,7 +15,7 @@ import Link from 'next/link';
 import { useLanguage } from '@/lib/lips/i18n/language-context';
 
 export default function HomeServices() {
-  const { t } = useLanguage();
+  const { t, isRTL } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-80px' });
 
@@ -132,9 +132,11 @@ export default function HomeServices() {
                   <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${service.color} flex items-center justify-center`}>
                     <service.icon className={`h-6 w-6 ${service.iconColor}`} />
                   </div>
-                  <span className="font-arabic text-sm text-lips-gold/60 mt-1">
-                    {service.titleAr}
-                  </span>
+                  {!isRTL && (
+                    <span className="font-arabic text-sm text-lips-gold/60 mt-1">
+                      {service.titleAr}
+                    </span>
+                  )}
                 </div>
 
                 {/* Title */}

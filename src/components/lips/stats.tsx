@@ -26,11 +26,13 @@ function AnimatedCounter({
   suffix,
   duration = 2000,
   trigger,
+  locale,
 }: {
   value: number;
   suffix: string;
   duration?: number;
   trigger: boolean;
+  locale: string;
 }) {
   const [displayValue, setDisplayValue] = useState(0);
   const hasStartedRef = useRef(false);
@@ -65,7 +67,7 @@ function AnimatedCounter({
 
   const formatted =
     value >= 1000
-      ? displayValue.toLocaleString('fr-FR')
+      ? displayValue.toLocaleString(locale === 'ar' ? 'ar-SN' : locale === 'en' ? 'en-SN' : 'fr-FR')
       : displayValue.toString();
 
   return (
@@ -77,7 +79,7 @@ function AnimatedCounter({
 }
 
 export default function StatsSection() {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
 
@@ -188,6 +190,7 @@ export default function StatsSection() {
                     value={stat.value}
                     suffix={stat.suffix}
                     trigger={isInView}
+                    locale={locale}
                   />
                 </div>
                 <div className="text-sm font-semibold text-foreground mb-2">
