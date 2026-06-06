@@ -15,17 +15,16 @@ import {
   Globe,
   Mic,
   GraduationCap,
-  ExternalLink,
   ChevronRight,
   Loader2,
   RefreshCw,
   ListMusic,
+  X,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Progress } from '@/components/ui/progress';
 
 // ─── Types ────────────────────────────────────────────────────
 interface Moshaf {
@@ -99,7 +98,7 @@ interface DailyVerse {
 const DAILY_VERSES: DailyVerse[] = [
   { arabic: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ', french: 'Au nom d\'Allah, le Tout-Miséricordieux, le Très-Miséricordieux.', reference: 'Coran 1:1 — Al-Fatiha' },
   { arabic: 'اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ', french: 'Allah ! Point de divinité à part Lui, le Vivant, Celui qui subsiste par lui-même.', reference: 'Coran 2:255 — Ayat al-Kursi' },
-  { arabic: 'وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا', french: 'Et quiconque craint Allah, Il lui donnera une issue.', reference: 'Coran 65:2 — At-Talaq' },
+  { arabic: 'وَمَن يَتَّقِ اللَّهِ يَجْعَل لَّهُ مَخْرَجًا', french: 'Et quiconque craint Allah, Il lui donnera une issue.', reference: 'Coran 65:2 — At-Talaq' },
   { arabic: 'إِنَّ مَعَ الْعُسْرِ يُسْرًا', french: 'Certes, avec la difficulté vient la facilité.', reference: 'Coran 94:6 — Ash-Sharh' },
   { arabic: 'وَلَذِكْرُ اللَّهِ أَكْبَرُ', french: 'Et l\'invocation d\'Allah est certes la plus grande chose.', reference: 'Coran 29:45 — Al-Ankabut' },
   { arabic: 'وَقُل رَّبِّ زِدْنِي عِلْمًا', french: 'Et dis : « Ô mon Seigneur, augmente mes connaissances. »', reference: 'Coran 20:114 — Taha' },
@@ -133,6 +132,65 @@ function formatTime(seconds: number): string {
   return `${m}:${s.toString().padStart(2, '0')}`;
 }
 
+function cn(...classes: (string | false | undefined | null)[]): string {
+  return classes.filter(Boolean).join(' ');
+}
+
+// ─── Reciter Pill Component ───────────────────────────────────
+function ReciterPill({ reciter, isSelected, onClick }: { reciter: Reciter; isSelected: boolean; onClick: () => void }) {
+  const btnCls = cn(
+    'flex-shrink-0 flex items-center gap-2.5 pl-2 pr-4 py-2 rounded-full transition-all duration-200 border',
+    isSelected
+      ? 'bg-lips-green text-white border-lips-green shadow-lg shadow-lips-green/20'
+      : 'bg-white border-border/50 hover:border-lips-green/30 hover:shadow-sm'
+  );
+  const avatarCls = cn(
+    'w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0',
+    isSelected ? 'bg-lips-gold' : 'bg-lips-green/10'
+  );
+  const initialCls = cn('font-bold text-xs', isSelected ? 'text-lips-green-dark' : 'text-lips-green');
+  const nameCls = cn('text-xs font-medium whitespace-nowrap', isSelected ? 'text-white' : 'text-lips-green-dark');
+
+  return (
+    <motion.button key={reciter.id} onClick={onClick} className={btnCls} whileTap={{ scale: 0.97 }}>
+      <div className={avatarCls}>
+        <span className={initialCls}>{reciter.name.charAt(0)}</span>
+      </div>
+      <span className={nameCls}>{reciter.name}</span>
+    </motion.button>
+  );
+}
+
+// ─── Search Result Row ────────────────────────────────────────
+function ReciterSearchRow({ reciter, isSelected, isPopular, onClick }: { reciter: Reciter; isSelected: boolean; isPopular: boolean; onClick: () => void }) {
+  const rowCls = cn(
+    'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-left',
+    isSelected ? 'bg-lips-green text-white' : 'hover:bg-lips-green/5'
+  );
+  const avatarCls = cn(
+    'w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0',
+    isSelected ? 'bg-lips-gold' : 'bg-lips-green/10'
+  );
+  const initialCls = cn('font-bold text-xs', isSelected ? 'text-lips-green-dark' : 'text-lips-green');
+  const nameCls = cn('text-sm font-medium truncate', isSelected ? 'text-white' : 'text-lips-green-dark');
+  const subCls = cn('text-[10px] truncate', isSelected ? 'text-white/60' : 'text-muted-foreground');
+
+  return (
+    <button key={reciter.id} onClick={onClick} className={rowCls}>
+      <div className={avatarCls}>
+        <span className={initialCls}>{reciter.name.charAt(0)}</span>
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className={nameCls}>{reciter.name}</p>
+        <p className={subCls}>{reciter.moshaf.length} style{reciter.moshaf.length > 1 ? 's' : ''} — {reciter.letter}</p>
+      </div>
+      {isPopular && (
+        <Badge className="bg-lips-gold/10 text-lips-gold border-lips-gold/20 text-[9px] shrink-0">Populaire</Badge>
+      )}
+    </button>
+  );
+}
+
 // ─── Main Component ───────────────────────────────────────────
 export default function CoranSection() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -157,9 +215,10 @@ export default function CoranSection() {
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
 
-  // Surah search
+  // Search state
   const [searchQuery, setSearchQuery] = useState('');
-  const [showAllReciters, setShowAllReciters] = useState(false);
+  const [reciterSearch, setReciterSearch] = useState('');
+  const [showReciterSearch, setShowReciterSearch] = useState(false);
 
   const dailyVerse = useMemo(() => getDailyVerse(), []);
 
@@ -192,7 +251,6 @@ export default function CoranSection() {
         // Auto-select first popular reciter
         if (popular.length > 0) {
           setSelectedReciter(popular[0]);
-          // Select first moshaf (murattal preferred)
           const murattal = popular[0].moshaf.find(m => m.moshafType === 11) || popular[0].moshaf[0];
           setSelectedMoshaf(murattal);
         }
@@ -252,7 +310,6 @@ export default function CoranSection() {
     };
     const onEnded = () => {
       setIsPlaying(false);
-      // Auto-play next surah
       if (currentSurah < 114 && selectedMoshaf) {
         playSurah(currentSurah + 1);
       }
@@ -332,7 +389,6 @@ export default function CoranSection() {
     setSelectedReciter(reciter);
     const m = moshaf || reciter.moshaf.find(m2 => m2.moshafType === 11) || reciter.moshaf[0];
     setSelectedMoshaf(m);
-    // If currently playing, switch to new reciter
     if (isPlaying) {
       playSurah(currentSurah, m);
     }
@@ -349,13 +405,22 @@ export default function CoranSection() {
     );
   }, [searchQuery, suwar]);
 
-  // ─── Displayed reciters ──────────────────────────────────
-  const displayedReciters = useMemo(() => {
-    if (showAllReciters) return reciters;
+  // ─── Popular reciters (first 12) ─────────────────────────
+  const popularReciters = useMemo(() => {
     return reciters.slice(0, 12);
-  }, [reciters, showAllReciters]);
+  }, [reciters]);
 
-  const currentSurahName = suwar.find(s => s.id === currentSurah)?.name || `Sourate ${currentSurah}`;
+  // ─── Search results for additional reciters ───────────────
+  const reciterSearchResults = useMemo(() => {
+    if (!reciterSearch.trim()) return [];
+    const q = reciterSearch.toLowerCase();
+    return reciters.filter(r =>
+      r.name.toLowerCase().includes(q) ||
+      r.letter.toLowerCase().includes(q)
+    ).slice(0, 20);
+  }, [reciterSearch, reciters]);
+
+  const currentSurahName = suwar.find(s => s.id === currentSurah)?.name || 'Sourate ' + currentSurah;
   const currentSurahNameAr = SURAH_NAMES_AR[currentSurah] || '';
 
   return (
@@ -430,82 +495,127 @@ export default function CoranSection() {
             </div>
           ) : (
             <>
-              {/* Reciters Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 mb-8">
-                {displayedReciters.map((reciter) => {
-                  const isSelected = selectedReciter?.id === reciter.id;
-                  return (
-                    <motion.button
-                      key={reciter.id}
-                      onClick={() => selectReciter(reciter)}
-                      className={`text-left rounded-xl p-3 transition-all duration-200 border ${
-                        isSelected
-                          ? 'bg-lips-green text-white border-lips-green shadow-lg shadow-lips-green/20'
-                          : 'bg-white border-border/50 hover:border-lips-green/30 hover:shadow-md'
-                      }`}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2 ${
-                        isSelected ? 'bg-lips-gold' : 'bg-lips-green/10'
-                      }`}>
-                        <span className={`font-bold text-sm ${isSelected ? 'text-lips-green-dark' : 'text-lips-green'}`}>
-                          {reciter.name.charAt(0)}
-                        </span>
-                      </div>
-                      <p className={`text-xs font-semibold text-center leading-tight truncate ${
-                        isSelected ? 'text-white' : 'text-lips-green-dark'
-                      }`}>
-                        {reciter.name}
-                      </p>
-                      {reciter.moshaf.length > 1 && (
-                        <p className={`text-[10px] text-center mt-0.5 truncate ${
-                          isSelected ? 'text-white/70' : 'text-muted-foreground'
-                        }`}>
-                          {reciter.moshaf.length} styles
-                        </p>
-                      )}
-                    </motion.button>
-                  );
-                })}
-              </div>
-
-              {/* Show more reciters */}
-              {reciters.length > 12 && (
-                <div className="text-center mb-8">
+              {/* ─── Popular Reciters: Horizontal scroll strip ─── */}
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Headphones className="h-4 w-4 text-lips-gold" />
+                    <span className="text-sm font-semibold text-lips-green-dark">Récitateurs populaires</span>
+                  </div>
                   <Button
-                    variant="outline"
+                    variant="ghost"
                     size="sm"
-                    onClick={() => setShowAllReciters(!showAllReciters)}
-                    className="gap-2 border-lips-green/20 text-lips-green"
+                    onClick={() => setShowReciterSearch(!showReciterSearch)}
+                    className="gap-1.5 text-xs text-lips-green hover:text-lips-green-dark hover:bg-lips-green/5"
                   >
-                    {showAllReciters ? 'Voir moins' : `Voir tous les ${reciters.length} récitateurs`}
-                    <ChevronRight className={`h-4 w-4 transition-transform ${showAllReciters ? 'rotate-90' : ''}`} />
+                    <Search className="h-3.5 w-3.5" />
+                    Rechercher un récitateurs
                   </Button>
                 </div>
-              )}
 
-              {/* Moshaf selector (if reciter has multiple styles) */}
-              {selectedReciter && selectedReciter.moshaf.length > 1 && (
-                <div className="flex flex-wrap items-center justify-center gap-2 mb-6">
-                  <span className="text-xs text-muted-foreground mr-1">Style :</span>
-                  {selectedReciter.moshaf.map((m) => (
-                    <button
-                      key={m.id}
-                      onClick={() => {
-                        setSelectedMoshaf(m);
-                        if (isPlaying) playSurah(currentSurah, m);
-                      }}
-                      className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                        selectedMoshaf?.id === m.id
-                          ? 'bg-lips-gold text-lips-green-dark shadow-sm'
-                          : 'bg-lips-green/10 text-lips-green hover:bg-lips-green/20'
-                      }`}
-                    >
-                      {m.name.replace('Rewayat ', '').replace('Almusshaf ', '')}
-                    </button>
+                {/* Horizontal scroll */}
+                <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none -mx-1 px-1">
+                  {popularReciters.map((reciter) => (
+                    <ReciterPill
+                      key={reciter.id}
+                      reciter={reciter}
+                      isSelected={selectedReciter?.id === reciter.id}
+                      onClick={() => selectReciter(reciter)}
+                    />
                   ))}
                 </div>
+              </div>
+
+              {/* ─── Reciter Search (expandable) ──────────────── */}
+              <AnimatePresence>
+                {showReciterSearch && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.25, ease: 'easeInOut' }}
+                    className="overflow-hidden mb-6"
+                  >
+                    <div className="bg-white rounded-xl border border-border/50 p-4 shadow-sm">
+                      <div className="relative mb-3">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          placeholder="Rechercher un récitateurs par nom..."
+                          className="pl-10 border-lips-green/20 focus:border-lips-green h-10"
+                          value={reciterSearch}
+                          onChange={(e) => setReciterSearch(e.target.value)}
+                          autoFocus
+                        />
+                      </div>
+
+                      {reciterSearch.trim() ? (
+                        reciterSearchResults.length > 0 ? (
+                          <div className="max-h-60 overflow-y-auto">
+                            {reciterSearchResults.map((reciter) => (
+                              <ReciterSearchRow
+                                key={reciter.id}
+                                reciter={reciter}
+                                isSelected={selectedReciter?.id === reciter.id}
+                                isPopular={POPULAR_RECITER_IDS.includes(reciter.id)}
+                                onClick={() => { selectReciter(reciter); setShowReciterSearch(false); setReciterSearch(''); }}
+                              />
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-center text-sm text-muted-foreground py-6">Aucun récitateurs trouvé pour &laquo; {reciterSearch} &raquo;</p>
+                        )
+                      ) : (
+                        <p className="text-center text-sm text-muted-foreground py-4">Tapez le nom d&apos;un récitateurs pour rechercher parmi {reciters.length} récitateurs</p>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* ─── Selected Reciter Card + Moshaf selector ──── */}
+              {selectedReciter && (
+                <Card className="mb-6 border-lips-green/20 bg-white shadow-sm">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-10 h-10 rounded-full bg-lips-green flex items-center justify-center flex-shrink-0">
+                        <span className="font-bold text-sm text-lips-gold">{selectedReciter.name.charAt(0)}</span>
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-semibold text-lips-green-dark text-sm truncate">{selectedReciter.name}</p>
+                        <p className="text-[11px] text-muted-foreground truncate">{selectedMoshaf?.name || 'Murattal'}</p>
+                      </div>
+                      {selectedReciter.moshaf.length > 1 && (
+                        <Badge className="bg-lips-gold/10 text-lips-gold border-lips-gold/20 text-[10px] shrink-0">
+                          {selectedReciter.moshaf.length} styles
+                        </Badge>
+                      )}
+                    </div>
+
+                    {/* Moshaf selector */}
+                    {selectedReciter.moshaf.length > 1 && (
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Style</span>
+                        {selectedReciter.moshaf.map((m) => (
+                          <button
+                            key={m.id}
+                            onClick={() => {
+                              setSelectedMoshaf(m);
+                              if (isPlaying) playSurah(currentSurah, m);
+                            }}
+                            className={cn(
+                              'px-3 py-1.5 rounded-full text-xs font-medium transition-all',
+                              selectedMoshaf?.id === m.id
+                                ? 'bg-lips-gold text-lips-green-dark shadow-sm'
+                                : 'bg-lips-green/10 text-lips-green hover:bg-lips-green/20'
+                            )}
+                          >
+                            {m.name.replace('Rewayat ', '').replace('Almusshaf ', '')}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
               )}
             </>
           )}
@@ -541,7 +651,7 @@ export default function CoranSection() {
                     />
                     <div
                       className="absolute top-1/2 -translate-y-1/2 w-3.5 h-3.5 bg-lips-gold rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
-                      style={{ left: `${progress}%`, transform: `translate(-50%, -50%)` }}
+                      style={{ left: `${progress}%`, transform: 'translate(-50%, -50%)' }}
                     />
                   </div>
 
@@ -635,27 +745,39 @@ export default function CoranSection() {
                 const isActive = currentSurah === surah.id && isPlaying;
                 const isCurrent = currentSurah === surah.id;
                 const nameAr = SURAH_NAMES_AR[surah.id] || '';
+                const surahCls = cn(
+                  'text-left rounded-xl p-2.5 sm:p-3 transition-all duration-200 border relative overflow-hidden',
+                  isActive && 'bg-lips-green text-white border-lips-green shadow-lg shadow-lips-green/20 cursor-pointer',
+                  !isActive && isCurrent && 'bg-lips-gold/10 border-lips-gold/30 cursor-pointer',
+                  !isActive && !isCurrent && 'bg-white/90 border-border/50 hover:border-lips-green/30 hover:shadow-sm cursor-pointer',
+                  !selectedMoshaf && 'opacity-50 cursor-not-allowed'
+                );
+                const numBgCls = cn(
+                  'w-7 h-7 rounded-lg flex items-center justify-center shrink-0',
+                  isActive ? 'bg-lips-gold' : 'bg-lips-green/10'
+                );
+                const numCls = cn(
+                  'text-[10px] font-bold font-mono',
+                  isActive ? 'text-lips-green-dark' : 'text-lips-green'
+                );
+                const nameCls = cn(
+                  'text-[10px] truncate leading-tight',
+                  isActive ? 'text-white/80' : 'text-muted-foreground'
+                );
+                const badgeCls = cn(
+                  'text-[8px] h-3.5 px-1',
+                  isActive ? 'bg-white/20 text-white' : 'bg-lips-green/5 text-lips-green'
+                );
                 return (
                   <motion.button
                     key={surah.id}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.15, delay: Math.min(idx * 0.01, 0.5) }}
-                    onClick={() => {
-                      if (selectedMoshaf) {
-                        playSurah(surah.id);
-                      }
-                    }}
+                    onClick={() => { if (selectedMoshaf) playSurah(surah.id); }}
                     disabled={!selectedMoshaf}
-                    className={`text-left rounded-xl p-2.5 sm:p-3 transition-all duration-200 border relative overflow-hidden ${
-                      isActive
-                        ? 'bg-lips-green text-white border-lips-green shadow-lg shadow-lips-green/20'
-                        : isCurrent
-                        ? 'bg-lips-gold/10 border-lips-gold/30'
-                        : 'bg-white/90 border-border/50 hover:border-lips-green/30 hover:shadow-sm'
-                    } ${!selectedMoshaf ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                    className={surahCls}
                   >
-                    {/* Playing indicator */}
                     {isActive && (
                       <div className="absolute top-2 right-2 flex items-end gap-0.5 h-3">
                         <span className="w-0.5 bg-lips-gold rounded-full animate-pulse" style={{ height: '60%', animationDelay: '0ms' }} />
@@ -663,26 +785,17 @@ export default function CoranSection() {
                         <span className="w-0.5 bg-lips-gold rounded-full animate-pulse" style={{ height: '40%', animationDelay: '300ms' }} />
                       </div>
                     )}
-
                     <div className="flex items-center gap-2">
-                      <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
-                        isActive ? 'bg-lips-gold' : 'bg-lips-green/10'
-                      }`}>
-                        <span className={`text-[10px] font-bold font-mono ${
-                          isActive ? 'text-lips-green-dark' : 'text-lips-green'
-                        }`}>{surah.id}</span>
+                      <div className={numBgCls}>
+                        <span className={numCls}>{surah.id}</span>
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className={`font-arabic text-xs truncate ${isActive ? 'text-lips-gold' : 'text-lips-gold'}`}>{nameAr}</p>
-                        <p className={`text-[10px] truncate leading-tight ${
-                          isActive ? 'text-white/80' : 'text-muted-foreground'
-                        }`}>{surah.name}</p>
+                        <p className="font-arabic text-xs truncate text-lips-gold">{nameAr}</p>
+                        <p className={nameCls}>{surah.name}</p>
                       </div>
                     </div>
                     <div className="mt-1.5">
-                      <Badge variant="secondary" className={`text-[8px] h-3.5 px-1 ${
-                        isActive ? 'bg-white/20 text-white' : 'bg-lips-green/5 text-lips-green'
-                      }`}>
+                      <Badge variant="secondary" className={badgeCls}>
                         {surah.makkia ? 'Makki' : 'Madani'}
                       </Badge>
                     </div>
@@ -717,7 +830,7 @@ export default function CoranSection() {
                 <Card className="group hover:shadow-lg hover:shadow-lips-green/10 transition-all duration-300 hover:border-lips-green/30 border-border/50 h-full">
                   <CardContent className="p-6 flex flex-col h-full">
                     <div className="w-12 h-12 rounded-xl bg-lips-green/10 flex items-center justify-center mb-4">
-                      <resource.icon className={`h-6 w-6 ${resource.color}`} />
+                      <resource.icon className={cn('h-6 w-6', resource.color)} />
                     </div>
                     <h3 className="font-semibold text-lips-green-dark text-base mb-2">{resource.title}</h3>
                     <p className="text-sm text-muted-foreground leading-relaxed mb-4 flex-1">{resource.description}</p>
