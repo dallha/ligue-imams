@@ -61,3 +61,33 @@ Stage Summary:
 - 1 nouveau modèle Prisma : Concours
 - Build : ✅ 42 pages + 20 API routes
 - Document généré : LIPS-Documentation-Technique-SIIN-v2.docx
+---
+Task ID: prayer-times-refactor
+Agent: Super Z (main)
+Task: Refactor prayer times widget — fix implementation quality and mobile responsiveness
+
+Work Log:
+- Analyzed existing prayer-times.tsx: hardcoded times, approximate Hijri calc, poor mobile design
+- Created /api/prayer-times/route.ts — server-side API using Aladhan API (free, no key) with:
+  - Dynamic prayer times for 14 Senegalese regions
+  - Real Hijri dates from API
+  - 24h in-memory cache + Next.js revalidation
+  - Fallback times if API unavailable
+  - Method: Muslim World League (appropriate for West Africa)
+- Rewrote /components/lips/prayer-times.tsx completely:
+  - Mobile-first design with compact view (current prayer + countdown + clock in one row)
+  - Expandable section on mobile (tap chevron to see all 6 prayers)
+  - Desktop: full horizontal bar with all prayers + countdown + Hijri date
+  - Next prayer countdown timer (updates every second)
+  - Animated expand/collapse with Framer Motion
+  - Region name displayed with MapPin icon
+  - Current prayer highlighted with gold ring + background
+- Tested API: confirmed Aladhan returns accurate times (Fajr 05:20, Dhuhr 13:09, etc. for Dakar)
+- Build verified: 43 pages + 21 API routes (including new /api/prayer-times)
+
+Stage Summary:
+- New API route: /api/prayer-times?region=dakar (supports all 14 regions)
+- Completely redesigned widget with mobile-first approach
+- Added countdown to next prayer feature
+- Dynamic, accurate prayer times from Aladhan API instead of hardcoded values
+- Real Hijri dates from API instead of approximate calculation
