@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { ArrowDown, Shield, BookOpen, Users } from 'lucide-react';
+import { ArrowDown, UserPlus, BookOpen, Users, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
@@ -9,23 +9,19 @@ export default function HeroSection() {
   return (
     <section
       id="accueil"
-      className="relative min-h-[80vh] sm:min-h-[90vh] flex items-center justify-center overflow-hidden"
+      className="relative min-h-[85vh] sm:min-h-[90vh] flex items-center justify-center overflow-hidden"
     >
-      {/* Background image — institutional meeting photo */}
+      {/* Background image — mosque interior with green and gold */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: "url('/hero-institutional.jpg')" }}
+        style={{ backgroundImage: "url('/mosquee-hero.jpg')" }}
       />
 
       {/* Multi-layer overlay for readability + institutional identity */}
-      {/* Layer 1: Dark green base overlay */}
-      <div className="absolute inset-0 bg-lips-green-dark/85" />
-      {/* Layer 2: Gradient from left (stronger) to right (lighter) for text contrast */}
-      <div className="absolute inset-0 bg-gradient-to-r from-lips-green-dark/90 via-lips-green-dark/60 to-lips-green-dark/40" />
-      {/* Layer 3: Bottom fade for smooth transition to next section */}
-      <div className="absolute inset-0 bg-gradient-to-t from-lips-green-dark/50 via-transparent to-lips-green-dark/30" />
-      {/* Layer 4: Islamic pattern texture */}
-      <div className="absolute inset-0 islamic-pattern opacity-15" />
+      <div className="absolute inset-0 bg-lips-green-dark/80" />
+      <div className="absolute inset-0 bg-gradient-to-r from-lips-green-dark/95 via-lips-green-dark/70 to-lips-green-dark/30" />
+      <div className="absolute inset-0 bg-gradient-to-t from-lips-green-dark/60 via-transparent to-lips-green-dark/30" />
+      <div className="absolute inset-0 islamic-pattern opacity-10" />
 
       {/* Decorative geometric elements */}
       <div className="hidden sm:block absolute top-20 left-10 w-32 h-32 border border-white/10 rotate-45 rounded-sm" />
@@ -35,7 +31,7 @@ export default function HeroSection() {
       {/* Subtle gold accent line at top */}
       <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-lips-gold/40 to-transparent" />
 
-      {/* Content — left-aligned for editorial impact with photo on right */}
+      {/* Content — left-aligned with mosque photo visible on right */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 w-full">
         <div className="max-w-2xl lg:max-w-3xl">
           {/* Badge */}
@@ -96,7 +92,7 @@ export default function HeroSection() {
             l&apos;unité, la formation et l&apos;accompagnement spirituel.
           </motion.p>
 
-          {/* CTA Buttons */}
+          {/* CTA Buttons — Primary "Adhérer" + Secondary "Découvrir" */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -106,11 +102,11 @@ export default function HeroSection() {
             <Button
               asChild
               size="lg"
-              className="bg-lips-gold hover:bg-lips-gold-light text-lips-green-dark font-semibold shadow-lg hover:shadow-xl transition-all px-6 sm:px-8 text-sm sm:text-base justify-center"
+              className="bg-lips-gold hover:bg-lips-gold-light text-lips-green-dark font-bold shadow-lg hover:shadow-xl transition-all px-6 sm:px-8 text-sm sm:text-base justify-center"
             >
-              <Link href="/verifier-carte">
-                <Shield className="mr-2 h-4 w-4" />
-                Vérifier une Carte Membre
+              <Link href="/adherer">
+                <UserPlus className="mr-2 h-5 w-5" />
+                Adhérer à la LIPS
               </Link>
             </Button>
             <Button

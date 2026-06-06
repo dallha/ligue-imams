@@ -25,3 +25,22 @@ Stage Summary:
 - Prayer bar overflow fixed with responsive font sizing and conditional visibility
 - All 8 logo locations updated from text initials to actual logo image
 - Build passes successfully
+
+---
+Task ID: 2
+Agent: Main
+Task: Implement Key2Learn-inspired recommendations on LIPS homepage
+
+Work Log:
+- Created `home-services.tsx` — 6 service cards (Prière, Coran, Agenda, Carte Membre, Don, Adhérer) with icons, Arabic titles, descriptions, gradient backgrounds, hover effects
+- Rewrote `hero.tsx` — changed background image to AI-generated mosque interior (`mosquee-hero.jpg`), changed primary CTA from "Vérifier une Carte" to "Adhérer à la LIPS" with UserPlus icon
+- Created `preloader.tsx` — animated preloader with LIPS logo, spinning ornament, Arabic bismillah, 1.8s duration with fade-out
+- Created `home-about-narrative.tsx` — 2-column narrative section with mosque exterior image (`mosquee-exterieur.jpg`), decorative floating "Depuis 2006" card, 3 paragraphs about LIPS history, Arabic motto block, CTA
+- Generated 2 AI images: `mosquee-hero.jpg` (mosque interior) and `mosquee-exterieur.jpg` (mosque exterior)
+- Updated `page.tsx` to integrate new components: Preloader → Hero → Services → AboutNarrative → Stats → About → Actualites → Regions → CTA → Newsletter
+
+Stage Summary:
+- 4 new components created: Preloader, HomeServices, HomeAboutNarrative, updated Hero
+- 2 new images generated for mosque visuals
+- Page flow restructured for better visual impact
+- Build passes successfully
