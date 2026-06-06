@@ -168,7 +168,7 @@ export default function BureauPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-lips-green-dark">Bureau National</h1>
+          <h1 className="text-2xl font-bold text-foreground">Bureau National</h1>
           <p className="text-muted-foreground text-sm mt-1">
             Membres du bureau national de la LIPS
           </p>
@@ -185,7 +185,7 @@ export default function BureauPage() {
           {[...Array(3)].map((_, i) => (
             <Card key={i} className="animate-pulse">
               <CardContent className="p-6">
-                <div className="h-32 bg-gray-100 rounded" />
+                <div className="h-32 bg-muted rounded" />
               </CardContent>
             </Card>
           ))}

@@ -41,14 +41,14 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  /* LIPS Custom Colors — defined directly for Tailwind v4 opacity support */
-  --color-lips-green: #1B6B3A;
-  --color-lips-green-light: #2E8B57;
-  --color-lips-green-dark: #0D3B1F;
-  --color-lips-gold: #C9962A;
-  --color-lips-gold-light: #E5BE5A;
-  --color-lips-cream: #FBF8F0;
-  --color-lips-emerald: #0D7D5E;
+  /* LIPS Custom Colors — reference CSS variables so dark mode overrides work */
+  --color-lips-green: var(--lips-green);
+  --color-lips-green-light: var(--lips-green-light);
+  --color-lips-green-dark: var(--lips-green-dark);
+  --color-lips-gold: var(--lips-gold);
+  --color-lips-gold-light: var(--lips-gold-light);
+  --color-lips-cream: var(--lips-cream);
+  --color-lips-emerald: var(--lips-emerald);
 }
 
 :root {

@@ -242,7 +242,7 @@ export default function ContenusPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-lips-green-dark">Gestion des Contenus</h1>
+          <h1 className="text-2xl font-bold text-foreground">Gestion des Contenus</h1>
           <p className="text-muted-foreground text-sm mt-1">
             Articles, fatwas, communiqués, événements et séminaires
           </p>
@@ -323,7 +323,7 @@ export default function ContenusPage() {
                   </TableRow>
                 ) : (
                   contents.map((item) => (
-                    <TableRow key={item.id} className="hover:bg-gray-50/50">
+                    <TableRow key={item.id} className="hover:bg-muted/50">
                       <TableCell className="font-mono text-xs">{item.id}</TableCell>
                       <TableCell>
                         <div className="max-w-xs">

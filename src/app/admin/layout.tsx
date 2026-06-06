@@ -10,6 +10,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/s
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Separator } from '@/components/ui/separator'
 import { Toaster } from 'sonner'
+import ThemeToggle from '@/components/lips/theme-toggle'
 import {
   LayoutDashboard,
   FileText,
@@ -196,7 +197,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="min-h-screen flex bg-gray-50">
+    <div className="min-h-screen flex bg-background">
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0 bg-lips-green-dark">
         <SidebarContent />
@@ -205,9 +206,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Main Content */}
       <div className="flex-1 lg:pl-64">
         {/* Top Bar */}
-        <header className="sticky top-0 z-30 bg-white border-b border-gray-200 shadow-sm">
+        <header className="sticky top-0 z-30 bg-card border-b border-border shadow-sm">
           <div className="flex items-center h-16 px-4 lg:px-6">
-            {/* Mobile Menu — Single Sheet instance with trigger + content */}
+            {/* Mobile Menu — render Sheet only after mount to avoid hydration mismatch */}
             {mounted && (
               <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
                 <SheetTrigger asChild>
@@ -247,6 +248,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </nav>
 
             <div className="ml-auto flex items-center gap-3">
+              {/* Theme Toggle */}
+              <ThemeToggle />
+
               <Link
                 href="/"
                 target="_blank"

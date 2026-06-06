@@ -313,7 +313,7 @@ export default function AdminAgendaPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-lips-green-dark">Gestion de l&apos;Agenda</h1>
+          <h1 className="text-2xl font-bold text-foreground">Gestion de l&apos;Agenda</h1>
           <p className="text-muted-foreground text-sm mt-1">
             Gérez les événements LIPS, les dates islamiques et le calendrier
           </p>
@@ -325,7 +325,7 @@ export default function AdminAgendaPage() {
         <div className="text-center py-8 text-muted-foreground">Chargement...</div>
       ) : (
       <Tabs defaultValue="evenements" className="w-full">
-        <TabsList className="bg-white border border-border/50 shadow-sm">
+        <TabsList className="bg-card border border-border/50 shadow-sm">
           <TabsTrigger
             value="evenements"
             className="data-[state=active]:bg-lips-green data-[state=active]:text-white"
@@ -353,7 +353,7 @@ export default function AdminAgendaPage() {
               <div className="p-4 flex items-center justify-between border-b border-border/50">
                 <div className="flex items-center gap-2">
                   <CalendarDays className="h-5 w-5 text-lips-green" />
-                  <h3 className="font-semibold text-lips-green-dark">Événements LIPS</h3>
+                  <h3 className="font-semibold text-foreground">Événements LIPS</h3>
                   <Badge variant="secondary" className="text-xs">
                     {events.length}
                   </Badge>
@@ -387,7 +387,7 @@ export default function AdminAgendaPage() {
                       </TableRow>
                     ) : (
                       events.map((item) => (
-                        <TableRow key={item.id} className="hover:bg-gray-50/50">
+                        <TableRow key={item.id} className="hover:bg-muted/50">
                           <TableCell className="font-medium text-sm max-w-xs">
                             <p className="line-clamp-1">{item.title}</p>
                             {item.hijriDate && (
@@ -457,7 +457,7 @@ export default function AdminAgendaPage() {
               <div className="p-4 flex items-center justify-between border-b border-border/50">
                 <div className="flex items-center gap-2">
                   <Star className="h-5 w-5 text-lips-gold" />
-                  <h3 className="font-semibold text-lips-green-dark">Dates Islamiques</h3>
+                  <h3 className="font-semibold text-foreground">Dates Islamiques</h3>
                   <Badge variant="secondary" className="text-xs">
                     {holidays.length}
                   </Badge>
@@ -477,7 +477,7 @@ export default function AdminAgendaPage() {
                   </TableHeader>
                   <TableBody>
                     {holidays.map((item) => (
-                      <TableRow key={item.id} className="hover:bg-gray-50/50">
+                      <TableRow key={item.id} className="hover:bg-muted/50">
                         <TableCell>
                           {item.dotType === 'star' ? (
                             <Star className="h-4 w-4 text-lips-gold fill-current" />
@@ -528,7 +528,7 @@ export default function AdminAgendaPage() {
             <CardContent className="p-6">
               <div className="flex items-center gap-2 mb-6">
                 <Settings className="h-5 w-5 text-lips-green" />
-                <h3 className="font-semibold text-lips-green-dark">Paramètres du Calendrier</h3>
+                <h3 className="font-semibold text-foreground">Paramètres du Calendrier</h3>
               </div>
 
               <div className="space-y-6 max-w-lg">

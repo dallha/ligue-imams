@@ -98,12 +98,12 @@ export default function AdminDashboard() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold text-lips-green-dark">Tableau de Bord</h1>
+        <h1 className="text-2xl font-bold text-foreground">Tableau de Bord</h1>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {[...Array(6)].map((_, i) => (
             <Card key={i} className="animate-pulse">
               <CardContent className="p-6">
-                <div className="h-16 bg-gray-100 rounded" />
+                <div className="h-16 bg-muted rounded" />
               </CardContent>
             </Card>
           ))}
@@ -140,22 +140,22 @@ export default function AdminDashboard() {
       title: 'Régions',
       value: data.stats.totalRegions,
       icon: Globe,
-      color: 'text-blue-600',
-      bg: 'bg-blue-50',
+      color: 'text-blue-600 dark:text-blue-400',
+      bg: 'bg-blue-50 dark:bg-blue-500/10',
     },
     {
       title: 'Dons ce mois',
       value: data.stats.donsCeMois,
       icon: Heart,
-      color: 'text-red-500',
-      bg: 'bg-red-50',
+      color: 'text-red-500 dark:text-red-400',
+      bg: 'bg-red-50 dark:bg-red-500/10',
     },
     {
       title: 'Cotisations',
       value: data.stats.cotisationsCeMois,
       icon: CreditCard,
-      color: 'text-purple-600',
-      bg: 'bg-purple-50',
+      color: 'text-purple-600 dark:text-purple-400',
+      bg: 'bg-purple-50 dark:bg-purple-500/10',
     },
   ]
 
@@ -164,7 +164,7 @@ export default function AdminDashboard() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-lips-green-dark">Tableau de Bord</h1>
+          <h1 className="text-2xl font-bold text-foreground">Tableau de Bord</h1>
           <p className="text-muted-foreground text-sm mt-1">
             Vue d&apos;ensemble du système LIPS
           </p>
@@ -213,7 +213,7 @@ export default function AdminDashboard() {
             <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={data.membersByRegion} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
                   <XAxis
                     dataKey="code"
                     tick={{ fontSize: 11 }}
@@ -224,9 +224,9 @@ export default function AdminDashboard() {
                   <YAxis tick={{ fontSize: 11 }} />
                   <Tooltip
                     formatter={(value: number) => [`${value} membres`, 'Membres']}
-                    contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb' }}
+                    contentStyle={{ borderRadius: '8px', border: '1px solid hsl(var(--border))', background: 'hsl(var(--card))', color: 'hsl(var(--card-foreground))' }}
                   />
-                  <Bar dataKey="members" fill="#1B6B3A" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="members" className="fill-lips-green" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>

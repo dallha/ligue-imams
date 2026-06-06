@@ -270,12 +270,12 @@ export default function ParametresPage() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold text-lips-green-dark">Paramètres du Site</h1>
+        <h1 className="text-2xl font-bold text-foreground">Paramètres du Site</h1>
         <div className="space-y-4">
           {[...Array(3)].map((_, i) => (
             <Card key={i} className="animate-pulse">
               <CardContent className="p-6">
-                <div className="h-40 bg-gray-100 rounded" />
+                <div className="h-40 bg-muted rounded" />
               </CardContent>
             </Card>
           ))}
@@ -288,7 +288,7 @@ export default function ParametresPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-lips-green-dark">Paramètres du Site</h1>
+        <h1 className="text-2xl font-bold text-foreground">Paramètres du Site</h1>
         <p className="text-muted-foreground text-sm mt-1">
           Configurez les paramètres généraux du site LIPS
         </p>
@@ -500,7 +500,7 @@ export default function ParametresPage() {
                 {accountForm.password && (
                   <div className="space-y-2 mt-2">
                     <div className="flex items-center gap-2">
-                      <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
                         <div
                           className={`h-full rounded-full transition-all duration-500 ${strengthConfig[passwordStrength.level].color} ${strengthConfig[passwordStrength.level].width}`}
                         />
@@ -515,9 +515,9 @@ export default function ParametresPage() {
                           {check.met ? (
                             <CheckCircle2 className="h-3 w-3 text-green-500 shrink-0" />
                           ) : (
-                            <XCircle className="h-3 w-3 text-gray-300 shrink-0" />
+                            <XCircle className="h-3 w-3 text-muted-foreground shrink-0" />
                           )}
-                          <span className={`text-[11px] ${check.met ? 'text-green-700' : 'text-gray-400'}`}>
+                          <span className={`text-[11px] ${check.met ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'}`}>
                             {check.label}
                           </span>
                         </div>
@@ -529,11 +529,11 @@ export default function ParametresPage() {
             </div>
 
             {/* ── Info box ── */}
-            <div className="mt-5 bg-amber-50 border border-amber-200 rounded-xl p-3.5 flex items-start gap-3">
-              <Shield className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
+            <div className="mt-5 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-xl p-3.5 flex items-start gap-3">
+              <Shield className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
               <div>
-                <p className="text-xs font-semibold text-amber-800">Informations importantes</p>
-                <ul className="text-xs text-amber-700 mt-1 space-y-0.5 list-disc list-inside">
+                <p className="text-xs font-semibold text-amber-800 dark:text-amber-300">Informations importantes</p>
+                <ul className="text-xs text-amber-700 dark:text-amber-400 mt-1 space-y-0.5 list-disc list-inside">
                   <li>Le matricule sera généré automatiquement au format <span className="font-mono font-bold">LIPS-XXXX</span></li>
                   <li>Le compte sera créé avec le statut &quot;En attente&quot; par défaut</li>
                   <li>Le membre devra utiliser son matricule ou email pour se connecter</li>

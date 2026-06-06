@@ -166,7 +166,7 @@ export default function CommissionsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-lips-green-dark">Gestion des Commissions</h1>
+          <h1 className="text-2xl font-bold text-foreground">Gestion des Commissions</h1>
           <p className="text-muted-foreground text-sm mt-1">
             Commissions et comités de la LIPS
           </p>
@@ -211,7 +211,7 @@ export default function CommissionsPage() {
                   </TableRow>
                 ) : (
                   commissions.map((item) => (
-                    <TableRow key={item.id} className="hover:bg-gray-50/50">
+                    <TableRow key={item.id} className="hover:bg-muted/50">
                       <TableCell className="font-medium">{item.nom}</TableCell>
                       <TableCell className="text-muted-foreground font-arabic" dir="rtl">
                         {item.nomAr || '—'}

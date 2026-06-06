@@ -175,3 +175,37 @@ model Concours {
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
 }
+
+// --- DOMAINE CORAN ---
+
+model CoranReciter {
+  id        Int      @id @default(autoincrement())
+  name      String
+  bio       String?
+  published Boolean  @default(false)
+  ordre     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model DailyVerse {
+  id         Int      @id @default(autoincrement())
+  arabic     String
+  french     String
+  reference  String
+  published  Boolean  @default(false)
+  dateActive DateTime?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model CoranResource {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  url         String?
+  icon        String   @default("BookOpen")
+  published   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

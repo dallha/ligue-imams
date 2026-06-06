@@ -187,7 +187,7 @@ export default function MembresPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-lips-green-dark">Gestion des Membres</h1>
+        <h1 className="text-2xl font-bold text-foreground">Gestion des Membres</h1>
         <p className="text-muted-foreground text-sm mt-1">
           Gérez les membres de la LIPS
         </p>
@@ -275,7 +275,7 @@ export default function MembresPage() {
                   </TableRow>
                 ) : (
                   members.map((member) => (
-                    <TableRow key={member.id} className="hover:bg-gray-50/50">
+                    <TableRow key={member.id} className="hover:bg-muted/50">
                       <TableCell className="font-mono text-xs">{member.matricule}</TableCell>
                       <TableCell>
                         <p className="font-medium text-sm">{member.prenom} {member.nom}</p>

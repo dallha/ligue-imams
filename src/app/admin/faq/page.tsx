@@ -170,7 +170,7 @@ export default function FAQPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-lips-green-dark">Gestion de la FAQ</h1>
+          <h1 className="text-2xl font-bold text-foreground">Gestion de la FAQ</h1>
           <p className="text-muted-foreground text-sm mt-1">
             Questions fréquemment posées
           </p>
@@ -213,7 +213,7 @@ export default function FAQPage() {
                   </TableRow>
                 ) : (
                   faqs.map((item) => (
-                    <TableRow key={item.id} className="hover:bg-gray-50/50">
+                    <TableRow key={item.id} className="hover:bg-muted/50">
                       <TableCell className="font-mono text-center">{item.ordre}</TableCell>
                       <TableCell className="font-medium text-sm max-w-xs">
                         <p className="line-clamp-2">{item.question}</p>

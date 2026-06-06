@@ -184,10 +184,10 @@ export default function PrieresPage() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold text-lips-green-dark">Horaires de Prière</h1>
+        <h1 className="text-2xl font-bold text-foreground">Horaires de Prière</h1>
         <div className="animate-pulse space-y-4">
           {[...Array(3)].map((_, i) => (
-            <Card key={i}><CardContent className="p-6"><div className="h-40 bg-gray-100 rounded" /></CardContent></Card>
+            <Card key={i}><CardContent className="p-6"><div className="h-40 bg-muted rounded" /></CardContent></Card>
           ))}
         </div>
       </div>
@@ -199,7 +199,7 @@ export default function PrieresPage() {
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-lips-green-dark flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
             <Clock className="h-6 w-6 text-lips-gold" />
             Horaires de Prière
           </h1>
@@ -255,7 +255,7 @@ export default function PrieresPage() {
             <div className="flex items-start gap-3 p-4 rounded-lg bg-lips-green/5 border border-lips-green/20">
               <AlertCircle className="h-5 w-5 text-lips-green mt-0.5 flex-shrink-0" />
               <div>
-                <p className="text-sm font-medium text-lips-green-dark">Mode Automatique</p>
+                <p className="text-sm font-medium text-foreground">Mode Automatique</p>
                 <p className="text-xs text-muted-foreground mt-1">
                   Les horaires sont récupérés automatiquement depuis l&apos;API Aladhan chaque jour. Ils changent selon la région sélectionnée par l&apos;utilisateur. Vous n&apos;avez rien à faire.
                 </p>
@@ -307,8 +307,8 @@ export default function PrieresPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {PRAYER_FIELDS.map(({ key, label, icon: Icon, color }) => (
-                <div key={key} className="flex items-center gap-3 p-3 rounded-lg border border-border/50 bg-white">
-                  <div className={`p-2 rounded-lg bg-gray-50 ${color}`}>
+                <div key={key} className="flex items-center gap-3 p-3 rounded-lg border border-border bg-card">
+                  <div className={`p-2 rounded-lg bg-muted ${color}`}>
                     <Icon className="h-4 w-4" />
                   </div>
                   <div className="flex-1 space-y-1">
@@ -328,7 +328,7 @@ export default function PrieresPage() {
 
             {/* API preview when auto */}
             {config.prayer_mode === 'auto' && apiPreview?.timings && (
-              <div className="mt-4 p-4 rounded-lg bg-gray-50 border border-border/50">
+              <div className="mt-4 p-4 rounded-lg bg-muted border border-border/50">
                 <p className="text-xs font-semibold text-muted-foreground mb-2 flex items-center gap-2">
                   <RefreshCw className="h-3.5 w-3.5" />
                   Aperçu API Aladhan pour {REGIONS.find(r => r.key === (config.prayer_region || 'dakar'))?.label || 'Dakar'}
@@ -338,10 +338,10 @@ export default function PrieresPage() {
                     const apiKey = key.replace('prayer_', '')
                     const apiTime = apiPreview.timings[apiKey.charAt(0).toUpperCase() + apiKey.slice(1)]
                     return (
-                      <div key={key} className="p-2 rounded bg-white border text-xs">
+                      <div key={key} className="p-2 rounded bg-card border text-xs">
                         <Icon className={`h-3.5 w-3.5 mx-auto mb-1 ${color}`} />
                         <div className="font-medium">{label.split(' ')[0]}</div>
-                        <div className="font-mono font-bold text-lips-green-dark">{apiTime?.substring(0, 5) || '—'}</div>
+                        <div className="font-mono font-bold text-foreground">{apiTime?.substring(0, 5) || '—'}</div>
                       </div>
                     )
                   })}
@@ -389,7 +389,7 @@ export default function PrieresPage() {
             <div className="flex items-start gap-3 p-4 rounded-lg bg-lips-green/5 border border-lips-green/20">
               <AlertCircle className="h-5 w-5 text-lips-green mt-0.5 flex-shrink-0" />
               <div>
-                <p className="text-sm font-medium text-lips-green-dark">Mode Automatique</p>
+                <p className="text-sm font-medium text-foreground">Mode Automatique</p>
                 <p className="text-xs text-muted-foreground mt-1">
                   La date Hijri est calculée automatiquement par l&apos;API Aladhan. Elle peut différer de ±1 jour par rapport à l&apos;observation locale au Sénégal.
                 </p>

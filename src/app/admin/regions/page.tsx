@@ -112,7 +112,7 @@ export default function RegionsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-lips-green-dark">Gestion des Régions</h1>
+        <h1 className="text-2xl font-bold text-foreground">Gestion des Régions</h1>
         <p className="text-muted-foreground text-sm mt-1">
           Modifier les informations des régions (suppression non autorisée)
         </p>
@@ -149,7 +149,7 @@ export default function RegionsPage() {
                   </TableRow>
                 ) : (
                   regions.map((region) => (
-                    <TableRow key={region.id} className="hover:bg-gray-50/50">
+                    <TableRow key={region.id} className="hover:bg-muted/50">
                       <TableCell>
                         <Badge variant="outline" className="font-mono text-xs">
                           {region.code}

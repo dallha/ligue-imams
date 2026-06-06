@@ -97,7 +97,7 @@ const STATUT_LABELS: Record<ConcoursStatut, string> = {
 const STATUT_COLORS: Record<ConcoursStatut, string> = {
   PLANIFIE: 'bg-blue-100 text-blue-800 hover:bg-blue-100',
   EN_COURS: 'bg-green-100 text-green-800 hover:bg-green-100',
-  TERMINE: 'bg-gray-100 text-gray-700 hover:bg-gray-100',
+  TERMINE: 'bg-muted text-gray-700 hover:bg-muted',
 }
 
 const TYPE_COLORS: Record<ConcoursType, string> = {
@@ -277,7 +277,7 @@ export default function ConcoursPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-lips-green-dark">Gestion des Concours</h1>
+          <h1 className="text-2xl font-bold text-foreground">Gestion des Concours</h1>
           <p className="text-muted-foreground text-sm mt-1">
             Organisez et gérez les concours coraniques, de hadith et autres activités compétitives
           </p>
@@ -332,8 +332,8 @@ export default function ConcoursPage() {
         <Card className="border-l-4 border-l-gray-400">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-gray-100">
-                <CalendarDays className="h-5 w-5 text-gray-500" />
+              <div className="p-2 rounded-lg bg-muted">
+                <CalendarDays className="h-5 w-5 text-muted-foreground" />
               </div>
               <div>
                 <p className="text-2xl font-bold text-foreground">{stats.termines}</p>
@@ -379,7 +379,7 @@ export default function ConcoursPage() {
                   </TableRow>
                 ) : (
                   concours.map((item) => (
-                    <TableRow key={item.id} className="hover:bg-gray-50/50">
+                    <TableRow key={item.id} className="hover:bg-muted/50">
                       <TableCell className="font-medium text-sm max-w-xs">
                         <p className="line-clamp-2">{item.nom}</p>
                       </TableCell>
