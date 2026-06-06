@@ -168,13 +168,13 @@ export default function EvenementsSection() {
                         {event.description.substring(0, 100)}...
                       </p>
 
-                      <div className="flex flex-wrap items-center gap-3 mt-3 text-[10px] text-muted-foreground">
+                      <div className="flex flex-wrap items-center gap-3 mt-3 text-xs text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <Clock className="h-3 w-3" />
                           {event.heure}
                         </span>
-                        <span className="flex items-center gap-1">
-                          <MapPin className="h-3 w-3" />
+                        <span className="flex items-center gap-1 truncate">
+                          <MapPin className="h-3 w-3 shrink-0" />
                           {event.lieu}
                         </span>
                         {event.places && (

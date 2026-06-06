@@ -49,7 +49,7 @@ export default function HomeRegions() {
         </motion.div>
 
         {/* Regions preview grid — 6 items */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
           {previewRegions.map((region, index) => (
             <motion.div
               key={region.code}
@@ -64,7 +64,7 @@ export default function HomeRegions() {
               <div className="font-semibold text-lips-green-dark text-sm mb-0.5">
                 {region.nom}
               </div>
-              <span className="font-arabic text-[10px] text-lips-gold">
+              <span className="font-arabic text-xs text-lips-gold">
                 {region.nomAr}
               </span>
               {region.mosqueCount && (
@@ -96,7 +96,7 @@ export default function HomeRegions() {
           transition={{ duration: 0.6, delay: 0.5 }}
           className="text-center mb-8"
         >
-          <div className="inline-flex flex-wrap items-center justify-center gap-4 sm:gap-6 bg-lips-cream/80 rounded-xl px-6 sm:px-8 py-4 border border-border/50 shadow-sm">
+          <div className="inline-grid grid-cols-3 gap-3 sm:gap-6 bg-lips-cream/80 rounded-xl px-4 sm:px-8 py-4 border border-border/50 shadow-sm">
             <div className="text-center">
               <div className="text-2xl font-bold text-lips-green">14</div>
               <div className="text-xs text-muted-foreground">Régions</div>

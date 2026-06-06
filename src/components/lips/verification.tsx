@@ -192,7 +192,7 @@ export default function VerificationSection() {
             <CardContent className="p-6">
               {/* Input area */}
               <div className="space-y-4">
-                <div className="flex gap-3">
+                <div className="flex flex-col sm:flex-row gap-3">
                   <div className="relative flex-1">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
@@ -207,7 +207,7 @@ export default function VerificationSection() {
                   <Button
                     onClick={handleVerify}
                     disabled={loading}
-                    className="bg-lips-green hover:bg-lips-green-dark text-white h-12 px-6"
+                    className="bg-lips-green hover:bg-lips-green-dark text-white h-12 px-6 w-full sm:w-auto"
                   >
                     {loading ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -288,7 +288,7 @@ export default function VerificationSection() {
                           </div>
 
                           {result.data && (
-                            <div className="grid grid-cols-2 gap-3">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                               <div className="flex items-center gap-2 text-sm">
                                 <User className="h-4 w-4 text-muted-foreground" />
                                 <div>

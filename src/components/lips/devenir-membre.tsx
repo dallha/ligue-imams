@@ -119,7 +119,7 @@ export default function DevenirMembreSection() {
             <Card className="mt-8 border-lips-gold/20 bg-lips-gold/5">
               <CardContent className="p-5">
                 <h4 className="font-semibold text-lips-green-dark text-sm mb-3">Avantages de l&apos;adhésion</h4>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {[
                     'Carte membre nationale',
                     'Formations continues',
@@ -173,7 +173,7 @@ export default function DevenirMembreSection() {
                     }}
                     className="space-y-4"
                   >
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div className="space-y-1.5">
                         <label className="text-xs font-medium text-foreground flex items-center gap-1.5">
                           <User className="h-3 w-3 text-lips-green" /> Prénom
@@ -200,7 +200,7 @@ export default function DevenirMembreSection() {
                       <Input type="tel" placeholder="+221 77 123 45 67" className="h-10 text-sm" required />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div className="space-y-1.5">
                         <label className="text-xs font-medium text-foreground flex items-center gap-1.5">
                           <MapPin className="h-3 w-3 text-lips-green" /> Région

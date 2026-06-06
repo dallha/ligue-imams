@@ -187,7 +187,7 @@ export default function LipsHeader() {
                 <Link href="/verifier-carte">Espace Membre</Link>
               </Button>
               <button
-                className="lg:hidden p-2 rounded-md hover:bg-lips-green/5 transition-colors"
+                className="lg:hidden p-2.5 rounded-md hover:bg-lips-green/5 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
                 onClick={() => setMobileOpen(!mobileOpen)}
                 aria-label="Menu"
               >
@@ -226,12 +226,12 @@ export default function LipsHeader() {
                       {item.label}
                     </Link>
                     {item.children && (
-                      <div className="ml-4 space-y-0.5">
+                      <div className="ml-4 space-y-1">
                         {item.children.map((child) => (
                           <Link
                             key={child.label}
                             href={child.href}
-                            className="block px-3 py-2 text-xs text-muted-foreground hover:text-lips-green hover:bg-lips-green/5 rounded-md transition-colors"
+                            className="block px-3 py-2.5 text-xs text-muted-foreground hover:text-lips-green hover:bg-lips-green/5 rounded-md transition-colors"
                             onClick={() => setMobileOpen(false)}
                           >
                             {child.label}

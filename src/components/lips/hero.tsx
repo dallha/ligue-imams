@@ -28,9 +28,9 @@ export default function HeroSection() {
       <div className="absolute inset-0 islamic-pattern opacity-15" />
 
       {/* Decorative geometric elements */}
-      <div className="absolute top-20 left-10 w-32 h-32 border border-white/10 rotate-45 rounded-sm" />
-      <div className="absolute bottom-32 right-20 w-24 h-24 border border-lips-gold/20 rotate-12 rounded-sm" />
-      <div className="absolute top-1/3 right-10 w-16 h-16 border border-white/5 rotate-45 rounded-full" />
+      <div className="hidden sm:block absolute top-20 left-10 w-32 h-32 border border-white/10 rotate-45 rounded-sm" />
+      <div className="hidden sm:block absolute bottom-32 right-20 w-24 h-24 border border-lips-gold/20 rotate-12 rounded-sm" />
+      <div className="hidden sm:block absolute top-1/3 right-10 w-16 h-16 border border-white/5 rotate-45 rounded-full" />
 
       {/* Subtle gold accent line at top */}
       <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-lips-gold/40 to-transparent" />
@@ -43,7 +43,7 @@ export default function HeroSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white/90 text-sm mb-8"
+            className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white/90 text-xs sm:text-sm mb-6 sm:mb-8"
           >
             <Shield className="h-4 w-4 text-lips-gold" />
             <span>Institution Nationale de Référence</span>
@@ -132,23 +132,20 @@ export default function HeroSection() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.8 }}
-          className="mt-16 lg:mt-20 flex items-center gap-8 lg:gap-12"
+          className="mt-12 sm:mt-16 lg:mt-20 grid grid-cols-3 gap-4 sm:gap-8 lg:gap-12"
         >
           {[
             { icon: Users, value: '5 000+', label: 'Membres' },
             { icon: BookOpen, value: '14', label: 'Régions' },
             { icon: Shield, value: '15 000+', label: 'Mosquées' },
-          ].map((stat, index) => (
-            <div key={stat.label} className="flex items-center gap-3">
-              {index > 0 && (
-                <div className="w-px h-10 bg-white/20 -ml-4 first:hidden" />
-              )}
-              <stat.icon className="h-5 w-5 text-lips-gold shrink-0" />
+          ].map((stat) => (
+            <div key={stat.label} className="flex items-center gap-2 sm:gap-3">
+              <stat.icon className="h-4 w-4 sm:h-5 sm:w-5 text-lips-gold shrink-0" />
               <div>
-                <div className="text-lg md:text-xl font-bold text-white leading-tight">
+                <div className="text-base sm:text-lg md:text-xl font-bold text-white leading-tight">
                   {stat.value}
                 </div>
-                <div className="text-xs text-white/60">{stat.label}</div>
+                <div className="text-[10px] sm:text-xs text-white/60">{stat.label}</div>
               </div>
             </div>
           ))}

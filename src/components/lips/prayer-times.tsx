@@ -54,14 +54,13 @@ export default function PrayerTimesWidget() {
   const [hijriDate] = useState(getHijriDate());
 
   useEffect(() => {
-    // Set initial values via interval callback (avoids direct setState in effect)
     const update = () => {
       const now = new Date();
       setCurrentTime(now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
       setCurrentPrayer(getCurrentPrayerIndex());
     };
 
-    update(); // first call immediately
+    update();
     const timer = setInterval(update, 1000);
 
     return () => clearInterval(timer);
@@ -69,45 +68,45 @@ export default function PrayerTimesWidget() {
 
   return (
     <div className="bg-gradient-to-r from-lips-green-dark via-lips-green to-lips-green-dark text-white">
-      <div className="max-w-7xl mx-auto px-4 py-4">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="max-w-7xl mx-auto px-4 py-3 sm:py-4">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
           {/* Hijri Date & Clock */}
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-lips-gold" />
-              <span className="font-mono text-sm">{currentTime}</span>
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-lips-gold" />
+              <span className="font-mono text-xs sm:text-sm">{currentTime}</span>
             </div>
-            <div className="w-px h-5 bg-white/20 hidden md:block" />
-            <div className="text-sm">
-              <span className="text-white/50 text-xs">Hijri :</span>{' '}
-              <span className="font-semibold text-lips-gold">{hijriDate}</span>
+            <div className="w-px h-4 bg-white/20 hidden sm:block" />
+            <div className="text-xs sm:text-sm">
+              <span className="text-white/50 text-[10px] sm:text-xs">Hijri :</span>{' '}
+              <span className="font-semibold text-lips-gold text-xs sm:text-sm">{hijriDate}</span>
             </div>
           </div>
 
-          {/* Prayer Times */}
-          <div className="flex items-center gap-2 sm:gap-3 md:gap-5 overflow-x-auto max-w-full scrollbar-none">
+          {/* Prayer Times — grid on mobile, flex on desktop */}
+          <div className="grid grid-cols-3 sm:flex sm:items-center sm:gap-2 md:gap-5 gap-1.5 sm:gap-3 w-full sm:w-auto">
             {PRAYER_SCHEDULE.map((prayer, index) => (
               <div
                 key={prayer.name}
-                className={`flex items-center gap-1.5 shrink-0 px-2 py-1 rounded-md transition-colors ${
+                className={`flex items-center gap-1 sm:gap-1.5 px-1.5 py-1 sm:px-2 sm:py-1 rounded-md transition-colors ${
                   index === currentPrayer
                     ? 'bg-white/15 ring-1 ring-lips-gold/50'
                     : 'hover:bg-white/5'
                 }`}
               >
-                <prayer.icon className={`h-3.5 w-3.5 ${index === currentPrayer ? 'text-lips-gold' : prayer.color}`} />
-                <div className="text-xs">
-                  <div className={`${index === currentPrayer ? 'text-lips-gold font-semibold' : 'text-white/70'}`}>
+                <prayer.icon className={`h-3 w-3 sm:h-3.5 sm:w-3.5 ${index === currentPrayer ? 'text-lips-gold' : prayer.color}`} />
+                <div className="text-[10px] sm:text-xs min-w-0">
+                  <div className={`${index === currentPrayer ? 'text-lips-gold font-semibold' : 'text-white/70'} truncate`}>
                     {prayer.name}
                   </div>
-                  <div className="font-mono text-[11px] text-white/90">{prayer.time}</div>
+                  <div className="font-mono text-[10px] sm:text-[11px] text-white/90">{prayer.time}</div>
                 </div>
               </div>
             ))}
           </div>
 
           {/* Location */}
-          <div className="text-xs text-white/40 hidden lg:flex items-center gap-1">
+          <div className="text-[10px] sm:text-xs text-white/40 hidden lg:flex items-center gap-1">
             <Sun className="h-3 w-3" />
             Dakar, Sénégal
           </div>

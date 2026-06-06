@@ -88,7 +88,7 @@ export default function DonsSection() {
                 <HandCoins className="h-5 w-5 text-lips-gold" />
                 Choisissez un montant (FCFA)
               </h3>
-              <div className="grid grid-cols-3 gap-3 mb-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
                 {MONTANTS.map((m) => (
                   <button
                     key={m}
@@ -137,7 +137,7 @@ export default function DonsSection() {
                 <CreditCard className="h-5 w-5 text-lips-gold" />
                 Mode de paiement
               </h3>
-              <div className="grid grid-cols-3 gap-3 mb-6">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
                 {METHODES.map((methode) => (
                   <div
                     key={methode.name}

@@ -70,7 +70,7 @@ export default function LipsFooter() {
                   key={social.label}
                   href={social.href}
                   aria-label={social.label}
-                  className="w-8 h-8 rounded-full bg-white/10 hover:bg-lips-gold/20 hover:text-lips-gold flex items-center justify-center transition-colors"
+                  className="w-10 h-10 rounded-full bg-white/10 hover:bg-lips-gold/20 hover:text-lips-gold flex items-center justify-center transition-colors"
                 >
                   <social.icon className="h-3.5 w-3.5" />
                 </a>
@@ -88,7 +88,7 @@ export default function LipsFooter() {
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-sm text-white/60 hover:text-lips-gold transition-colors flex items-center gap-1.5"
+                    className="text-sm text-white/60 hover:text-lips-gold transition-colors flex items-center gap-1.5 py-1"
                   >
                     <ExternalLink className="h-3 w-3 opacity-50" />
                     {link.label}
@@ -108,7 +108,7 @@ export default function LipsFooter() {
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-sm text-white/60 hover:text-lips-gold transition-colors flex items-center gap-1.5"
+                    className="text-sm text-white/60 hover:text-lips-gold transition-colors flex items-center gap-1.5 py-1"
                   >
                     <ExternalLink className="h-3 w-3 opacity-50" />
                     {link.label}

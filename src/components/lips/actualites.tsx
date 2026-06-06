@@ -199,7 +199,7 @@ export default function ActualitesSection() {
                   <div className="mt-6 pt-4 border-t border-border/50">
                     <div className="flex items-center gap-2">
                       <Tag className="h-3.5 w-3.5 text-muted-foreground" />
-                      <span className="text-xs text-muted-foreground">dialogue interreligieux, paix sociale, communiqué officiel</span>
+                      <span className="text-xs text-muted-foreground line-clamp-2">dialogue interreligieux, paix sociale, communiqué officiel</span>
                     </div>
                   </div>
                 </div>

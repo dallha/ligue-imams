@@ -90,23 +90,23 @@ function MembershipCard({ flipped, onFlip }: { flipped: boolean; onFlip: () => v
             <div className="flex items-center justify-between px-5 pt-4 pb-2">
               <div className="flex items-center gap-2.5">
                 {/* Logo */}
-                <div className="w-9 h-9 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center border border-white/20">
-                  <span className="text-white font-bold text-[10px]">LIPS</span>
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center border border-white/20">
+                  <span className="text-white font-bold text-[9px] sm:text-[10px]">LIPS</span>
                 </div>
                 <div>
-                  <div className="text-white font-semibold text-[11px] leading-tight">
+                  <div className="text-white font-semibold text-[10px] sm:text-[11px] leading-tight">
                     LIGUE DES IMAMS ET
                   </div>
-                  <div className="text-white/70 text-[9px] leading-tight">
+                  <div className="text-white/70 text-[8px] sm:text-[9px] leading-tight">
                     PRÉDICATEURS DU SÉNÉGAL
                   </div>
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-lips-gold text-[8px] font-semibold tracking-wider">
+                <div className="text-lips-gold text-[9px] sm:text-[10px] font-semibold tracking-wider">
                   CARTE MEMBRE
                 </div>
-                <div className="text-lips-gold/60 text-[7px]">
+                <div className="text-lips-gold/60 text-[8px] sm:text-[9px]">
                   NATIONALE
                 </div>
               </div>
@@ -114,37 +114,37 @@ function MembershipCard({ flipped, onFlip }: { flipped: boolean; onFlip: () => v
 
             {/* Main content area */}
             <div className="flex-1 flex items-center px-5 pb-2">
-              <div className="flex items-center gap-4 w-full">
+              <div className="flex items-center gap-2 sm:gap-4 w-full">
                 {/* Photo placeholder */}
-                <div className="w-20 h-24 rounded-lg bg-white/10 border-2 border-white/20 flex flex-col items-center justify-center shrink-0 overflow-hidden">
-                  <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1" opacity="0.4">
+                <div className="w-16 h-20 sm:w-20 sm:h-24 rounded-lg bg-white/10 border-2 border-white/20 flex flex-col items-center justify-center shrink-0 overflow-hidden">
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-white/10 flex items-center justify-center">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1" opacity="0.4">
                       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                       <circle cx="12" cy="7" r="4" />
                     </svg>
                   </div>
-                  <div className="text-white/30 text-[7px] mt-0.5">PHOTO</div>
+                  <div className="text-white/30 text-[8px] sm:text-[9px] mt-0.5">PHOTO</div>
                 </div>
 
                 {/* Member info */}
                 <div className="flex-1 space-y-1.5">
                   <div>
-                    <div className="text-white/50 text-[8px] uppercase tracking-wider">Nom</div>
-                    <div className="text-white font-bold text-base leading-tight">Mamadou SY</div>
+                    <div className="text-white/50 text-[9px] sm:text-[10px] uppercase tracking-wider">Nom</div>
+                    <div className="text-white font-bold text-sm sm:text-base leading-tight">Mamadou SY</div>
                   </div>
-                  <div className="flex gap-4">
+                  <div className="flex gap-3 sm:gap-4">
                     <div>
-                      <div className="text-white/50 text-[8px] uppercase tracking-wider">Rôle</div>
-                      <div className="text-lips-gold font-semibold text-[11px] leading-tight">IMAM</div>
+                      <div className="text-white/50 text-[9px] sm:text-[10px] uppercase tracking-wider">Rôle</div>
+                      <div className="text-lips-gold font-semibold text-[10px] sm:text-[11px] leading-tight">IMAM</div>
                     </div>
                     <div>
-                      <div className="text-white/50 text-[8px] uppercase tracking-wider">Région</div>
-                      <div className="text-white font-semibold text-[11px] leading-tight">Dakar</div>
+                      <div className="text-white/50 text-[9px] sm:text-[10px] uppercase tracking-wider">Région</div>
+                      <div className="text-white font-semibold text-[10px] sm:text-[11px] leading-tight">Dakar</div>
                     </div>
                   </div>
                   <div>
-                    <div className="text-white/50 text-[8px] uppercase tracking-wider">Matricule</div>
-                    <div className="text-white font-mono font-bold text-sm tracking-wide">
+                    <div className="text-white/50 text-[9px] sm:text-[10px] uppercase tracking-wider">Matricule</div>
+                    <div className="text-white font-mono font-bold text-xs sm:text-sm tracking-wide">
                       LIPS-2025-DKR-000124
                     </div>
                   </div>
@@ -156,18 +156,18 @@ function MembershipCard({ flipped, onFlip }: { flipped: boolean; onFlip: () => v
             <div className="px-5 pb-3 pt-1 flex items-end justify-between">
               <div className="flex items-center gap-3">
                 <div>
-                  <div className="text-white/40 text-[7px]">Émis le</div>
-                  <div className="text-white/80 text-[9px] font-medium">01/01/2025</div>
+                  <div className="text-white/40 text-[8px] sm:text-[9px]">Émis le</div>
+                  <div className="text-white/80 text-[10px] sm:text-[11px] font-medium">01/01/2025</div>
                 </div>
                 <div>
-                  <div className="text-white/40 text-[7px]">Expire le</div>
-                  <div className="text-lips-gold text-[9px] font-bold">31/12/2026</div>
+                  <div className="text-white/40 text-[8px] sm:text-[9px]">Expire le</div>
+                  <div className="text-lips-gold text-[10px] sm:text-[11px] font-bold">31/12/2026</div>
                 </div>
               </div>
 
               {/* QR Code */}
               <div className="bg-white p-1 rounded-md">
-                <QrCodeSvg size={52} />
+                <QrCodeSvg size={44} />
               </div>
             </div>
 
@@ -196,22 +196,22 @@ function MembershipCard({ flipped, onFlip }: { flipped: boolean; onFlip: () => v
               <div className="text-white font-bold text-xs text-center mb-1">
                 LIGUE DES IMAMS ET PRÉDICATEURS DU SÉNÉGAL
               </div>
-              <div className="text-white/50 text-[9px] text-center mb-4">
+              <div className="text-white/50 text-[10px] sm:text-[11px] text-center mb-4">
                 Institution Nationale de Référence
               </div>
 
               {/* Verification info */}
               <div className="w-full bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/10 mb-3">
-                <div className="text-center text-[9px] text-white/60 mb-1">
+                <div className="text-center text-[10px] sm:text-[11px] text-white/60 mb-1">
                   Vérifiez la validité de cette carte
                 </div>
-                <div className="text-center text-white font-mono text-xs">
+                <div className="text-center text-white font-mono text-[10px] sm:text-xs">
                   https://lips.sn/verifier/LIPS-2025-DKR-000124
                 </div>
               </div>
 
               {/* Contact */}
-              <div className="flex items-center gap-4 text-white/40 text-[8px]">
+              <div className="flex items-center gap-4 text-white/40 text-[9px] sm:text-[10px]">
                 <span>+221 33 800 00 00</span>
                 <span>•</span>
                 <span>contact@lips.sn</span>
@@ -220,7 +220,7 @@ function MembershipCard({ flipped, onFlip }: { flipped: boolean; onFlip: () => v
 
             {/* Legal notice */}
             <div className="px-5 pb-3">
-              <div className="text-white/30 text-[7px] text-center leading-relaxed">
+              <div className="text-white/30 text-[8px] sm:text-[9px] text-center leading-relaxed">
                 Cette carte est la propriété de la LIPS. Toute falsification ou utilisation non autorisée
                 est passible de poursuites. En cas de perte, contactez immédiatement le secrétariat général.
               </div>
