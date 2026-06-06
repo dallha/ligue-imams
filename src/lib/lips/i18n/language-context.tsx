@@ -8,11 +8,16 @@ import {
   LOCALE_NAMES,
   dictionaries,
 } from './translations';
+import {
+  type PageTranslations,
+  pageDictionaries,
+} from './translations-pages';
 
 // ─── Context shape ─────────────────────────────────────────────
 interface LanguageContextValue {
   locale: Locale;
   t: TranslationDict;
+  p: PageTranslations;
   dir: 'ltr' | 'rtl';
   isRTL: boolean;
   setLocale: (locale: Locale) => void;
@@ -65,16 +70,18 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const isRTL = RTL_LOCALES.includes(locale);
   const dir = isRTL ? 'rtl' as const : 'ltr' as const;
   const t = dictionaries[locale];
+  const p = pageDictionaries[locale];
   const localeName = LOCALE_NAMES[locale];
 
   const value = useMemo<LanguageContextValue>(() => ({
     locale,
     t,
+    p,
     dir,
     isRTL,
     setLocale,
     localeName,
-  }), [locale, t, dir, isRTL, setLocale, localeName]);
+  }), [locale, t, p, dir, isRTL, setLocale, localeName]);
 
   return (
     <LanguageContext.Provider value={value}>

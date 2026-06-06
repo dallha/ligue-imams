@@ -12,22 +12,24 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Lock, Eye, EyeOff, AlertCircle, User } from 'lucide-react'
 import { motion } from 'framer-motion'
-
-const loginSchema = z.object({
-  email: z.string().min(1, 'Email ou matricule requis'),
-  password: z.string().min(1, 'Mot de passe requis'),
-})
-
-type LoginFormValues = z.infer<typeof loginSchema>
+import { useLanguage } from '@/lib/lips/i18n/language-context'
 
 function MemberLoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { p } = useLanguage()
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
   const redirect = searchParams.get('redirect') || '/espace-membre'
+
+  const loginSchema = z.object({
+    email: z.string().min(1, p.pages.memberLogin.emailRequired),
+    password: z.string().min(1, p.pages.memberLogin.passwordRequired),
+  })
+
+  type LoginFormValues = z.infer<typeof loginSchema>
 
   const {
     register,
@@ -56,14 +58,14 @@ function MemberLoginForm() {
       const resData = await res.json()
 
       if (!res.ok) {
-        setError(resData.error || 'Erreur de connexion')
+        setError(resData.error || p.pages.memberLogin.loginError)
         return
       }
 
       router.push(redirect)
       router.refresh()
     } catch {
-      setError('Erreur de connexion au serveur')
+      setError(p.pages.memberLogin.serverError)
     } finally {
       setLoading(false)
     }
@@ -85,10 +87,10 @@ function MemberLoginForm() {
           <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-white/10 flex items-center justify-center border-2 border-lips-gold/50 backdrop-blur-sm overflow-hidden p-2">
             <img src="/logo.png" alt="LIPS" className="w-full h-full object-contain" />
           </div>
-          <h1 className="text-2xl font-bold text-white">Espace Membre</h1>
+          <h1 className="text-2xl font-bold text-white">{p.pages.memberLogin.spaceTitle}</h1>
           <p className="font-arabic text-lips-gold/80 text-xl mt-1">الفضاء الخاص</p>
           <p className="text-white/60 text-sm mt-2">
-            Connectez-vous pour accéder à votre espace personnel
+            {p.pages.memberLogin.spaceDesc}
           </p>
         </motion.div>
 
@@ -100,10 +102,10 @@ function MemberLoginForm() {
           <Card className="border-0 shadow-2xl">
             <CardHeader className="text-center pb-2">
               <CardTitle className="text-xl text-lips-green-dark">
-                Connexion Membre
+                {p.pages.memberLogin.cardTitle}
               </CardTitle>
               <CardDescription>
-                Entrez vos identifiants pour accéder à votre espace
+                {p.pages.memberLogin.cardDesc}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -119,7 +121,7 @@ function MemberLoginForm() {
                       <span>{error}</span>
                       {error.includes('non autorisé') && (
                         <p className="text-xs text-red-500 mt-1">
-                          Les comptes admin ne peuvent pas accéder à l&apos;espace membre. Utilisez un compte membre (Imam, Prédicateur, etc.).
+                          {p.pages.memberLogin.adminError}
                         </p>
                       )}
                     </div>
@@ -127,13 +129,13 @@ function MemberLoginForm() {
                 )}
 
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email ou Matricule</Label>
+                  <Label htmlFor="email">{p.pages.memberLogin.emailOrMatricule}</Label>
                   <div className="relative">
                     <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="email"
                       type="text"
-                      placeholder="email@exemple.sn ou LIPS-2025-DKR-000124"
+                      placeholder={p.pages.memberLogin.placeholder}
                       className="pl-10"
                       {...register('email')}
                     />
@@ -144,7 +146,7 @@ function MemberLoginForm() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="password">Mot de passe</Label>
+                  <Label htmlFor="password">{p.pages.memberLogin.password}</Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
@@ -172,7 +174,7 @@ function MemberLoginForm() {
                     href="#"
                     className="text-sm text-lips-green hover:text-lips-green-dark transition-colors"
                   >
-                    Mot de passe oublié ?
+                    {p.pages.memberLogin.forgotPassword}
                   </Link>
                 </div>
 
@@ -184,22 +186,22 @@ function MemberLoginForm() {
                   {loading ? (
                     <span className="flex items-center gap-2">
                       <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      Connexion...
+                      {p.pages.memberLogin.connecting}
                     </span>
                   ) : (
-                    'Se connecter'
+                    p.pages.memberLogin.login
                   )}
                 </Button>
               </form>
 
               <div className="mt-5 pt-4 border-t text-center">
                 <p className="text-sm text-muted-foreground">
-                  Pas encore membre ?{' '}
+                  {p.pages.memberLogin.notMember}{' '}
                   <Link
                     href="/adherer"
                     className="text-lips-green hover:text-lips-green-dark font-semibold transition-colors"
                   >
-                    Adhérer
+                    {p.pages.memberLogin.joinLink}
                   </Link>
                 </p>
               </div>
@@ -213,7 +215,7 @@ function MemberLoginForm() {
           transition={{ duration: 0.5, delay: 0.3 }}
           className="text-center text-white/40 text-xs mt-6"
         >
-          © 2026 LIPS — Ligue des Imams et Prédicateurs du Sénégal
+          {p.pages.memberLogin.copyright}
         </motion.p>
       </div>
     </div>
@@ -221,10 +223,11 @@ function MemberLoginForm() {
 }
 
 export default function MemberLoginPage() {
+  const { p } = useLanguage()
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center bg-lips-green-dark">
-        <div className="text-white/60 text-sm">Chargement...</div>
+        <div className="text-white/60 text-sm">Loading...</div>
       </div>
     }>
       <MemberLoginForm />

@@ -11,41 +11,35 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-
-const PILLARS_PREVIEW = [
-  {
-    icon: Target,
-    title: 'Unité Institutionnelle',
-    titleAr: 'الوحدة المؤسسية',
-    description:
-      'Fédérer l\'ensemble des imams et prédicateurs du Sénégal au sein d\'un cadre institutionnel unique, porteur d\'une vision commune.',
-  },
-  {
-    icon: GraduationCap,
-    title: 'Formation Continue',
-    titleAr: 'التكوين المستمر',
-    description:
-      'Offrir aux imams un programme de formation continue en sciences islamiques, communication et gestion communautaire.',
-  },
-  {
-    icon: Scale,
-    title: 'Paix Sociale',
-    titleAr: 'السلم الاجتماعي',
-    description:
-      'Contribuer activement au maintien de la paix sociale et à la promotion du dialogue interreligieux au Sénégal.',
-  },
-  {
-    icon: Handshake,
-    title: 'Représentation Nationale',
-    titleAr: 'التمثيل الوطني',
-    description:
-      'Porter la voix des imams auprès des autorités publiques, des institutions et des partenaires internationaux.',
-  },
-];
+import { useLanguage } from '@/lib/lips/i18n/language-context';
 
 export default function HomeAbout() {
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
+  const { t, p } = useLanguage();
+
+  const PILLARS_PREVIEW = [
+    {
+      icon: Target,
+      title: p.mission.pillars.unity.title,
+      description: p.mission.pillars.unity.desc,
+    },
+    {
+      icon: GraduationCap,
+      title: p.mission.pillars.formation.title,
+      description: p.mission.pillars.formation.desc,
+    },
+    {
+      icon: Scale,
+      title: p.mission.pillars.peace.title,
+      description: p.mission.pillars.peace.desc,
+    },
+    {
+      icon: Handshake,
+      title: p.mission.pillars.representation.title,
+      description: p.mission.pillars.representation.desc,
+    },
+  ];
 
   return (
     <section
@@ -66,18 +60,16 @@ export default function HomeAbout() {
           className="text-center mb-12"
         >
           <span className="text-sm font-semibold text-lips-gold tracking-widest uppercase">
-            À Propos
+            {p.mission.sectionTag}
           </span>
           <h2 className="text-3xl md:text-4xl font-bold text-lips-green-dark mt-3 mb-4">
-            Les Piliers de la LIPS
+            {p.mission.sectionTitle}
           </h2>
           <div className="separator-islamic text-lips-gold text-2xl my-4">
             &#10022;
           </div>
           <p className="text-muted-foreground max-w-2xl mx-auto text-base">
-            Six piliers stratégiques guident l&apos;action de la LIPS pour
-            bâtir une institution forte, légitime et au service de la communauté
-            musulmane du Sénégal.
+            {p.mission.sectionDesc}
           </p>
         </motion.div>
 
@@ -99,9 +91,6 @@ export default function HomeAbout() {
                   <h3 className="font-semibold text-lips-green-dark text-sm">
                     {pillar.title}
                   </h3>
-                  <span className="font-arabic text-xs text-lips-gold">
-                    {pillar.titleAr}
-                  </span>
                 </div>
               </div>
               <p className="text-sm text-muted-foreground leading-relaxed">
@@ -120,7 +109,7 @@ export default function HomeAbout() {
         >
           <Button asChild variant="outline" className="border-lips-green/30 text-lips-green hover:bg-lips-green/5">
             <Link href="/a-propos">
-              Découvrir notre mission, gouvernance et carte membre
+              {t.aboutNarrative.cta}
               <ArrowRight className="h-4 w-4 ml-2" />
             </Link>
           </Button>

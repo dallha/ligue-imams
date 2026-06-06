@@ -12,6 +12,7 @@ import {
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { useLanguage } from '@/lib/lips/i18n/language-context';
 
 interface EventItem {
   id: number;
@@ -95,6 +96,7 @@ const TYPE_STYLES: Record<string, string> = {
 };
 
 export default function EvenementsSection() {
+  const { p } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
 
@@ -114,17 +116,17 @@ export default function EvenementsSection() {
         >
           <div>
             <span className="text-sm font-semibold text-lips-gold tracking-widest uppercase">
-              Calendrier
+              {p.evenements.sectionTag}
             </span>
             <h2 className="text-3xl md:text-4xl font-bold text-lips-green-dark mt-3 mb-2">
-              Événements & Activités
+              {p.evenements.sectionTitle}
             </h2>
             <p className="text-muted-foreground max-w-xl text-sm">
-              Séminaires, formations, colloques et journées portes ouvertes organisés par la LIPS à travers le Sénégal.
+              {p.evenements.sectionDesc}
             </p>
           </div>
           <Button variant="outline" className="border-lips-green/30 text-lips-green hover:bg-lips-green/5 mt-4 md:mt-0">
-            Calendrier complet
+            {p.evenements.fullCalendar}
             <ArrowRight className="h-4 w-4 ml-2" />
           </Button>
         </motion.div>
@@ -180,7 +182,7 @@ export default function EvenementsSection() {
                         {event.places && (
                           <span className="flex items-center gap-1">
                             <Users className="h-3 w-3" />
-                            {event.inscrits}/{event.places} inscrits
+                            {event.inscrits}/{event.places} {p.evenements.registeredSuffix}
                           </span>
                         )}
                       </div>

@@ -5,6 +5,7 @@ import { motion, useInView } from 'framer-motion';
 import { Crown, Users, Building, Award, ChevronRight } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { useLanguage } from '@/lib/lips/i18n/language-context';
 
 interface Leader {
   nom: string;
@@ -16,73 +17,106 @@ interface Leader {
   initiales: string;
 }
 
-const BUREAU_NATIONAL: Leader[] = [
-  {
-    nom: 'TRAORÉ',
-    prenom: 'Amadou',
-    role: 'Président National',
-    roleAr: 'الرئيس الوطني',
-    region: 'Dakar',
-    bio: 'Imam de la Grande Mosquée de la Médina, élu à la tête de la LIPS en 2020 pour un mandat de 5 ans. Figure respectée du dialogue interreligieux au Sénégal.',
-    initiales: 'AT',
-  },
-  {
-    nom: 'BALDE',
-    prenom: 'Mouhammadou',
-    role: 'Vice-Président',
-    roleAr: 'نائب الرئيس',
-    region: 'Tambacounda',
-    bio: 'Prédicateur émérite et ancien responsable régional de Tambacounda. Expert en médiation communautaire et cohésion sociale.',
-    initiales: 'MB',
-  },
-  {
-    nom: 'SOW',
-    prenom: 'Ibrahima',
-    role: 'Secrétaire Général',
-    roleAr: 'الأمين العام',
-    region: 'Saint-Louis',
-    bio: 'Juriste en droit islamique, formé à l\'Université Al-Azhar. Pilier de l\'administration et de la structuration institutionnelle de la LIPS.',
-    initiales: 'IS',
-  },
-  {
-    nom: 'DIAKHATE',
-    prenom: 'Ousmane',
-    role: 'Trésorier Général',
-    roleAr: 'أمين الصندوق',
-    region: 'Thiès',
-    bio: 'Expert en gestion financière et en administration d\'organisations confessionnelles. Garant de la transparence et de la pérennité financière de la LIPS.',
-    initiales: 'OD',
-  },
-  {
-    nom: 'MBACKÉ',
-    prenom: 'Serigne',
-    role: 'Conseiller Spirituel',
-    roleAr: 'المستشار الروحي',
-    region: 'Diourbel',
-    bio: 'Descendant d\'une lignée savante, érudit en sciences islamiques et en tariqa. Guide spirituel et gardien de l\'orthodoxie malikite au sein de la LIPS.',
-    initiales: 'SM',
-  },
-  {
-    nom: 'FAYE',
-    prenom: 'Mamadou',
-    role: 'Responsable Formation',
-    roleAr: 'مسؤول التكوين',
-    region: 'Kaolack',
-    bio: 'Docteur en études islamiques, concepteur du programme de formation continue des imams. Auteur de plusieurs ouvrages sur la prédication moderne.',
-    initiales: 'MF',
-  },
-];
-
-const COMMISSIONS = [
-  { icon: Crown, name: 'Conseil du Choura', nameAr: 'مجلس الشورى', members: 28, desc: 'Instance suprême de délibération et de conseil' },
-  { icon: Users, name: 'Commission des Membres', nameAr: 'لجنة العضوية', members: 7, desc: 'Admissions, radiations et discipline' },
-  { icon: Building, name: 'Commission Financière', nameAr: 'اللجنة المالية', members: 5, desc: 'Audit, budget et transparence' },
-  { icon: Award, name: 'Commission Fatwa', nameAr: 'لجنة الفتوى', members: 12, desc: 'Avis juridiques et consultations religieuses' },
-];
+interface Commission {
+  icon: React.ElementType;
+  name: string;
+  nameAr: string;
+  members: number;
+  desc: string;
+}
 
 export default function GouvernanceSection() {
+  const { p } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
+
+  const BUREAU_NATIONAL: Leader[] = [
+    {
+      nom: 'TRAORÉ',
+      prenom: 'Amadou',
+      role: p.gouvernance.bureau.president.role,
+      roleAr: 'الرئيس الوطني',
+      region: 'Dakar',
+      bio: p.gouvernance.bureau.president.bio,
+      initiales: 'AT',
+    },
+    {
+      nom: 'BALDE',
+      prenom: 'Mouhammadou',
+      role: p.gouvernance.bureau.vicePresident.role,
+      roleAr: 'نائب الرئيس',
+      region: 'Tambacounda',
+      bio: p.gouvernance.bureau.vicePresident.bio,
+      initiales: 'MB',
+    },
+    {
+      nom: 'SOW',
+      prenom: 'Ibrahima',
+      role: p.gouvernance.bureau.secretary.role,
+      roleAr: 'الأمين العام',
+      region: 'Saint-Louis',
+      bio: p.gouvernance.bureau.secretary.bio,
+      initiales: 'IS',
+    },
+    {
+      nom: 'DIAKHATE',
+      prenom: 'Ousmane',
+      role: p.gouvernance.bureau.treasurer.role,
+      roleAr: 'أمين الصندوق',
+      region: 'Thiès',
+      bio: p.gouvernance.bureau.treasurer.bio,
+      initiales: 'OD',
+    },
+    {
+      nom: 'MBACKÉ',
+      prenom: 'Serigne',
+      role: p.gouvernance.bureau.spiritualAdvisor.role,
+      roleAr: 'المستشار الروحي',
+      region: 'Diourbel',
+      bio: p.gouvernance.bureau.spiritualAdvisor.bio,
+      initiales: 'SM',
+    },
+    {
+      nom: 'FAYE',
+      prenom: 'Mamadou',
+      role: p.gouvernance.bureau.trainingHead.role,
+      roleAr: 'مسؤول التكوين',
+      region: 'Kaolack',
+      bio: p.gouvernance.bureau.trainingHead.bio,
+      initiales: 'MF',
+    },
+  ];
+
+  const COMMISSIONS: Commission[] = [
+    {
+      icon: Award,
+      name: p.gouvernance.commissions.fatwa.name,
+      nameAr: 'لجنة الفتوى',
+      members: 12,
+      desc: p.gouvernance.commissions.fatwa.desc,
+    },
+    {
+      icon: Users,
+      name: p.gouvernance.commissions.formation.name,
+      nameAr: 'لجنة التكوين',
+      members: 7,
+      desc: p.gouvernance.commissions.formation.desc,
+    },
+    {
+      icon: Building,
+      name: p.gouvernance.commissions.communication.name,
+      nameAr: 'لجنة التواصل',
+      members: 5,
+      desc: p.gouvernance.commissions.communication.desc,
+    },
+    {
+      icon: Crown,
+      name: p.gouvernance.commissions.social.name,
+      nameAr: 'لجنة الشؤون الاجتماعية',
+      members: 9,
+      desc: p.gouvernance.commissions.social.desc,
+    },
+  ];
 
   return (
     <section
@@ -99,16 +133,14 @@ export default function GouvernanceSection() {
           className="text-center mb-16"
         >
           <span className="text-sm font-semibold text-lips-gold tracking-widest uppercase">
-            Gouvernance
+            {p.gouvernance.sectionTag}
           </span>
           <h2 className="text-3xl md:text-4xl font-bold text-lips-green-dark mt-3 mb-4">
-            Bureau National & Institutions
+            {p.gouvernance.sectionTitle}
           </h2>
           <div className="separator-islamic text-lips-gold text-2xl my-4">&#10022;</div>
           <p className="text-muted-foreground max-w-2xl mx-auto text-base">
-            La LIPS est dirigée par un Bureau National élu, secondé par des commissions
-            spécialisées et un Conseil du Choura. Cette gouvernance garantit la représentativité,
-            la transparence et la légitimité institutionnelle.
+            {p.gouvernance.sectionDesc}
           </p>
         </motion.div>
 
@@ -116,7 +148,7 @@ export default function GouvernanceSection() {
         <div className="mb-16">
           <h3 className="text-lg font-bold text-lips-green-dark mb-6 flex items-center gap-2">
             <Crown className="h-5 w-5 text-lips-gold" />
-            Bureau National
+            {p.gouvernance.bureauTitle}
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {BUREAU_NATIONAL.map((leader, index) => (
@@ -161,7 +193,7 @@ export default function GouvernanceSection() {
         <div>
           <h3 className="text-lg font-bold text-lips-green-dark mb-6 flex items-center gap-2">
             <Building className="h-5 w-5 text-lips-gold" />
-            Commissions Spécialisées
+            {p.gouvernance.commissionsTitle}
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {COMMISSIONS.map((commission, index) => (
@@ -184,7 +216,7 @@ export default function GouvernanceSection() {
                     </div>
                     <p className="text-xs text-muted-foreground leading-relaxed">{commission.desc}</p>
                     <div className="flex items-center justify-between mt-3">
-                      <span className="text-[10px] text-muted-foreground">{commission.members} membres</span>
+                      <span className="text-[10px] text-muted-foreground">{commission.members} {p.gouvernance.membersSuffix}</span>
                       <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/50 group-hover:text-lips-green group-hover:translate-x-0.5 transition-all" />
                     </div>
                   </CardContent>

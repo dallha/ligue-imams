@@ -4,6 +4,7 @@ import { useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { REGIONS_DATA, type RegionCode } from '@/lib/lips/types';
 import { MapPin, Users, Building } from 'lucide-react';
+import { useLanguage } from '@/lib/lips/i18n/language-context';
 
 /* ------------------------------------------------------------------ */
 /*  Region SVG paths — simplified but recognizable Senegal outline    */
@@ -125,6 +126,7 @@ interface TooltipData {
 }
 
 function MapTooltip({ data }: { data: TooltipData }) {
+  const { p } = useLanguage();
   const region = REGIONS_DATA.find((r) => r.code === data.code);
   if (!region) return null;
 
@@ -154,13 +156,13 @@ function MapTooltip({ data }: { data: TooltipData }) {
         {region.population && (
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <Users className="h-3 w-3 text-lips-green-light" />
-            <span>{region.population.toLocaleString('fr-FR')} hab.</span>
+            <span>{region.population.toLocaleString()} {p.regionsPage.inhabitants}</span>
           </div>
         )}
         {region.mosqueCount && (
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <Building className="h-3 w-3 text-lips-gold" />
-            <span>{region.mosqueCount.toLocaleString('fr-FR')} mosquées</span>
+            <span>{region.mosqueCount.toLocaleString()} {p.regionsPage.mosques}</span>
           </div>
         )}
         {region.coordinates && (
@@ -194,6 +196,7 @@ export default function SenegalMap({
   compact = false,
   className = '',
 }: SenegalMapProps) {
+  const { p } = useLanguage();
   const [hovered, setHovered] = useState<RegionCode | null>(null);
   const [selected, setSelected] = useState<RegionCode | null>(null);
   const [tooltip, setTooltip] = useState<TooltipData | null>(null);
@@ -287,7 +290,7 @@ export default function SenegalMap({
           xmlns="http://www.w3.org/2000/svg"
           className="w-full h-auto"
           role="img"
-          aria-label="Carte interactive du Sénégal — 14 régions"
+          aria-label="Senegal interactive map — 14 regions"
         >
           {/* Ocean background */}
           <rect x="0" y="0" width="600" height="450" fill="transparent" />
@@ -417,7 +420,7 @@ export default function SenegalMap({
               <div className="text-center">
                 <div className="text-xl font-bold text-lips-green">14</div>
                 <div className="text-[10px] text-muted-foreground uppercase tracking-wider">
-                  Régions
+                  {p.regionsPage.summaryRegions}
                 </div>
               </div>
               <div className="w-px h-8 bg-border" />
@@ -426,16 +429,16 @@ export default function SenegalMap({
                   {POP_MILLIONS}M
                 </div>
                 <div className="text-[10px] text-muted-foreground uppercase tracking-wider">
-                  Habitants
+                  {p.regionsPage.inhabitants}
                 </div>
               </div>
               <div className="w-px h-8 bg-border" />
               <div className="text-center">
                 <div className="text-xl font-bold text-lips-gold">
-                  {TOTAL_MOSQUES.toLocaleString('fr-FR')}
+                  {TOTAL_MOSQUES.toLocaleString()}
                 </div>
                 <div className="text-[10px] text-muted-foreground uppercase tracking-wider">
-                  Mosquées
+                  {p.regionsPage.summaryMosques}
                 </div>
               </div>
             </div>
@@ -450,14 +453,14 @@ export default function SenegalMap({
                   className="inline-block w-3 h-3 rounded-sm"
                   style={{ backgroundColor: 'rgba(27,107,58,0.15)', border: '1.2px solid #0D3B1F' }}
                 />
-                <span>Région</span>
+                <span>{p.regionsPage.summaryRegions}</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <span
                   className="inline-block w-3 h-3 rounded-sm"
                   style={{ backgroundColor: 'rgba(201,150,42,0.45)', border: '1.2px solid #C9962A' }}
                 />
-                <span>Sélectionnée</span>
+                <span>✓</span>
               </div>
             </div>
           </div>

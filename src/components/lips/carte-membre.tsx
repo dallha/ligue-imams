@@ -13,6 +13,7 @@ import {
   CardDescription,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { useLanguage } from '@/lib/lips/i18n/language-context';
 
 // --- QR Code SVG Generator (simple matrix pattern) ---
 function QrCodeSvg({ size = 80 }: { size?: number }) {
@@ -69,6 +70,8 @@ function QrCodeSvg({ size = 80 }: { size?: number }) {
 
 // --- Membership Card Component ---
 function MembershipCard({ flipped, onFlip }: { flipped: boolean; onFlip: () => void }) {
+  const { p } = useLanguage();
+
   return (
     <div className="perspective-[1200px] w-full max-w-[480px] mx-auto px-2 sm:px-0" style={{ perspective: '1200px' }}>
       <motion.div
@@ -95,19 +98,19 @@ function MembershipCard({ flipped, onFlip }: { flipped: boolean; onFlip: () => v
                 </div>
                 <div>
                   <div className="text-white font-semibold text-[10px] sm:text-[11px] leading-tight">
-                    LIGUE DES IMAMS ET
+                    {p.carteMembre.orgNameLine1}
                   </div>
                   <div className="text-white/70 text-[8px] sm:text-[9px] leading-tight">
-                    PRÉDICATEURS DU SÉNÉGAL
+                    {p.carteMembre.orgNameLine2}
                   </div>
                 </div>
               </div>
               <div className="text-right">
                 <div className="text-lips-gold text-[9px] sm:text-[10px] font-semibold tracking-wider">
-                  CARTE MEMBRE
+                  {p.carteMembre.cardTitle}
                 </div>
                 <div className="text-lips-gold/60 text-[8px] sm:text-[9px]">
-                  NATIONALE
+                  {p.carteMembre.nationalLabel}
                 </div>
               </div>
             </div>
@@ -123,27 +126,27 @@ function MembershipCard({ flipped, onFlip }: { flipped: boolean; onFlip: () => v
                       <circle cx="12" cy="7" r="4" />
                     </svg>
                   </div>
-                  <div className="text-white/30 text-[8px] sm:text-[9px] mt-0.5">PHOTO</div>
+                  <div className="text-white/30 text-[8px] sm:text-[9px] mt-0.5">{p.carteMembre.photo}</div>
                 </div>
 
                 {/* Member info */}
                 <div className="flex-1 space-y-1.5">
                   <div>
-                    <div className="text-white/50 text-[9px] sm:text-[10px] uppercase tracking-wider">Nom</div>
+                    <div className="text-white/50 text-[9px] sm:text-[10px] uppercase tracking-wider">{p.carteMembre.nameLabel}</div>
                     <div className="text-white font-bold text-sm sm:text-base leading-tight">Mamadou SY</div>
                   </div>
                   <div className="flex gap-3 sm:gap-4">
                     <div>
-                      <div className="text-white/50 text-[9px] sm:text-[10px] uppercase tracking-wider">Rôle</div>
+                      <div className="text-white/50 text-[9px] sm:text-[10px] uppercase tracking-wider">{p.carteMembre.roleLabel}</div>
                       <div className="text-lips-gold font-semibold text-[10px] sm:text-[11px] leading-tight">IMAM</div>
                     </div>
                     <div>
-                      <div className="text-white/50 text-[9px] sm:text-[10px] uppercase tracking-wider">Région</div>
+                      <div className="text-white/50 text-[9px] sm:text-[10px] uppercase tracking-wider">{p.carteMembre.regionLabel}</div>
                       <div className="text-white font-semibold text-[10px] sm:text-[11px] leading-tight">Dakar</div>
                     </div>
                   </div>
                   <div>
-                    <div className="text-white/50 text-[9px] sm:text-[10px] uppercase tracking-wider">Matricule</div>
+                    <div className="text-white/50 text-[9px] sm:text-[10px] uppercase tracking-wider">{p.carteMembre.matriculeLabel}</div>
                     <div className="text-white font-mono font-bold text-xs sm:text-sm tracking-wide">
                       LIPS-2025-DKR-000124
                     </div>
@@ -156,11 +159,11 @@ function MembershipCard({ flipped, onFlip }: { flipped: boolean; onFlip: () => v
             <div className="px-5 pb-3 pt-1 flex items-end justify-between">
               <div className="flex items-center gap-3">
                 <div>
-                  <div className="text-white/40 text-[8px] sm:text-[9px]">Émis le</div>
+                  <div className="text-white/40 text-[8px] sm:text-[9px]">{p.carteMembre.issuedLabel}</div>
                   <div className="text-white/80 text-[10px] sm:text-[11px] font-medium">01/01/2025</div>
                 </div>
                 <div>
-                  <div className="text-white/40 text-[8px] sm:text-[9px]">Expire le</div>
+                  <div className="text-white/40 text-[8px] sm:text-[9px]">{p.carteMembre.expiresLabel}</div>
                   <div className="text-lips-gold text-[10px] sm:text-[11px] font-bold">31/12/2026</div>
                 </div>
               </div>
@@ -194,16 +197,16 @@ function MembershipCard({ flipped, onFlip }: { flipped: boolean; onFlip: () => v
 
               {/* Institution name */}
               <div className="text-white font-bold text-xs text-center mb-1">
-                LIGUE DES IMAMS ET PRÉDICATEURS DU SÉNÉGAL
+                {p.carteMembre.orgNameLine1} {p.carteMembre.orgNameLine2}
               </div>
               <div className="text-white/50 text-[10px] sm:text-[11px] text-center mb-4">
-                Institution Nationale de Référence
+                {p.carteMembre.institutionLabel}
               </div>
 
               {/* Verification info */}
               <div className="w-full bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/10 mb-3">
                 <div className="text-center text-[10px] sm:text-[11px] text-white/60 mb-1">
-                  Vérifiez la validité de cette carte
+                  {p.carteMembre.verifyText}
                 </div>
                 <div className="text-center text-white font-mono text-[10px] sm:text-xs">
                   https://lips.sn/verifier/LIPS-2025-DKR-000124
@@ -221,8 +224,7 @@ function MembershipCard({ flipped, onFlip }: { flipped: boolean; onFlip: () => v
             {/* Legal notice */}
             <div className="px-5 pb-3">
               <div className="text-white/30 text-[8px] sm:text-[9px] text-center leading-relaxed">
-                Cette carte est la propriété de la LIPS. Toute falsification ou utilisation non autorisée
-                est passible de poursuites. En cas de perte, contactez immédiatement le secrétariat général.
+                {p.carteMembre.legalNotice}
               </div>
             </div>
 
@@ -241,7 +243,7 @@ function MembershipCard({ flipped, onFlip }: { flipped: boolean; onFlip: () => v
           className="text-lips-green hover:text-lips-green-dark hover:bg-lips-green/5"
         >
           <RotateCw className="h-3.5 w-3.5 mr-1.5" />
-          {flipped ? 'Voir le recto' : 'Voir le verso'}
+          {flipped ? p.carteMembre.showFront : p.carteMembre.showBack}
         </Button>
       </div>
     </div>
@@ -250,10 +252,34 @@ function MembershipCard({ flipped, onFlip }: { flipped: boolean; onFlip: () => v
 
 // --- Main Section ---
 export default function CarteMembreSection() {
+  const { p } = useLanguage();
   const [matricule, setMatricule] = useState('LIPS-2025-DKR-000124');
   const [flipped, setFlipped] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
+
+  const FEATURES = [
+    {
+      title: p.carteMembre.features.uniqueId.title,
+      desc: p.carteMembre.features.uniqueId.desc,
+    },
+    {
+      title: p.carteMembre.features.qr.title,
+      desc: p.carteMembre.features.qr.desc,
+    },
+    {
+      title: p.carteMembre.features.hologram.title,
+      desc: p.carteMembre.features.hologram.desc,
+    },
+    {
+      title: p.carteMembre.features.watermark.title,
+      desc: p.carteMembre.features.watermark.desc,
+    },
+    {
+      title: p.carteMembre.features.online.title,
+      desc: p.carteMembre.features.online.desc,
+    },
+  ];
 
   return (
     <section
@@ -273,19 +299,16 @@ export default function CarteMembreSection() {
           className="text-center mb-16"
         >
           <span className="text-sm font-semibold text-lips-gold tracking-widest uppercase">
-            Carte Membre
+            {p.carteMembre.sectionTag}
           </span>
           <h2 className="text-3xl md:text-4xl font-bold text-lips-green-dark mt-3 mb-4">
-            La Carte Membre Nationale
+            {p.carteMembre.sectionTitle}
           </h2>
           <div className="separator-islamic text-lips-gold text-2xl my-4">
             &#10022;
           </div>
           <p className="text-muted-foreground max-w-2xl mx-auto text-base">
-            La Carte Membre LIPS est le document officiel d&apos;identification
-            de tout membre de la Ligue. Dotée d&apos;un QR code de vérification
-            et d&apos;un matricule national unique, elle garantit l&apos;authenticité
-            et la traçabilité de chaque membre à travers les 14 régions.
+            {p.carteMembre.sectionDesc}
           </p>
         </motion.div>
 
@@ -310,46 +333,22 @@ export default function CarteMembreSection() {
             {/* Security badge */}
             <div className="flex items-center gap-2 text-lips-green">
               <Shield className="h-5 w-5" />
-              <span className="font-semibold text-sm">Document Sécurisé</span>
+              <span className="font-semibold text-sm">{p.carteMembre.secureDocTitle}</span>
               <Badge className="bg-lips-green/10 text-lips-green text-xs">
-                QR Code
+                {p.carteMembre.features.qr.title}
               </Badge>
             </div>
 
             <h3 className="text-2xl font-bold text-lips-green-dark">
-              Un document d&apos;identification infalsifiable
+              {p.carteMembre.secureDocDesc}
             </h3>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              Chaque carte membre est dotée d&apos;un matricule national unique au format
-              LIPS-ANNÉE-RÉGION-NUMÉRO, permettant une identification précise et une
-              vérification instantanée via le QR code intégré. Le système garantit
-              la traçabilité complète du parcours de chaque membre au sein de l&apos;institution.
+              {p.carteMembre.sectionDesc}
             </p>
 
             {/* Features list */}
             <div className="space-y-4">
-              {[
-                {
-                  title: 'Matricule National Unique',
-                  desc: 'Format LIPS-2025-DKR-000124 — Identifie la région, l\'année d\'adhésion et le numéro séquentiel du membre.',
-                },
-                {
-                  title: 'QR Code de Vérification',
-                  desc: 'Scannez le QR code pour vérifier instantanément la validité de la carte via le portail lips.sn.',
-                },
-                {
-                  title: 'Validité Annuelle',
-                  desc: 'La carte est valable du 1er janvier au 31 décembre. Le renouvellement annuel confirme le statut ACTIF.',
-                },
-                {
-                  title: 'Sécurité Anti-Falsification',
-                  desc: 'Gradient de sécurité, micro-texte et correspondance base de données nationale.',
-                },
-                {
-                  title: 'Couverture 14 Régions',
-                  desc: 'Chaque région dispose de son code officiel (DKR, SLG, THS...) intégré au matricule.',
-                },
-              ].map((feature, index) => (
+              {FEATURES.map((feature, index) => (
                 <div key={feature.title} className="flex gap-3">
                   <div className="w-6 h-6 rounded-full bg-lips-green/10 flex items-center justify-center shrink-0 mt-0.5">
                     <CheckCircle2 className="h-3.5 w-3.5 text-lips-green" />
@@ -370,11 +369,11 @@ export default function CarteMembreSection() {
             <div className="flex flex-wrap gap-3 pt-2">
               <Button className="bg-lips-green hover:bg-lips-green-dark text-white">
                 <Download className="h-4 w-4 mr-2" />
-                Télécharger le Modèle
+                {p.carteMembre.downloadModel}
               </Button>
               <Button variant="outline" className="border-lips-green/30 text-lips-green hover:bg-lips-green/5">
                 <Printer className="h-4 w-4 mr-2" />
-                Imprimer
+                {p.carteMembre.print}
               </Button>
             </div>
           </motion.div>

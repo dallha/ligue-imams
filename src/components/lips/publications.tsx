@@ -10,49 +10,47 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
-
-const PUBLICATION_CATEGORIES = [
-  {
-    icon: FileText,
-    title: 'Communiqués',
-    titleAr: 'بيانات',
-    description:
-      'Positions officielles et déclarations de la LIPS sur les questions sociétales, religieuses et communautaires touchant la nation sénégalaise.',
-    count: '24',
-    color: 'bg-lips-green/10 text-lips-green',
-  },
-  {
-    icon: Scale,
-    title: 'Fatwas',
-    titleAr: 'فتاوى',
-    description:
-      'Avis juridiques islamiques délivrés par le Conseil des Oulémas sur les questions de fiqh, de culte et de vie quotidienne des musulmans.',
-    count: '86',
-    color: 'bg-lips-gold/10 text-lips-gold',
-  },
-  {
-    icon: GraduationCap,
-    title: 'Cours & Formations',
-    titleAr: 'دروس وتكوينات',
-    description:
-      'Programmes de formation continue pour les imams et prédicateurs, couvrant les sciences islamiques, la communication et la gestion communautaire.',
-    count: '120+',
-    color: 'bg-lips-emerald/10 text-lips-emerald',
-  },
-  {
-    icon: BookOpen,
-    title: 'Articles & Réflexions',
-    titleAr: 'مقالات وتأملات',
-    description:
-      'Publications éducatives et spirituelles pour la communauté, abordant la daawa, l\'aqida et les enjeux contemporains à la lumière de l\'Islam.',
-    count: '45',
-    color: 'bg-lips-green-light/10 text-lips-green-light',
-  },
-];
+import { useLanguage } from '@/lib/lips/i18n/language-context';
 
 export default function PublicationsSection() {
+  const { p } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
+
+  const PUBLICATION_CATEGORIES = [
+    {
+      icon: FileText,
+      title: p.publications.categories.communiques.title,
+      titleAr: 'بيانات',
+      description: p.publications.categories.communiques.desc,
+      count: '24',
+      color: 'bg-lips-green/10 text-lips-green',
+    },
+    {
+      icon: Scale,
+      title: p.publications.categories.fatwas.title,
+      titleAr: 'فتاوى',
+      description: p.publications.categories.fatwas.desc,
+      count: '86',
+      color: 'bg-lips-gold/10 text-lips-gold',
+    },
+    {
+      icon: GraduationCap,
+      title: p.publications.categories.courses.title,
+      titleAr: 'دروس وتكوينات',
+      description: p.publications.categories.courses.desc,
+      count: '120+',
+      color: 'bg-lips-emerald/10 text-lips-emerald',
+    },
+    {
+      icon: BookOpen,
+      title: p.publications.categories.articles.title,
+      titleAr: 'مقالات وتأملات',
+      description: p.publications.categories.articles.desc,
+      count: '45',
+      color: 'bg-lips-green-light/10 text-lips-green-light',
+    },
+  ];
 
   return (
     <section
@@ -69,18 +67,16 @@ export default function PublicationsSection() {
           className="text-center mb-16"
         >
           <span className="text-sm font-semibold text-lips-gold tracking-widest uppercase">
-            Ressources
+            {p.publications.sectionTag}
           </span>
           <h2 className="text-3xl md:text-4xl font-bold text-lips-green-dark mt-3 mb-4">
-            Publications & Formations
+            {p.publications.sectionTitle}
           </h2>
           <div className="separator-islamic text-lips-gold text-2xl my-4">
             &#10022;
           </div>
           <p className="text-muted-foreground max-w-2xl mx-auto text-base">
-            Accédez aux ressources pédagogiques, aux avis juridiques et aux
-            communiqués officiels de la LIPS pour nourrir votre pratique
-            religieuse et votre engagement communautaire.
+            {p.publications.sectionDesc}
           </p>
         </motion.div>
 
@@ -119,7 +115,7 @@ export default function PublicationsSection() {
                         {category.description}
                       </p>
                       <div className="flex items-center gap-1 text-xs text-lips-green font-medium mt-3 group-hover:gap-2 transition-all">
-                        Explorer <ArrowRight className="h-3 w-3" />
+                        {p.publications.explore} <ArrowRight className="h-3 w-3" />
                       </div>
                     </div>
                   </div>

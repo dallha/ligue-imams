@@ -37,6 +37,7 @@ import {
   Pencil,
   ChevronRight,
 } from 'lucide-react'
+import { useLanguage } from '@/lib/lips/i18n/language-context'
 
 // --- QR Code SVG Generator ---
 function QrCodeSvg({ size = 80 }: { size?: number }) {
@@ -121,26 +122,27 @@ interface MemberProfile {
 
 // --- Status Badge ---
 function StatusBadge({ status }: { status: string }) {
+  const { p } = useLanguage()
   switch (status) {
     case 'ACTIF':
       return (
         <Badge className="bg-green-100 text-green-800 border-green-200 hover:bg-green-100">
           <CheckCircle2 className="h-3 w-3 mr-1" />
-          ACTIF
+          {p.espaceMembre.statusActive}
         </Badge>
       )
     case 'EXPIRE':
       return (
         <Badge className="bg-red-100 text-red-800 border-red-200 hover:bg-red-100">
           <AlertCircle className="h-3 w-3 mr-1" />
-          EXPIRÉ
+          {p.espaceMembre.statusExpired}
         </Badge>
       )
     case 'EN_ATTENTE':
       return (
         <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200 hover:bg-yellow-100">
           <Clock className="h-3 w-3 mr-1" />
-          EN ATTENTE
+          {p.espaceMembre.statusPending}
         </Badge>
       )
     default:
@@ -150,11 +152,12 @@ function StatusBadge({ status }: { status: string }) {
 
 // --- Role Label ---
 function RoleBadge({ role }: { role: string }) {
+  const { p } = useLanguage()
   const roleMap: Record<string, { label: string; color: string }> = {
-    IMAM: { label: 'Imam', color: 'bg-lips-green/10 text-lips-green border-lips-green/20' },
-    PREDICATEUR: { label: 'Prédicateur', color: 'bg-lips-emerald/10 text-lips-emerald border-lips-emerald/20' },
-    RESPONSABLE_REGIONAL: { label: 'Responsable Régional', color: 'bg-lips-gold/10 text-lips-gold border-lips-gold/20' },
-    MEMBRE_CHOURA: { label: 'Membre Choura', color: 'bg-amber-100 text-amber-700 border-amber-200' },
+    IMAM: { label: p.espaceMembre.roleImam, color: 'bg-lips-green/10 text-lips-green border-lips-green/20' },
+    PREDICATEUR: { label: p.espaceMembre.rolePreacher, color: 'bg-lips-emerald/10 text-lips-emerald border-lips-emerald/20' },
+    RESPONSABLE_REGIONAL: { label: p.espaceMembre.roleRegionalHead, color: 'bg-lips-gold/10 text-lips-gold border-lips-gold/20' },
+    MEMBRE_CHOURA: { label: p.espaceMembre.roleShura, color: 'bg-amber-100 text-amber-700 border-amber-200' },
   }
   const info = roleMap[role] || { label: role, color: 'bg-gray-100 text-gray-700 border-gray-200' }
   return (
@@ -165,8 +168,8 @@ function RoleBadge({ role }: { role: string }) {
 }
 
 // --- Format currency ---
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('fr-FR').format(amount) + ' FCFA'
+function formatCurrency(amount: number, currency: string): string {
+  return new Intl.NumberFormat('fr-FR').format(amount) + ' ' + currency
 }
 
 // --- Format date ---
@@ -198,13 +201,14 @@ function formatDateShort(dateStr: string): string {
 
 // --- Communication type badge ---
 function CommTypeBadge({ type }: { type: string }) {
+  const { p } = useLanguage()
   switch (type) {
     case 'COMMUNIQUE':
-      return <Badge className="bg-lips-green/10 text-lips-green border-lips-green/20 text-xs">Communiqué</Badge>
+      return <Badge className="bg-lips-green/10 text-lips-green border-lips-green/20 text-xs">{p.espaceMembre.commCommunique}</Badge>
     case 'FATWA':
-      return <Badge className="bg-lips-gold/10 text-lips-gold border-lips-gold/20 text-xs">Fatwa</Badge>
+      return <Badge className="bg-lips-gold/10 text-lips-gold border-lips-gold/20 text-xs">{p.espaceMembre.commFatwa}</Badge>
     case 'EVENEMENT':
-      return <Badge className="bg-lips-emerald/10 text-lips-emerald border-lips-emerald/20 text-xs">Événement</Badge>
+      return <Badge className="bg-lips-emerald/10 text-lips-emerald border-lips-emerald/20 text-xs">{p.espaceMembre.commEvent}</Badge>
     default:
       return <Badge variant="secondary" className="text-xs">{type}</Badge>
   }
@@ -212,6 +216,7 @@ function CommTypeBadge({ type }: { type: string }) {
 
 // --- 3D Membership Card ---
 function MemberCard3D({ member }: { member: MemberProfile }) {
+  const { p } = useLanguage()
   const [flipped, setFlipped] = useState(false)
   const card = member.carteMembre
 
@@ -237,18 +242,18 @@ function MemberCard3D({ member }: { member: MemberProfile }) {
                 </div>
                 <div>
                   <div className="text-white font-semibold text-[10px] sm:text-[11px] leading-tight">
-                    LIGUE DES IMAMS ET
+                    {p.espaceMembre.orgLine1}
                   </div>
                   <div className="text-white/70 text-[8px] sm:text-[9px] leading-tight">
-                    PRÉDICATEURS DU SÉNÉGAL
+                    {p.espaceMembre.orgLine2}
                   </div>
                 </div>
               </div>
               <div className="text-right">
                 <div className="text-lips-gold text-[9px] sm:text-[10px] font-semibold tracking-wider">
-                  CARTE MEMBRE
+                  {p.espaceMembre.cardTitle}
                 </div>
-                <div className="text-lips-gold/60 text-[8px] sm:text-[9px]">NATIONALE</div>
+                <div className="text-lips-gold/60 text-[8px] sm:text-[9px]">{p.espaceMembre.nationalLabel}</div>
               </div>
             </div>
             <div className="flex-1 flex items-center px-5 pb-2">
@@ -266,27 +271,27 @@ function MemberCard3D({ member }: { member: MemberProfile }) {
                 </div>
                 <div className="flex-1 space-y-1.5">
                   <div>
-                    <div className="text-white/50 text-[9px] sm:text-[10px] uppercase tracking-wider">Nom</div>
+                    <div className="text-white/50 text-[9px] sm:text-[10px] uppercase tracking-wider">{p.espaceMembre.nameLabel}</div>
                     <div className="text-white font-bold text-sm sm:text-base leading-tight">
                       {member.prenom} {member.nom}
                     </div>
                   </div>
                   <div className="flex gap-3 sm:gap-4">
                     <div>
-                      <div className="text-white/50 text-[9px] sm:text-[10px] uppercase tracking-wider">Rôle</div>
+                      <div className="text-white/50 text-[9px] sm:text-[10px] uppercase tracking-wider">{p.espaceMembre.roleLabel}</div>
                       <div className="text-lips-gold font-semibold text-[10px] sm:text-[11px] leading-tight">
                         {member.role}
                       </div>
                     </div>
                     <div>
-                      <div className="text-white/50 text-[9px] sm:text-[10px] uppercase tracking-wider">Région</div>
+                      <div className="text-white/50 text-[9px] sm:text-[10px] uppercase tracking-wider">{p.espaceMembre.regionLabel}</div>
                       <div className="text-white font-semibold text-[10px] sm:text-[11px] leading-tight">
                         {member.region?.nom || '—'}
                       </div>
                     </div>
                   </div>
                   <div>
-                    <div className="text-white/50 text-[9px] sm:text-[10px] uppercase tracking-wider">Matricule</div>
+                    <div className="text-white/50 text-[9px] sm:text-[10px] uppercase tracking-wider">{p.espaceMembre.matriculeLabel2}</div>
                     <div className="text-white font-mono font-bold text-xs sm:text-sm tracking-wide">
                       {member.matricule}
                     </div>
@@ -297,13 +302,13 @@ function MemberCard3D({ member }: { member: MemberProfile }) {
             <div className="px-5 pb-3 pt-1 flex items-end justify-between">
               <div className="flex items-center gap-3">
                 <div>
-                  <div className="text-white/40 text-[8px] sm:text-[9px]">Émis le</div>
+                  <div className="text-white/40 text-[8px] sm:text-[9px]">{p.espaceMembre.issuedLabel}</div>
                   <div className="text-white/80 text-[10px] sm:text-[11px] font-medium">
                     {card ? formatDateShort(card.dateEmission) : '—'}
                   </div>
                 </div>
                 <div>
-                  <div className="text-white/40 text-[8px] sm:text-[9px]">Expire le</div>
+                  <div className="text-white/40 text-[8px] sm:text-[9px]">{p.espaceMembre.expiresLabel}</div>
                   <div className="text-lips-gold text-[10px] sm:text-[11px] font-bold">
                     {card ? formatDateShort(card.dateExpiration) : '—'}
                   </div>
@@ -329,14 +334,14 @@ function MemberCard3D({ member }: { member: MemberProfile }) {
                 بِالصَّبْرِ وَالْيَقِينِ
               </p>
               <div className="text-white font-bold text-xs text-center mb-1">
-                LIGUE DES IMAMS ET PRÉDICATEURS DU SÉNÉGAL
+                {p.espaceMembre.orgLine1} {p.espaceMembre.orgLine2}
               </div>
               <div className="text-white/50 text-[10px] sm:text-[11px] text-center mb-4">
-                Institution Nationale de Référence
+                {p.espaceMembre.institutionLabel}
               </div>
               <div className="w-full bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/10 mb-3">
                 <div className="text-center text-[10px] sm:text-[11px] text-white/60 mb-1">
-                  Vérifiez la validité de cette carte
+                  {p.espaceMembre.verifyText}
                 </div>
                 <div className="text-center text-white font-mono text-[10px] sm:text-xs">
                   https://lips.sn/verifier/{member.matricule}
@@ -350,8 +355,7 @@ function MemberCard3D({ member }: { member: MemberProfile }) {
             </div>
             <div className="px-5 pb-3">
               <div className="text-white/30 text-[8px] sm:text-[9px] text-center leading-relaxed">
-                Cette carte est la propriété de la LIPS. Toute falsification ou utilisation non autorisée
-                est passible de poursuites. En cas de perte, contactez immédiatement le secrétariat général.
+                {p.espaceMembre.legalNotice}
               </div>
             </div>
             <div className="h-1 bg-gradient-to-r from-lips-gold via-lips-gold-light to-lips-gold" />
@@ -367,7 +371,7 @@ function MemberCard3D({ member }: { member: MemberProfile }) {
           className="text-lips-green hover:text-lips-green-dark hover:bg-lips-green/5"
         >
           <RotateCw className="h-3.5 w-3.5 mr-1.5" />
-          {flipped ? 'Voir le recto' : 'Voir le verso'}
+          {flipped ? p.espaceMembre.cardFront : p.espaceMembre.cardBack}
         </Button>
       </div>
     </div>
@@ -405,6 +409,7 @@ function QuickLinkCard({ icon: Icon, title, description, href, color }: {
 
 // --- Main Dashboard ---
 export default function EspaceMembreDashboard() {
+  const { p } = useLanguage()
   const [member, setMember] = useState<MemberProfile | null>(null)
   const [loading, setLoading] = useState(true)
   const [editOpen, setEditOpen] = useState(false)
@@ -427,15 +432,15 @@ export default function EspaceMembreDashboard() {
       <div className="flex items-center justify-center py-20">
         <div className="flex flex-col items-center gap-3">
           <div className="h-8 w-8 border-2 border-lips-green/30 border-t-lips-green rounded-full animate-spin" />
-          <p className="text-sm text-muted-foreground">Chargement de votre espace...</p>
+          <p className="text-sm text-muted-foreground">{p.espaceMembre.loading}</p>
         </div>
       </div>
     )
   }
 
   const totalCotisations = member.paiements
-    .filter(p => p.type === 'COTISATION')
-    .reduce((sum, p) => sum + p.montant, 0)
+    .filter(pay => pay.type === 'COTISATION')
+    .reduce((sum, pay) => sum + pay.montant, 0)
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6 space-y-8">
@@ -455,7 +460,7 @@ export default function EspaceMembreDashboard() {
           </Avatar>
           <div className="flex-1">
             <h1 className="text-xl sm:text-2xl font-bold">
-              As-salamou &apos;alaykoum, {member.prenom} {member.nom}!
+              {p.espaceMembre.greeting}, {member.prenom} {member.nom}!
             </h1>
             <div className="flex flex-wrap items-center gap-2 mt-2">
               <RoleBadge role={member.role} />
@@ -475,7 +480,7 @@ export default function EspaceMembreDashboard() {
             </div>
           </div>
           <div className="text-left sm:text-right">
-            <div className="text-white/50 text-xs">Matricule</div>
+            <div className="text-white/50 text-xs">{p.espaceMembre.matriculeLabel}</div>
             <div className="font-mono font-bold text-lips-gold text-sm">{member.matricule}</div>
           </div>
         </div>
@@ -496,13 +501,13 @@ export default function EspaceMembreDashboard() {
                 <div>
                   <CardTitle className="text-lg text-lips-green-dark flex items-center gap-2">
                     <Shield className="h-5 w-5 text-lips-green" />
-                    Ma Carte Membre
+                    {p.espaceMembre.myCard}
                   </CardTitle>
-                  <CardDescription>Votre carte d&apos;identification officielle</CardDescription>
+                  <CardDescription>{p.espaceMembre.cardDesc}</CardDescription>
                 </div>
                 <Badge className="bg-lips-green/10 text-lips-green border-lips-green/20">
                   <CheckCircle2 className="h-3 w-3 mr-1" />
-                  Valide
+                  {p.espaceMembre.validLabel}
                 </Badge>
               </div>
             </CardHeader>
@@ -528,45 +533,45 @@ export default function EspaceMembreDashboard() {
                       <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
                       <circle cx="12" cy="7" r="4" />
                     </svg>
-                    Informations Personnelles
+                    {p.espaceMembre.profileTitle}
                   </CardTitle>
-                  <CardDescription>Vos données de profil</CardDescription>
+                  <CardDescription>{p.espaceMembre.profileDesc}</CardDescription>
                 </div>
                 <Dialog open={editOpen} onOpenChange={setEditOpen}>
                   <DialogTrigger asChild>
                     <Button variant="ghost" size="sm" className="text-lips-green hover:text-lips-green-dark hover:bg-lips-green/5">
                       <Pencil className="h-4 w-4 mr-1.5" />
-                      Modifier
+                      {p.espaceMembre.editBtn}
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="sm:max-w-md">
                     <DialogHeader>
-                      <DialogTitle>Modifier mon profil</DialogTitle>
+                      <DialogTitle>{p.espaceMembre.editProfile}</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4 py-4">
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label htmlFor="edit-prenom">Prénom</Label>
+                          <Label htmlFor="edit-prenom">{p.espaceMembre.firstName}</Label>
                           <Input id="edit-prenom" defaultValue={member.prenom} />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="edit-nom">Nom</Label>
+                          <Label htmlFor="edit-nom">{p.espaceMembre.lastName}</Label>
                           <Input id="edit-nom" defaultValue={member.nom} />
                         </div>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="edit-email">Email</Label>
+                        <Label htmlFor="edit-email">{p.espaceMembre.email}</Label>
                         <Input id="edit-email" type="email" defaultValue={member.email} />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="edit-tel">Téléphone</Label>
+                        <Label htmlFor="edit-tel">{p.espaceMembre.phone}</Label>
                         <Input id="edit-tel" defaultValue={member.telephone} />
                       </div>
                       <Button
                         className="w-full bg-lips-green hover:bg-lips-green-dark text-white"
                         onClick={() => setEditOpen(false)}
                       >
-                        Enregistrer les modifications
+                        {p.espaceMembre.saveChanges}
                       </Button>
                     </div>
                   </DialogContent>
@@ -577,7 +582,7 @@ export default function EspaceMembreDashboard() {
               {/* Matricule */}
               <div className="bg-lips-green/5 rounded-lg p-3 flex items-center justify-between">
                 <div>
-                  <div className="text-xs text-muted-foreground">Matricule National</div>
+                  <div className="text-xs text-muted-foreground">{p.espaceMembre.nationalMatricule}</div>
                   <div className="font-mono font-bold text-lips-green-dark">{member.matricule}</div>
                 </div>
                 <StatusBadge status={member.status} />
@@ -586,27 +591,27 @@ export default function EspaceMembreDashboard() {
               {/* Personal Info Grid */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <div className="text-xs text-muted-foreground">Nom</div>
+                  <div className="text-xs text-muted-foreground">{p.espaceMembre.lastName}</div>
                   <div className="text-sm font-medium">{member.nom}</div>
                 </div>
                 <div>
-                  <div className="text-xs text-muted-foreground">Prénom</div>
+                  <div className="text-xs text-muted-foreground">{p.espaceMembre.firstName}</div>
                   <div className="text-sm font-medium">{member.prenom}</div>
                 </div>
                 <div>
-                  <div className="text-xs text-muted-foreground">Email</div>
+                  <div className="text-xs text-muted-foreground">{p.espaceMembre.email}</div>
                   <div className="text-sm font-medium truncate">{member.email}</div>
                 </div>
                 <div>
-                  <div className="text-xs text-muted-foreground">Téléphone</div>
+                  <div className="text-xs text-muted-foreground">{p.espaceMembre.phone}</div>
                   <div className="text-sm font-medium">{member.telephone}</div>
                 </div>
                 <div>
-                  <div className="text-xs text-muted-foreground">Région</div>
+                  <div className="text-xs text-muted-foreground">{p.espaceMembre.region}</div>
                   <div className="text-sm font-medium">{member.region?.nom || '—'}</div>
                 </div>
                 <div>
-                  <div className="text-xs text-muted-foreground">Mosquée</div>
+                  <div className="text-xs text-muted-foreground">{p.espaceMembre.mosque}</div>
                   <div className="text-sm font-medium truncate">{member.mosque?.nom || '—'}</div>
                 </div>
               </div>
@@ -638,19 +643,19 @@ export default function EspaceMembreDashboard() {
               <div>
                 <CardTitle className="text-lg text-lips-green-dark flex items-center gap-2">
                   <CreditCard className="h-5 w-5 text-lips-green" />
-                  Cotisations & Paiements
+                  {p.espaceMembre.paymentsTitle}
                 </CardTitle>
-                <CardDescription>Historique de vos paiements</CardDescription>
+                <CardDescription>{p.espaceMembre.paymentsDesc}</CardDescription>
               </div>
               <div className="flex items-center gap-3">
                 <div className="text-right">
-                  <div className="text-xs text-muted-foreground">Total cotisations</div>
-                  <div className="text-lg font-bold text-lips-green">{formatCurrency(totalCotisations)}</div>
+                  <div className="text-xs text-muted-foreground">{p.espaceMembre.totalContributions}</div>
+                  <div className="text-lg font-bold text-lips-green">{formatCurrency(totalCotisations, p.espaceMembre.currency)}</div>
                 </div>
                 <Button asChild size="sm" className="bg-lips-green hover:bg-lips-green-dark text-white">
                   <Link href="/faire-un-don">
                     <Heart className="h-4 w-4 mr-1.5" />
-                    Payer ma cotisation
+                    {p.espaceMembre.payContribution}
                   </Link>
                 </Button>
               </div>
@@ -663,33 +668,33 @@ export default function EspaceMembreDashboard() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="bg-lips-green/5">
-                      <th className="text-left p-3 font-medium text-muted-foreground">Type</th>
-                      <th className="text-left p-3 font-medium text-muted-foreground">Montant</th>
-                      <th className="text-left p-3 font-medium text-muted-foreground">Date</th>
-                      <th className="text-left p-3 font-medium text-muted-foreground">Méthode</th>
-                      <th className="text-left p-3 font-medium text-muted-foreground">Référence</th>
+                      <th className="text-left p-3 font-medium text-muted-foreground">{p.espaceMembre.tableType}</th>
+                      <th className="text-left p-3 font-medium text-muted-foreground">{p.espaceMembre.tableAmount}</th>
+                      <th className="text-left p-3 font-medium text-muted-foreground">{p.espaceMembre.tableDate}</th>
+                      <th className="text-left p-3 font-medium text-muted-foreground">{p.espaceMembre.tableMethod}</th>
+                      <th className="text-left p-3 font-medium text-muted-foreground">{p.espaceMembre.tableReference}</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {member.paiements.map((p) => (
-                      <tr key={p.id} className="border-t hover:bg-muted/50 transition-colors">
+                    {member.paiements.map((pay) => (
+                      <tr key={pay.id} className="border-t hover:bg-muted/50 transition-colors">
                         <td className="p-3">
                           <Badge
                             className={
-                              p.type === 'COTISATION'
+                              pay.type === 'COTISATION'
                                 ? 'bg-lips-green/10 text-lips-green border-lips-green/20'
-                                : p.type === 'DON'
+                                : pay.type === 'DON'
                                 ? 'bg-lips-gold/10 text-lips-gold border-lips-gold/20'
                                 : 'bg-amber-100 text-amber-700 border-amber-200'
                             }
                           >
-                            {p.type}
+                            {pay.type}
                           </Badge>
                         </td>
-                        <td className="p-3 font-medium">{formatCurrency(p.montant)}</td>
-                        <td className="p-3 text-muted-foreground">{formatDate(p.datePaiement)}</td>
-                        <td className="p-3">{p.methode}</td>
-                        <td className="p-3 font-mono text-xs text-muted-foreground">{p.referenceTrans}</td>
+                        <td className="p-3 font-medium">{formatCurrency(pay.montant, p.espaceMembre.currency)}</td>
+                        <td className="p-3 text-muted-foreground">{formatDate(pay.datePaiement)}</td>
+                        <td className="p-3">{pay.methode}</td>
+                        <td className="p-3 font-mono text-xs text-muted-foreground">{pay.referenceTrans}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -699,27 +704,27 @@ export default function EspaceMembreDashboard() {
 
             {/* Mobile Cards */}
             <div className="sm:hidden space-y-3 max-h-96 overflow-y-auto">
-              {member.paiements.map((p) => (
-                <div key={p.id} className="rounded-lg border p-3 space-y-2">
+              {member.paiements.map((pay) => (
+                <div key={pay.id} className="rounded-lg border p-3 space-y-2">
                   <div className="flex items-center justify-between">
                     <Badge
                       className={
-                        p.type === 'COTISATION'
+                        pay.type === 'COTISATION'
                           ? 'bg-lips-green/10 text-lips-green border-lips-green/20'
-                          : p.type === 'DON'
+                          : pay.type === 'DON'
                           ? 'bg-lips-gold/10 text-lips-gold border-lips-gold/20'
                           : 'bg-amber-100 text-amber-700 border-amber-200'
                       }
                     >
-                      {p.type}
+                      {pay.type}
                     </Badge>
-                    <span className="font-bold text-lips-green-dark">{formatCurrency(p.montant)}</span>
+                    <span className="font-bold text-lips-green-dark">{formatCurrency(pay.montant, p.espaceMembre.currency)}</span>
                   </div>
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span>{formatDate(p.datePaiement)}</span>
-                    <span>{p.methode}</span>
+                    <span>{formatDate(pay.datePaiement)}</span>
+                    <span>{pay.methode}</span>
                   </div>
-                  <div className="text-xs text-muted-foreground font-mono">{p.referenceTrans}</div>
+                  <div className="text-xs text-muted-foreground font-mono">{pay.referenceTrans}</div>
                 </div>
               ))}
             </div>
@@ -735,34 +740,34 @@ export default function EspaceMembreDashboard() {
       >
         <h2 className="text-lg font-bold text-lips-green-dark mb-4 flex items-center gap-2">
           <ChevronRight className="h-5 w-5 text-lips-green" />
-          Accès Rapides
+          {p.espaceMembre.quickLinks}
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <QuickLinkCard
             icon={Shield}
-            title="Vérifier ma carte"
-            description="Vérification QR Code"
+            title={p.espaceMembre.verifyCard}
+            description={p.espaceMembre.qrVerification}
             href="/verifier-carte"
             color="bg-lips-green/10 text-lips-green"
           />
           <QuickLinkCard
             icon={CalendarDays}
-            title="Calendrier LIPS"
-            description="Agenda & événements"
+            title={p.espaceMembre.lipsCalendar}
+            description={p.espaceMembre.agendaEvents}
             href="/agenda"
             color="bg-lips-gold/10 text-lips-gold"
           />
           <QuickLinkCard
             icon={BookOpen}
-            title="Le Saint Coran"
-            description="Lecture & écoute"
+            title={p.espaceMembre.holyQuran}
+            description={p.espaceMembre.readListen}
             href="/coran"
             color="bg-lips-emerald/10 text-lips-emerald"
           />
           <QuickLinkCard
             icon={Heart}
-            title="Faire un don"
-            description="Soutenir la LIPS"
+            title={p.espaceMembre.makeDonation}
+            description={p.espaceMembre.supportLips}
             href="/faire-un-don"
             color="bg-rose-50 text-rose-600"
           />
@@ -781,13 +786,13 @@ export default function EspaceMembreDashboard() {
               <div>
                 <CardTitle className="text-lg text-lips-green-dark flex items-center gap-2">
                   <FileText className="h-5 w-5 text-lips-green" />
-                  Dernières Communications
+                  {p.espaceMembre.communicationsTitle}
                 </CardTitle>
-                <CardDescription>Communiqués et fatwas récents de la LIPS</CardDescription>
+                <CardDescription>{p.espaceMembre.communicationsDesc}</CardDescription>
               </div>
               <Button asChild variant="ghost" size="sm" className="text-lips-green hover:text-lips-green-dark">
                 <Link href="/actualites">
-                  Voir tout
+                  {p.espaceMembre.seeAll}
                   <ChevronRight className="h-4 w-4 ml-1" />
                 </Link>
               </Button>
@@ -825,7 +830,7 @@ export default function EspaceMembreDashboard() {
                 ))
               ) : (
                 <p className="text-sm text-muted-foreground text-center py-6">
-                  Aucune communication récente
+                  {p.espaceMembre.noCommunications}
                 </p>
               )}
             </div>

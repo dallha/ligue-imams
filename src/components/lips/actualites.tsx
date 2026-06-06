@@ -13,6 +13,7 @@ import {
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { useLanguage } from '@/lib/lips/i18n/language-context';
 
 interface Article {
   id: number;
@@ -110,6 +111,7 @@ const TYPE_COLORS: Record<string, string> = {
 };
 
 export default function ActualitesSection() {
+  const { p } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
 
@@ -134,17 +136,17 @@ export default function ActualitesSection() {
         >
           <div>
             <span className="text-sm font-semibold text-lips-gold tracking-widest uppercase">
-              Actualités
+              {p.actualitesPage.sectionTag}
             </span>
             <h2 className="text-3xl md:text-4xl font-bold text-lips-green-dark mt-3 mb-2">
-              Communiqués & Publications
+              {p.actualitesPage.sectionTitle}
             </h2>
             <p className="text-muted-foreground max-w-xl text-sm">
-              Restez informé des positions officielles, avis juridiques, formations et annonces de la LIPS.
+              {p.actualitesPage.sectionDesc}
             </p>
           </div>
           <Button variant="outline" className="border-lips-green/30 text-lips-green hover:bg-lips-green/5 mt-4 md:mt-0">
-            Voir toutes les publications
+            {p.actualitesPage.viewAll}
             <ArrowRight className="h-4 w-4 ml-2" />
           </Button>
         </motion.div>
@@ -189,11 +191,11 @@ export default function ActualitesSection() {
                         {featured.auteur}
                       </span>
                       {!featured.lu && (
-                        <Badge className="bg-red-500 text-white text-[10px]">Nouveau</Badge>
+                        <Badge className="bg-red-500 text-white text-[10px]">{p.actualitesPage.newBadge}</Badge>
                       )}
                     </div>
                     <div className="flex items-center gap-1.5 text-lips-green text-sm font-medium group-hover:gap-2.5 transition-all">
-                      Lire le communiqué complet <ArrowRight className="h-4 w-4" />
+                      {p.actualitesPage.readFull} <ArrowRight className="h-4 w-4" />
                     </div>
                   </div>
                   <div className="mt-6 pt-4 border-t border-border/50">
@@ -224,7 +226,7 @@ export default function ActualitesSection() {
                       {article.categorie}
                     </Badge>
                     {!article.lu && (
-                      <Badge className="bg-red-500 text-white text-[10px]">Nouveau</Badge>
+                      <Badge className="bg-red-500 text-white text-[10px]">{p.actualitesPage.newBadge}</Badge>
                     )}
                   </div>
                   <h4 className="font-semibold text-lips-green-dark text-sm mb-1.5 group-hover:text-lips-green transition-colors leading-snug">

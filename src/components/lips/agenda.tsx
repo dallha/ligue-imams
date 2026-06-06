@@ -16,6 +16,7 @@ import {
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { useLanguage } from '@/lib/lips/i18n/language-context';
 
 // ─── Hijri Calculation ───────────────────────────────────────────
 
@@ -249,6 +250,7 @@ interface CalendarGridProps {
 }
 
 function CalendarGrid({ year, month, type, onNavigate }: CalendarGridProps) {
+  const { p } = useLanguage();
   const today = new Date();
   const todayHijri = gregorianToHijri(today);
 
@@ -276,7 +278,7 @@ function CalendarGrid({ year, month, type, onNavigate }: CalendarGridProps) {
           size="icon"
           onClick={() => onNavigate('prev')}
           className="h-8 w-8 text-white hover:bg-white/10"
-          aria-label="Mois précédent"
+          aria-label={p.agendaComp.prevMonth}
         >
           <ChevronLeft className="h-4 w-4" />
         </Button>
@@ -291,7 +293,7 @@ function CalendarGrid({ year, month, type, onNavigate }: CalendarGridProps) {
           size="icon"
           onClick={() => onNavigate('next')}
           className="h-8 w-8 text-white hover:bg-white/10"
-          aria-label="Mois suivant"
+          aria-label={p.agendaComp.nextMonth}
         >
           <ChevronRight className="h-4 w-4" />
         </Button>
@@ -392,6 +394,7 @@ function CalendarGrid({ year, month, type, onNavigate }: CalendarGridProps) {
 // ─── Islamic Events List ──────────────────────────────────────────
 
 function IslamicEventsList() {
+  const { p } = useLanguage();
   const today = new Date();
   const todayHijri = gregorianToHijri(today);
 
@@ -434,7 +437,7 @@ function IslamicEventsList() {
     <div className="space-y-3">
       <h3 className="text-lg font-bold text-lips-green-dark flex items-center gap-2">
         <MoonStar className="h-5 w-5 text-lips-gold" />
-        Prochains événements islamiques
+        {p.agendaComp.upcomingIslamic}
       </h3>
       <div className="space-y-2">
         {upcomingEvents.map(({ event, gregorianDate, daysAway, hijriYear }) => (
@@ -456,7 +459,7 @@ function IslamicEventsList() {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <span className="font-medium text-sm text-lips-green-dark truncate">
-                  {event.nameFr}
+                  {event.nameAr}
                 </span>
                 <span className="font-arabic text-xs text-lips-gold shrink-0">
                   {event.nameAr}
@@ -470,12 +473,12 @@ function IslamicEventsList() {
             {/* Countdown */}
             <div className="shrink-0 text-right">
               {daysAway <= 0 ? (
-                <Badge className="bg-lips-gold text-white text-xs">Aujourd&apos;hui</Badge>
+                <Badge className="bg-lips-gold text-white text-xs">{p.agendaComp.today}</Badge>
               ) : daysAway <= 7 ? (
-                <Badge className="bg-lips-green text-white text-xs">Dans {daysAway}j</Badge>
+                <Badge className="bg-lips-green text-white text-xs">{p.agendaComp.inDays.replace('{n}', String(daysAway))}</Badge>
               ) : (
                 <span className="text-xs text-muted-foreground font-medium">
-                  {daysAway} jours
+                  {p.agendaComp.days.replace('{n}', String(daysAway))}
                 </span>
               )}
             </div>
@@ -489,10 +492,11 @@ function IslamicEventsList() {
 // ─── LIPS Events List View ────────────────────────────────────────
 
 function LIPSEventsListView({ filter }: { filter: string }) {
+  const { p } = useLanguage();
   const filteredEvents = useMemo(() => {
-    if (filter === 'Tous') return LIPS_EVENTS;
+    if (filter === p.agendaComp.filterAll) return LIPS_EVENTS;
     return LIPS_EVENTS.filter((e) => e.category === filter);
-  }, [filter]);
+  }, [filter, p.agendaComp.filterAll]);
 
   const sortedEvents = useMemo(() => {
     return [...filteredEvents].sort((a, b) => a.date.getTime() - b.date.getTime());
@@ -536,7 +540,7 @@ function LIPSEventsListView({ filter }: { filter: string }) {
                         </Badge>
                         {daysAway <= 30 && daysAway >= 0 && (
                           <Badge variant="outline" className="text-xs border-lips-gold/30 text-lips-gold">
-                            Dans {daysAway} jours
+                            {p.agendaComp.inDays.replace('{n}', String(daysAway))}
                           </Badge>
                         )}
                       </div>
@@ -575,22 +579,23 @@ function LIPSEventsListView({ filter }: { filter: string }) {
 // ─── Legend ────────────────────────────────────────────────────────
 
 function CalendarLegend() {
+  const { p } = useLanguage();
   return (
     <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground mt-3">
       <span className="flex items-center gap-1">
-        <span className="h-2 w-2 rounded-full bg-lips-green" /> Date islamique
+        <span className="h-2 w-2 rounded-full bg-lips-green" /> {p.agendaComp.legend.islamicDate}
       </span>
       <span className="flex items-center gap-1">
-        <Star className="h-2.5 w-2.5 text-lips-gold fill-current" /> Aïd
+        <Star className="h-2.5 w-2.5 text-lips-gold fill-current" /> {p.agendaComp.legend.aid}
       </span>
       <span className="flex items-center gap-1">
-        <span className="h-2 w-2 rounded-full bg-lips-gold" /> Événement islamique
+        <span className="h-2 w-2 rounded-full bg-lips-gold" /> {p.agendaComp.legend.islamicEvent}
       </span>
       <span className="flex items-center gap-1">
-        <span className="h-2 w-2 rounded-full bg-lips-emerald" /> Événement LIPS
+        <span className="h-2 w-2 rounded-full bg-lips-emerald" /> {p.agendaComp.legend.lipsEvent}
       </span>
       <span className="flex items-center gap-1">
-        <span className="ring-2 ring-lips-gold rounded h-2 w-2" /> Aujourd&apos;hui
+        <span className="ring-2 ring-lips-gold rounded h-2 w-2" /> {p.agendaComp.today}
       </span>
     </div>
   );
@@ -599,12 +604,13 @@ function CalendarLegend() {
 // ─── Main AgendaSection ───────────────────────────────────────────
 
 export default function AgendaSection() {
+  const { p } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
 
   const [viewMode, setViewMode] = useState<'calendar' | 'list'>('calendar');
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [filter, setFilter] = useState('Tous');
+  const [filter, setFilter] = useState(p.agendaComp.filterAll);
 
   const currentYear = currentDate.getFullYear();
   const currentMonth = currentDate.getMonth();
@@ -625,7 +631,7 @@ export default function AgendaSection() {
     });
   }
 
-  const filterOptions = ['Tous', 'Assemblée', 'Formation', 'Colloque', 'Conférence'];
+  const filterOptions = [p.agendaComp.filterAll, 'Assemblée', 'Formation', 'Colloque', 'Conférence'];
 
   return (
     <section
@@ -645,17 +651,16 @@ export default function AgendaSection() {
           className="text-center mb-12"
         >
           <span className="text-sm font-semibold text-lips-gold tracking-widest uppercase">
-            Calendrier & Événements
+            {p.agendaComp.sectionTag}
           </span>
           <h2 className="text-3xl md:text-4xl font-bold text-lips-green-dark mt-3 mb-4">
-            Agenda LIPS
+            {p.agendaComp.sectionTitle}
           </h2>
           <div className="separator-islamic text-lips-gold text-2xl my-4">
             &#10022;
           </div>
           <p className="text-muted-foreground max-w-2xl mx-auto text-base">
-            Consultez le calendrier grégorien et hégirien, les dates islamiques importantes
-            et les événements organisés par la LIPS à travers le Sénégal.
+            {p.agendaComp.sectionDesc}
           </p>
         </motion.div>
 
@@ -679,7 +684,7 @@ export default function AgendaSection() {
               }
             >
               <CalendarDays className="h-4 w-4" />
-              Calendrier
+              {p.agendaComp.calendar}
             </Button>
             <Button
               variant={viewMode === 'list' ? 'default' : 'ghost'}
@@ -692,7 +697,7 @@ export default function AgendaSection() {
               }
             >
               <List className="h-4 w-4" />
-              Liste
+              {p.agendaComp.list}
             </Button>
           </div>
 
@@ -754,11 +759,11 @@ export default function AgendaSection() {
             <div className="mt-8">
               <h3 className="text-lg font-bold text-lips-green-dark flex items-center gap-2 mb-4">
                 <CalendarDays className="h-5 w-5 text-lips-green" />
-                Événements LIPS à venir
+                {p.agendaComp.upcomingLips}
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {LIPS_EVENTS
-                  .filter((e) => filter === 'Tous' || e.category === filter)
+                  .filter((e) => filter === p.agendaComp.filterAll || e.category === filter)
                   .sort((a, b) => a.date.getTime() - b.date.getTime())
                   .map((event, index) => {
                     const hijri = gregorianToHijri(event.date);
@@ -786,7 +791,7 @@ export default function AgendaSection() {
                                   </Badge>
                                   {daysAway >= 0 && daysAway <= 30 && (
                                     <span className="text-[10px] text-lips-gold font-medium">
-                                      Dans {daysAway}j
+                                      {p.agendaComp.inDays.replace('{n}', String(daysAway))}
                                     </span>
                                   )}
                                 </div>

@@ -11,8 +11,10 @@ import {
 import { REGIONS_DATA } from '@/lib/lips/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { useLanguage } from '@/lib/lips/i18n/language-context';
 
 export default function RegionsSection() {
+  const { p } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
 
@@ -34,19 +36,16 @@ export default function RegionsSection() {
           className="text-center mb-16"
         >
           <span className="text-sm font-semibold text-lips-gold tracking-widest uppercase">
-            Présence Nationale
+            {p.regionsPage.sectionTag}
           </span>
           <h2 className="text-3xl md:text-4xl font-bold text-lips-green-dark mt-3 mb-4">
-            Nos 14 Régions
+            {p.regionsPage.sectionTitle}
           </h2>
           <div className="separator-islamic text-lips-gold text-2xl my-4">
             &#10022;
           </div>
           <p className="text-muted-foreground max-w-2xl mx-auto text-base">
-            La LIPS est implantée dans les 14 régions administratives du Sénégal,
-            garantissant une couverture institutionnelle complète et un
-            accompagnement de proximité pour tous les imams et prédicateurs du
-            pays.
+            {p.regionsPage.sectionDesc}
           </p>
         </motion.div>
 
@@ -86,7 +85,7 @@ export default function RegionsSection() {
                       <div className="flex items-center gap-1.5">
                         <Users className="h-3 w-3 text-lips-green-light" />
                         <span>
-                          {region.population.toLocaleString('fr-FR')} hab.
+                          {region.population.toLocaleString('fr-FR')} {p.regionsPage.inhabitants}
                         </span>
                       </div>
                     )}
@@ -94,7 +93,7 @@ export default function RegionsSection() {
                       <div className="flex items-center gap-1.5">
                         <Building className="h-3 w-3 text-lips-gold" />
                         <span>
-                          {region.mosqueCount.toLocaleString('fr-FR')} mosquées
+                          {region.mosqueCount.toLocaleString('fr-FR')} {p.regionsPage.mosques}
                         </span>
                       </div>
                     )}
@@ -124,22 +123,22 @@ export default function RegionsSection() {
           <div className="inline-flex flex-wrap items-center justify-center gap-4 sm:gap-6 bg-white/80 backdrop-blur-sm rounded-xl px-4 sm:px-8 py-4 border border-border/50 shadow-sm">
             <div className="text-center">
               <div className="text-2xl font-bold text-lips-green">14</div>
-              <div className="text-xs text-muted-foreground">Régions</div>
+              <div className="text-xs text-muted-foreground">{p.regionsPage.summaryRegions}</div>
             </div>
             <div className="w-px h-10 bg-border hidden sm:block" />
             <div className="text-center">
               <div className="text-2xl font-bold text-lips-green">46</div>
-              <div className="text-xs text-muted-foreground">Départements</div>
+              <div className="text-xs text-muted-foreground">{p.regionsPage.summaryDepartments}</div>
             </div>
             <div className="w-px h-10 bg-border hidden sm:block" />
             <div className="text-center">
               <div className="text-2xl font-bold text-lips-gold">15 000+</div>
-              <div className="text-xs text-muted-foreground">Mosquées</div>
+              <div className="text-xs text-muted-foreground">{p.regionsPage.summaryMosques}</div>
             </div>
             <div className="w-px h-10 bg-border hidden sm:block" />
             <div className="text-center">
               <div className="text-2xl font-bold text-lips-emerald">5 000+</div>
-              <div className="text-xs text-muted-foreground">Membres</div>
+              <div className="text-xs text-muted-foreground">{p.regionsPage.summaryMembers}</div>
             </div>
           </div>
         </motion.div>

@@ -10,55 +10,51 @@ import {
   Globe,
   Heart,
 } from 'lucide-react';
-
-const PILLARS = [
-  {
-    icon: Target,
-    title: 'Unité Institutionnelle',
-    titleAr: 'الوحدة المؤسسية',
-    description:
-      'Fédérer l\'ensemble des imams et prédicateurs du Sénégal au sein d\'un cadre institutionnel unique, porteur d\'une vision commune et garante de la cohésion de la communauté musulmane dans toute sa diversité.',
-  },
-  {
-    icon: GraduationCap,
-    title: 'Formation Continue',
-    titleAr: 'التكوين المستمر',
-    description:
-      'Offrir aux imams et prédicateurs un programme de formation continue en sciences islamiques, en communication et en gestion communautaire, afin de renforcer leurs compétences et la qualité de leur accompagnement spirituel.',
-  },
-  {
-    icon: Scale,
-    title: 'Paix Sociale',
-    titleAr: 'السلم الاجتماعي',
-    description:
-      'Contribuer activement au maintien de la paix sociale et à la promotion du dialogue interreligieux, en s\'érigeant comme acteur de référence dans la résolution des tensions communautaires et la prévention de l\'extrémisme.',
-  },
-  {
-    icon: Handshake,
-    title: 'Représentation Nationale',
-    titleAr: 'التمثيل الوطني',
-    description:
-      'Porter la voix des imams auprès des autorités publiques, des institutions et des partenaires internationaux, pour faire valoir les droits et la dignité de la fonction d\'imam dans la société sénégalaise.',
-  },
-  {
-    icon: Globe,
-    title: 'Souveraineté Spirituelle',
-    titleAr: 'السيادة الروحية',
-    description:
-      'Préserver l\'indépendance et la souveraineté de l\'institution religieuse face aux influences extérieures, en consolidant un Islam modéré, ancré dans la tradition malikite et la confrérie tidjane du Sénégal.',
-  },
-  {
-    icon: Heart,
-    title: 'Solidarité Communautaire',
-    titleAr: 'التضامن المجتمعي',
-    description:
-      'Mettre en place des mécanismes de solidarité entre les membres, incluant la couverture sociale, l\'assistance médicale et l\'accompagnement familial, pour améliorer les conditions de vie des imams et de leurs proches.',
-  },
-];
+import { useLanguage } from '@/lib/lips/i18n/language-context';
 
 export default function MissionSection() {
+  const { p } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
+
+  const PILLARS = [
+    {
+      icon: Target,
+      title: p.mission.pillars.unity.title,
+      titleAr: 'الوحدة المؤسسية',
+      description: p.mission.pillars.unity.desc,
+    },
+    {
+      icon: GraduationCap,
+      title: p.mission.pillars.formation.title,
+      titleAr: 'التكوين المستمر',
+      description: p.mission.pillars.formation.desc,
+    },
+    {
+      icon: Scale,
+      title: p.mission.pillars.peace.title,
+      titleAr: 'السلم الاجتماعي',
+      description: p.mission.pillars.peace.desc,
+    },
+    {
+      icon: Handshake,
+      title: p.mission.pillars.representation.title,
+      titleAr: 'التمثيل الوطني',
+      description: p.mission.pillars.representation.desc,
+    },
+    {
+      icon: Globe,
+      title: p.mission.pillars.sovereignty.title,
+      titleAr: 'السيادة الروحية',
+      description: p.mission.pillars.sovereignty.desc,
+    },
+    {
+      icon: Heart,
+      title: p.mission.pillars.solidarity.title,
+      titleAr: 'التضامن المجتمعي',
+      description: p.mission.pillars.solidarity.desc,
+    },
+  ];
 
   return (
     <section
@@ -79,18 +75,16 @@ export default function MissionSection() {
           className="text-center mb-16"
         >
           <span className="text-sm font-semibold text-lips-gold tracking-widest uppercase">
-            Notre Mission
+            {p.mission.sectionTag}
           </span>
           <h2 className="text-3xl md:text-4xl font-bold text-lips-green-dark mt-3 mb-4">
-            Les Piliers de la LIPS
+            {p.mission.sectionTitle}
           </h2>
           <div className="separator-islamic text-lips-gold text-2xl my-4">
             &#10022;
           </div>
           <p className="text-muted-foreground max-w-2xl mx-auto text-base">
-            Six piliers stratégiques guident l&apos;action de la LIPS pour
-            bâtir une institution forte, légitime et au service de la communauté
-            musulmane du Sénégal.
+            {p.mission.sectionDesc}
           </p>
         </motion.div>
 

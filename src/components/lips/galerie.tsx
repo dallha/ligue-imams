@@ -4,6 +4,7 @@ import { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { Camera, Calendar, MapPin, Users } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { useLanguage } from '@/lib/lips/i18n/language-context';
 
 const PHOTOS = [
   {
@@ -57,6 +58,7 @@ const PHOTOS = [
 ];
 
 export default function GalerieSection() {
+  const { p } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
 
@@ -77,14 +79,14 @@ export default function GalerieSection() {
           className="text-center mb-12"
         >
           <span className="text-sm font-semibold text-lips-gold tracking-widest uppercase">
-            Galerie
+            {p.galerie.sectionTag}
           </span>
           <h2 className="text-3xl md:text-4xl font-bold text-lips-green-dark mt-3 mb-4">
-            Nos Moments Institutionnels
+            {p.galerie.sectionTitle}
           </h2>
           <div className="separator-islamic text-lips-gold text-2xl my-4">&#10022;</div>
           <p className="text-muted-foreground max-w-xl mx-auto text-sm">
-            Revivez les temps forts de la vie institutionnelle de la LIPS à travers nos albums photos.
+            {p.galerie.sectionDesc}
           </p>
         </motion.div>
 
@@ -111,7 +113,7 @@ export default function GalerieSection() {
                   <div className="flex justify-between items-start">
                     <Badge className="bg-white/20 backdrop-blur-sm text-white text-[10px] border-0">
                       <Camera className="h-3 w-3 mr-1" />
-                      {photo.count} photos
+                      {photo.count} {p.galerie.photosCount}
                     </Badge>
                   </div>
 
@@ -142,7 +144,7 @@ export default function GalerieSection() {
         {/* Total count */}
         <div className="text-center mt-8">
           <p className="text-sm text-muted-foreground">
-            <strong className="text-lips-green-dark">302 photos</strong> réparties dans <strong className="text-lips-green-dark">6 albums</strong>
+            <strong className="text-lips-green-dark">302 {p.galerie.totalPhotos}</strong>
           </p>
         </div>
       </div>

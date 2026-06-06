@@ -26,6 +26,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { validateMatricule, parseMatricule } from '@/lib/lips/matricule';
 import { REGIONS_DATA } from '@/lib/lips/types';
+import { useLanguage } from '@/lib/lips/i18n/language-context';
 
 interface VerificationResult {
   status: 'valid' | 'expired' | 'pending' | 'not_found';
@@ -39,6 +40,7 @@ interface VerificationResult {
 }
 
 export default function VerificationSection() {
+  const { p } = useLanguage();
   const [matricule, setMatricule] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<VerificationResult | null>(null);
@@ -51,14 +53,12 @@ export default function VerificationSection() {
     setResult(null);
 
     if (!matricule.trim()) {
-      setError('Veuillez saisir un numéro de matricule');
+      setError(p.verification.emptyError);
       return;
     }
 
     if (!validateMatricule(matricule.trim().toUpperCase())) {
-      setError(
-        'Format invalide. Le matricule doit respecter le format : LIPS-2025-DKR-000124'
-      );
+      setError(p.verification.formatError);
       return;
     }
 
@@ -71,7 +71,7 @@ export default function VerificationSection() {
       const data = await response.json();
       setResult(data);
     } catch {
-      setError('Erreur de connexion au serveur. Veuillez réessayer.');
+      setError(p.verification.serverError);
     } finally {
       setLoading(false);
     }
@@ -91,9 +91,10 @@ export default function VerificationSection() {
           color: 'text-green-600',
           bg: 'bg-green-50',
           border: 'border-green-200',
-          label: 'Carte Valide',
+          label: p.verification.valid,
           badgeVariant: 'default' as const,
           badgeClass: 'bg-green-600',
+          badgeText: p.verification.active,
         };
       case 'expired':
         return {
@@ -101,9 +102,10 @@ export default function VerificationSection() {
           color: 'text-red-600',
           bg: 'bg-red-50',
           border: 'border-red-200',
-          label: 'Carte Expirée',
+          label: p.verification.expired,
           badgeVariant: 'destructive' as const,
           badgeClass: '',
+          badgeText: p.verification.expired,
         };
       case 'pending':
         return {
@@ -111,9 +113,10 @@ export default function VerificationSection() {
           color: 'text-amber-600',
           bg: 'bg-amber-50',
           border: 'border-amber-200',
-          label: 'En Attente',
+          label: p.verification.pending,
           badgeVariant: 'secondary' as const,
           badgeClass: '',
+          badgeText: p.verification.pending,
         };
       default:
         return {
@@ -121,9 +124,10 @@ export default function VerificationSection() {
           color: 'text-red-600',
           bg: 'bg-red-50',
           border: 'border-red-200',
-          label: 'Non Trouvé',
+          label: p.verification.notFound,
           badgeVariant: 'destructive' as const,
           badgeClass: '',
+          badgeText: p.verification.notFound,
         };
     }
   };
@@ -150,18 +154,16 @@ export default function VerificationSection() {
           className="text-center mb-12"
         >
           <span className="text-sm font-semibold text-lips-gold tracking-widest uppercase">
-            Vérification
+            {p.verification.sectionTag}
           </span>
           <h2 className="text-3xl md:text-4xl font-bold text-lips-green-dark mt-3 mb-4">
-            Vérifier une Carte Membre
+            {p.verification.sectionTitle}
           </h2>
           <div className="separator-islamic text-lips-gold text-2xl my-4">
             &#10022;
           </div>
           <p className="text-muted-foreground max-w-xl mx-auto text-base">
-            Saisissez le numéro de matricule figurant sur la carte membre pour
-            vérifier instantanément sa validité. Le format est
-            LIPS-ANNÉE-RÉGION-NUMÉRO.
+            {p.verification.sectionDesc}
           </p>
         </motion.div>
 
@@ -180,10 +182,10 @@ export default function VerificationSection() {
                 </div>
                 <div>
                   <CardTitle className="text-white text-lg">
-                    Carte Membre Nationale
+                    {p.verification.nationalCard}
                   </CardTitle>
                   <CardDescription className="text-white/70">
-                    Système de vérification sécurisé LIPS
+                    {p.verification.secureSystem}
                   </CardDescription>
                 </div>
               </div>
@@ -214,7 +216,7 @@ export default function VerificationSection() {
                     ) : (
                       <Shield className="h-4 w-4 mr-2" />
                     )}
-                    {loading ? '' : 'Vérifier'}
+                    {loading ? '' : p.verification.verifyBtn}
                   </Button>
                 </div>
 
@@ -227,7 +229,7 @@ export default function VerificationSection() {
                   >
                     <QrCode className="h-4 w-4 text-lips-green" />
                     <span>
-                      Année : <strong>{parsed.year}</strong> | Région :{' '}
+                      {p.verification.resultYear} : <strong>{parsed.year}</strong> | {p.verification.resultRegion} :{' '}
                       <strong>
                         {matchedRegion.nom} ({matchedRegion.nomAr})
                       </strong>{' '}
@@ -277,13 +279,7 @@ export default function VerificationSection() {
                               variant={config.badgeVariant}
                               className={config.badgeClass}
                             >
-                              {result.status === 'valid'
-                                ? 'ACTIF'
-                                : result.status === 'expired'
-                                  ? 'EXPIRÉ'
-                                  : result.status === 'pending'
-                                    ? 'EN ATTENTE'
-                                    : 'NON TROUVÉ'}
+                              {config.badgeText}
                             </Badge>
                           </div>
 
@@ -293,7 +289,7 @@ export default function VerificationSection() {
                                 <User className="h-4 w-4 text-muted-foreground" />
                                 <div>
                                   <div className="text-xs text-muted-foreground">
-                                    Nom
+                                    {p.verification.resultName}
                                   </div>
                                   <div className="font-medium">
                                     {result.data.nom}
@@ -304,7 +300,7 @@ export default function VerificationSection() {
                                 <MapPin className="h-4 w-4 text-muted-foreground" />
                                 <div>
                                   <div className="text-xs text-muted-foreground">
-                                    Région
+                                    {p.verification.resultRegion}
                                   </div>
                                   <div className="font-medium">
                                     {result.data.region}
@@ -315,7 +311,7 @@ export default function VerificationSection() {
                                 <Shield className="h-4 w-4 text-muted-foreground" />
                                 <div>
                                   <div className="text-xs text-muted-foreground">
-                                    Rôle
+                                    {p.verification.resultRole}
                                   </div>
                                   <div className="font-medium">
                                     {result.data.role}
@@ -326,7 +322,7 @@ export default function VerificationSection() {
                                 <Calendar className="h-4 w-4 text-muted-foreground" />
                                 <div>
                                   <div className="text-xs text-muted-foreground">
-                                    Validité
+                                    {p.verification.resultValidity}
                                   </div>
                                   <div className="font-medium">
                                     {result.data.validite}
@@ -343,7 +339,7 @@ export default function VerificationSection() {
 
                 {/* Format hint */}
                 <div className="text-center text-xs text-muted-foreground">
-                  Format : LIPS-[Année]-[Région]-[N°] — Exemple : LIPS-2025-DKR-000124
+                  {p.verification.formatHint}
                 </div>
               </div>
             </CardContent>
