@@ -34,3 +34,30 @@ Stage Summary:
 - Full CRUD for: Content, Members, Regions, Bureau, Commissions, FAQ, SiteConfig
 - Professional LIPS-branded admin interface
 - All data persisted in SQLite via Prisma
+
+---
+Task ID: 5
+Agent: Main Agent
+Task: Analyse FM6OA + implémentation 4 fonctionnalités + Concours admin + Documentation
+
+Work Log:
+- Analysé le site https://www.fm6oa.org/fr/accueil et 4 sous-pages (fondation, sections, ouléma, publications)
+- Identifié 5 fonctionnalités prioritaires inspirées de FM6OA pour LIPS
+- Implémenté Section Coran (/coran) : récitateurs, index 114 sourates, ressources, verset du jour
+- Implémenté Calendrier Hijri + Agenda (/agenda) : double calendrier, fêtes islamiques, événements LIPS
+- Implémenté Carte Interactive du Sénégal : SVG 14 régions avec hover/tooltips/click-to-scroll
+- Implémenté Espace Membre (/espace-membre) : login, dashboard, carte 3D, profil, cotisations
+- Ajouté section Concours admin (/admin/concours) avec toggle visibilité (caché publiquement)
+- Réorganisé sidebar admin avec sections : Contenu, Organisation, Système
+- Amélioré Prayer Times : dates Grégorienne + Hijri (FR + AR), lien vers /agenda
+- Ajouté Coran et Agenda dans la navigation header
+- Créé documentation technique complète en DOCX
+
+Stage Summary:
+- 7 nouvelles pages publiques : /coran, /agenda, /espace-membre, /espace-membre/login
+- 4 nouvelles pages admin : /admin/coran, /admin/agenda, /admin/concours
+- 3 nouveaux composants : coran.tsx, agenda.tsx, senegal-map.tsx
+- 6 nouvelles API routes : /api/membre/login, /api/membre/me, /api/membre/logout, /api/admin/concours, /api/admin/concours/[id]
+- 1 nouveau modèle Prisma : Concours
+- Build : ✅ 42 pages + 20 API routes
+- Document généré : LIPS-Documentation-Technique-SIIN-v2.docx
