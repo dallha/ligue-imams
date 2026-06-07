@@ -8,20 +8,20 @@ async function main() {
 
   // --- Regions (must be first due to FK) ---
   const regionsData = [
-    { code: 'DKR', nom: 'Dakar', nomAr: 'دكار', population: 3916000, mosqueCount: 2450, latitude: 14.7167, longitude: -17.4677 },
-    { code: 'SLG', nom: 'Saint-Louis', nomAr: 'سان لويس', population: 1074000, mosqueCount: 890, latitude: 16.0326, longitude: -16.4818 },
-    { code: 'LGN', nom: 'Louga', nomAr: 'لوغا', population: 995000, mosqueCount: 720, latitude: 15.6167, longitude: -16.3167 },
-    { code: 'FTK', nom: 'Fatick', nomAr: 'فاتيك', population: 835000, mosqueCount: 640, latitude: 14.1167, longitude: -16.4167 },
-    { code: 'THS', nom: 'Thiès', nomAr: 'ثيس', population: 1788000, mosqueCount: 1280, latitude: 14.7833, longitude: -17.1 },
-    { code: 'KDGN', nom: 'Kédougou', nomAr: 'كيدوغو', population: 175000, mosqueCount: 110, latitude: 12.5667, longitude: -12.2167 },
-    { code: 'KLC', nom: 'Kolda', nomAr: 'كولدا', population: 780000, mosqueCount: 560, latitude: 12.9, longitude: -14.95 },
-    { code: 'MTM', nom: 'Matam', nomAr: 'ماتام', population: 675000, mosqueCount: 480, latitude: 13.25, longitude: -13.25 },
-    { code: 'KDHL', nom: 'Kaolack', nomAr: 'كاولاك', population: 1170000, mosqueCount: 920, latitude: 14.1333, longitude: -16.0833 },
-    { code: 'TMB', nom: 'Tambacounda', nomAr: 'تامباكوندا', population: 830000, mosqueCount: 590, latitude: 13.7667, longitude: -13.6667 },
-    { code: 'ZG', nom: 'Ziguinchor', nomAr: 'زيغينكور', population: 655000, mosqueCount: 420, latitude: 12.5833, longitude: -16.2667 },
-    { code: 'SED', nom: 'Sédhiou', nomAr: 'سيدهيو', population: 520000, mosqueCount: 350, latitude: 12.7, longitude: -15.55 },
-    { code: 'DRL', nom: 'Diourbel', nomAr: 'ديوربل', population: 1980000, mosqueCount: 1580, latitude: 14.65, longitude: -16.2333 },
-    { code: 'KFR', nom: 'Kaffrine', nomAr: 'كفرين', population: 690000, mosqueCount: 510, latitude: 14.1167, longitude: -15.55 },
+    { code: 'DKR', nom: 'Dakar', nomAr: 'دكار', population: 4004425, mosqueCount: 0, latitude: 14.7167, longitude: -17.4677 },
+    { code: 'SLG', nom: 'Saint-Louis', nomAr: 'سان لويس', population: 1202438, mosqueCount: 0, latitude: 16.0326, longitude: -16.4818 },
+    { code: 'LGN', nom: 'Louga', nomAr: 'لوغا', population: 1125910, mosqueCount: 0, latitude: 15.6167, longitude: -16.3167 },
+    { code: 'FTK', nom: 'Fatick', nomAr: 'فاتيك', population: 906922, mosqueCount: 0, latitude: 14.1167, longitude: -16.4167 },
+    { code: 'THS', nom: 'Thiès', nomAr: 'ثيس', population: 2463679, mosqueCount: 0, latitude: 14.7833, longitude: -17.1 },
+    { code: 'KDGN', nom: 'Kédougou', nomAr: 'كيدوغو', population: 245147, mosqueCount: 0, latitude: 12.5667, longitude: -12.2167 },
+    { code: 'KLC', nom: 'Kolda', nomAr: 'كولدا', population: 914797, mosqueCount: 0, latitude: 12.9, longitude: -14.95 },
+    { code: 'MTM', nom: 'Matam', nomAr: 'ماتام', population: 831632, mosqueCount: 0, latitude: 13.25, longitude: -13.25 },
+    { code: 'KDHL', nom: 'Kaolack', nomAr: 'كاولاك', population: 1336718, mosqueCount: 0, latitude: 14.1333, longitude: -16.0833 },
+    { code: 'TMB', nom: 'Tambacounda', nomAr: 'تامباكوندا', population: 987154, mosqueCount: 0, latitude: 13.7667, longitude: -13.6667 },
+    { code: 'ZG', nom: 'Ziguinchor', nomAr: 'زيغينكور', population: 617568, mosqueCount: 0, latitude: 12.5833, longitude: -16.2667 },
+    { code: 'SED', nom: 'Sédhiou', nomAr: 'سيدهيو', population: 589264, mosqueCount: 0, latitude: 12.7, longitude: -15.55 },
+    { code: 'DRL', nom: 'Diourbel', nomAr: 'ديوربل', population: 2080332, mosqueCount: 0, latitude: 14.65, longitude: -16.2333 },
+    { code: 'KFR', nom: 'Kaffrine', nomAr: 'كفرين', population: 820404, mosqueCount: 0, latitude: 14.1167, longitude: -15.55 },
   ];
 
   for (const r of regionsData) {
