@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { db } from '@/lib/db'
+import { compare } from 'bcryptjs'
 import { checkRateLimit, resetRateLimit, getClientIp } from '@/lib/rate-limit'
 
 // Rate limit config: 5 attempts per 15 minutes, then 30 min lockout
@@ -13,11 +15,6 @@ const RATE_LIMIT_CONFIG = {
 // Minimum time for a login response to prevent timing attacks (ms)
 const MIN_RESPONSE_TIME = 300
 
-/**
- * Add an artificial delay so that both "user not found" and
- * "wrong password" responses take roughly the same time, preventing
- * an attacker from distinguishing the two cases by response time.
- */
 async function timingSafeDelay(start: number): Promise<void> {
   const elapsed = Date.now() - start
   if (elapsed < MIN_RESPONSE_TIME) {
@@ -77,7 +74,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Basic email format check
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(email)) {
       await timingSafeDelay(startTime)
@@ -87,7 +83,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Password length check
     if (password.length < 4 || password.length > 128) {
       await timingSafeDelay(startTime)
       return NextResponse.json(
@@ -96,65 +91,26 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // ── 3. Authenticate with Supabase Auth ────────────────────────
-    const supabase = await createClient()
-
-    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-      email: email.toLowerCase().trim(),
-      password,
-    })
-
-    if (authError || !authData.user) {
-      await timingSafeDelay(startTime)
-
-      // Log l'erreur exacte pour le débogage
-      console.error('Supabase auth error:', authError?.message, authError?.code, authError?.status)
-
-      // Vérifier si l'email n'est pas confirmé
-      const errorMessage = authError?.message?.toLowerCase() || ''
-      const errorCode = authError?.code || ''
-
-      if (
-        errorMessage.includes('email not confirmed') ||
-        errorMessage.includes('email not confirmed') ||
-        errorCode === 'email_not_confirmed'
-      ) {
-        return NextResponse.json(
-          { error: 'Email non confirmé. Veuillez vérifier votre boîte de réception.', code: 'EMAIL_NOT_CONFIRMED' },
-          { status: 401 }
-        )
-      }
-
-      return NextResponse.json(
-        { error: 'Identifiants invalides', code: 'INVALID_CREDENTIALS' },
-        { status: 401 }
-      )
-    }
-
-    // ── 4. Look up user in our database ───────────────────────────
+    // ── 3. Look up user in our database ───────────────────────────
     const user = await db.user.findUnique({
       where: { email: email.toLowerCase().trim() },
       include: { region: true, role: true },
     })
 
     if (!user) {
-      // L'utilisateur existe dans Supabase Auth mais pas dans notre DB
-      // On sign out pour nettoyer la session Supabase
-      await supabase.auth.signOut()
       await timingSafeDelay(startTime)
       return NextResponse.json(
-        { error: 'Compte non trouvé. Contactez l\'administrateur.', code: 'USER_NOT_FOUND' },
+        { error: 'Identifiants invalides', code: 'INVALID_CREDENTIALS' },
         { status: 401 }
       )
     }
 
-    // ── 5. Check role ─────────────────────────────────────────────
+    // ── 4. Check role ─────────────────────────────────────────────
     const userRole = typeof user.role === 'string'
       ? user.role
       : (user.role as { name?: string } | null)?.name || ''
 
     if (!['ADMIN', 'PRESIDENT', 'RESPONSABLE_REGIONAL'].includes(userRole)) {
-      await supabase.auth.signOut()
       await timingSafeDelay(startTime)
       return NextResponse.json(
         { error: 'Accès non autorisé', code: 'UNAUTHORIZED_ROLE' },
@@ -162,9 +118,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // ── 6. Check status ───────────────────────────────────────────
+    // ── 5. Check status ───────────────────────────────────────────
     if (user.status !== 'ACTIF') {
-      await supabase.auth.signOut()
       await timingSafeDelay(startTime)
       return NextResponse.json(
         { error: 'Compte désactivé. Contactez l\'administrateur.', code: 'ACCOUNT_DISABLED' },
@@ -172,7 +127,64 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // ── 7. Success ────────────────────────────────────────────────
+    // ── 6. Verify password (bcrypt) ───────────────────────────────
+    const passwordValid = await compare(password, user.password)
+    if (!passwordValid) {
+      await timingSafeDelay(startTime)
+      return NextResponse.json(
+        {
+          error: 'Identifiants invalides',
+          code: 'INVALID_CREDENTIALS',
+          remaining: rateLimitResult.remaining - 1,
+        },
+        { status: 401 }
+      )
+    }
+
+    // ── 7. Try Supabase Auth (create session) ─────────────────────
+    const supabase = await createClient()
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: email.toLowerCase().trim(),
+      password,
+    })
+
+    // Si l'utilisateur n'existe pas dans Supabase Auth, on le crée avec la service role key
+    if (signInError) {
+      console.error('Supabase signIn error:', signInError.message)
+
+      // Créer l'utilisateur dans Supabase Auth via la service role key
+      try {
+        const serviceClient = createServiceClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.SUPABASE_SERVICE_ROLE_KEY!,
+          { auth: { autoRefreshToken: false, persistSession: false } }
+        )
+
+        const { error: createError } = await serviceClient.auth.admin.createUser({
+          email: email.toLowerCase().trim(),
+          password,
+          email_confirm: true, // Confirmer l'email automatiquement
+        })
+
+        if (createError) {
+          console.error('Supabase createUser error:', createError.message)
+          // Si la création échoue, on continue avec la session locale
+        } else {
+          // Réessayer la connexion Supabase
+          const { error: retryError } = await supabase.auth.signInWithPassword({
+            email: email.toLowerCase().trim(),
+            password,
+          })
+          if (retryError) {
+            console.error('Supabase retry signIn error:', retryError.message)
+          }
+        }
+      } catch (serviceError) {
+        console.error('Service client error:', serviceError)
+      }
+    }
+
+    // ── 8. Success ────────────────────────────────────────────────
     resetRateLimit(rateLimitKey)
 
     const normalizedRole = typeof user.role === 'string'
