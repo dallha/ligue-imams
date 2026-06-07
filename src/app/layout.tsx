@@ -51,7 +51,6 @@ export const metadata: Metadata = {
   },
 };
 
-import Script from 'next/script';
 import { db as prisma } from '@/lib/db'
 
 export default async function RootLayout({
@@ -70,10 +69,8 @@ export default async function RootLayout({
     <html lang="fr" dir="ltr" suppressHydrationWarning>
       <head>
         {/* Schema.org pour Organisation Institutionnelle */}
-        <Script
-          id="schema-org"
+        <script
           type="application/ld+json"
-          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
