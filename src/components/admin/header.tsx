@@ -6,6 +6,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/s
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { useEffect, useState } from 'react';
 
 const ADMIN_LINKS = [
   { name: 'Tableau de bord', href: '/admin', icon: LayoutDashboard },
@@ -25,10 +26,6 @@ interface AdminUser {
   role: string;
 }
 
-interface AdminHeaderProps {
-  user?: AdminUser | null;
-}
-
 function getRoleLabel(role: string): string {
   const labels: Record<string, string> = {
     ADMIN: 'Super Admin',
@@ -38,8 +35,24 @@ function getRoleLabel(role: string): string {
   return labels[role] || role;
 }
 
-export default function AdminHeader({ user }: AdminHeaderProps) {
+export default function AdminHeader() {
   const pathname = usePathname();
+  const [user, setUser] = useState<AdminUser | null>(null);
+
+  useEffect(() => {
+    async function fetchUser() {
+      try {
+        const res = await fetch('/api/admin/me');
+        if (res.ok) {
+          const data = await res.json();
+          setUser(data.user || data);
+        }
+      } catch {
+        // Silently fail — user will be redirected by AuthGuard
+      }
+    }
+    fetchUser();
+  }, []);
 
   return (
     <header className="h-16 md:h-20 bg-background/80 backdrop-blur-xl border-b border-border/50 flex items-center justify-between px-4 md:px-8 sticky top-0 z-40">
@@ -118,7 +131,7 @@ export default function AdminHeader({ user }: AdminHeaderProps) {
               {user ? `${user.prenom} ${user.nom}` : 'Administrateur'}
             </div>
             <div className="text-[10px] font-bold text-lips-gold uppercase tracking-wider">
-              {user ? getRoleLabel(user.role) : 'Non connecté'}
+              {user ? getRoleLabel(user.role) : 'Chargement...'}
             </div>
           </div>
           <UserCircle className="h-8 w-8 md:h-9 md:w-9 text-lips-green" />
