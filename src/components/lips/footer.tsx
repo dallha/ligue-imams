@@ -198,10 +198,16 @@ export default function LipsFooter() {
       {/* Bottom bar */}
       <div className="border-t border-lips-green/10 dark:border-white/10 bg-white/40 dark:bg-black/20 relative z-10 transition-colors duration-500">
         <div className="max-w-7xl mx-auto px-4 py-6 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-lips-green-dark/50 dark:text-white/40 font-bold dark:font-medium">
-          <p>
-            &copy; {currentYear} {t.footer.copyright}
-          </p>
-          <div className="flex items-center gap-6">
+          <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4">
+            <p>
+              &copy; {currentYear} {t.footer.copyright}
+            </p>
+            <div className="hidden md:block w-1 h-1 rounded-full bg-lips-green/30 dark:bg-white/20" />
+            <p className="font-normal flex items-center gap-1.5 opacity-80 hover:opacity-100 transition-opacity text-xs md:text-sm">
+              Conçu par <a href="https://www.behance.net/mrniasse" target="_blank" rel="noopener noreferrer" className="font-semibold text-lips-green-dark/70 dark:text-white/60 hover:text-lips-green dark:hover:text-lips-gold transition-colors flex items-center gap-1">Graphiste de la Hadara<ExternalLink className="h-3 w-3" /></a>
+            </p>
+          </div>
+          <div className="flex items-center gap-6 mt-2 md:mt-0">
             <Link href="#" className="hover:text-lips-green dark:hover:text-white transition-colors">
               {t.footer.legalNotice}
             </Link>
