@@ -97,6 +97,8 @@ const settingsGroups = [
     description: 'Paramètres des dons',
     fields: [
       { key: 'don_minimum', label: 'Don minimum (FCFA)', placeholder: '1000' },
+      { key: 'don_whatsapp_number', label: 'Numéro WhatsApp (ex: +221770000000)', placeholder: '+221770000000' },
+      { key: 'don_instructions', label: 'Instructions de paiement', placeholder: 'Envoyez votre don par Wave ou Orange Money, puis validez votre reçu sur WhatsApp.' },
     ],
   },
 ]

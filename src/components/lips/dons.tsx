@@ -7,15 +7,14 @@ import {
   Gift,
   HandCoins,
   ShieldCheck,
-  CreditCard,
   Smartphone,
-  Banknote,
   CheckCircle2,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useLanguage } from '@/lib/lips/i18n/language-context';
+import { toast } from 'sonner';
 
 const MONTANTS = [1000, 2500, 5000, 10000, 25000, 50000];
 
@@ -25,14 +24,34 @@ export default function DonsSection() {
   const isInView = useInView(sectionRef, { once: true, margin: '-50px' });
   const [selected, setSelected] = useState<number | null>(5000);
   const [custom, setCustom] = useState('');
+  const [whatsappNumber, setWhatsappNumber] = useState<string>('');
+  const [instructions, setInstructions] = useState<string>('Envoyez votre don par Mobile Money (Wave, Orange, etc.) à notre numéro et envoyez le reçu sur WhatsApp.');
+
+  useEffect(() => {
+    fetch('/api/public/config?keys=don_whatsapp_number,don_instructions')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.data) {
+          if (data.data.don_whatsapp_number) setWhatsappNumber(data.data.don_whatsapp_number);
+          if (data.data.don_instructions) setInstructions(data.data.don_instructions);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const currentMontant = custom ? parseInt(custom) : selected;
 
-  const METHODES = [
-    { icon: CreditCard, name: 'CinetPay', desc: p.dons.methods.cinetpay },
-    { icon: Smartphone, name: 'Wave', desc: p.dons.methods.wave },
-    { icon: Banknote, name: p.dons.sectionTag, desc: p.dons.methods.cash },
-  ];
+  const handleWhatsAppSubmit = () => {
+    if (!whatsappNumber) {
+      toast.error("Le numéro WhatsApp de réception n'est pas configuré.");
+      return;
+    }
+    const amountStr = currentMontant ? currentMontant.toLocaleString('fr-FR') : '0';
+    const message = `Salam Aleykoum, voici le reçu de mon transfert pour un don de ${amountStr} FCFA à la LIPS.`;
+    const encodedMessage = encodeURIComponent(message);
+    const cleanedNumber = whatsappNumber.replace(/[^0-9+]/g, '');
+    window.open(`https://wa.me/${cleanedNumber}?text=${encodedMessage}`, '_blank');
+  };
 
   const IMPACTS = [
     { montant: 1000, desc: p.dons.impacts.imams },
@@ -151,35 +170,34 @@ export default function DonsSection() {
                 </div>
               </div>
 
-              {/* Payment methods */}
+              {/* Instructions Manuelles */}
               <div className="flex items-center gap-3 mb-6 border-b border-white/10 pb-4">
                 <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center border border-white/10">
-                  <CreditCard className="h-5 w-5 text-white/80" />
+                  <Smartphone className="h-5 w-5 text-white/80" />
                 </div>
                 <h3 className="text-xl font-bold text-white">
-                  {p.dons.paymentMethod}
+                  Instructions de validation
                 </h3>
               </div>
               
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
-                {METHODES.map((methode) => (
-                  <div
-                    key={methode.name}
-                    className="group bg-white/5 rounded-xl p-4 text-center border border-white/10 hover:bg-white/10 hover:border-white/20 cursor-pointer transition-all duration-300"
-                  >
-                    <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
-                      <methode.icon className="h-6 w-6 text-lips-gold" />
-                    </div>
-                    <div className="text-sm font-bold text-white mb-1">{methode.name}</div>
-                    <div className="text-xs text-white/40">{methode.desc}</div>
-                  </div>
-                ))}
+              <div className="bg-white/5 rounded-xl p-5 sm:p-6 mb-8 border border-white/10 text-center">
+                <p className="text-white/80 text-lg leading-relaxed mb-4">
+                  {instructions}
+                </p>
+                {whatsappNumber && (
+                  <p className="text-2xl font-bold text-lips-gold mb-2 font-mono bg-black/30 inline-block px-4 py-2 rounded-lg border border-white/5">
+                    {whatsappNumber}
+                  </p>
+                )}
               </div>
 
               {/* Submit */}
-              <Button className="w-full bg-lips-gold hover:bg-[#C9962A] text-[#0A2E17] font-black h-16 text-xl rounded-2xl shadow-[0_0_30px_rgba(201,150,42,0.3)] transition-all hover:scale-[1.01]">
+              <Button 
+                onClick={handleWhatsAppSubmit}
+                className="w-full bg-lips-gold hover:bg-[#C9962A] text-[#0A2E17] font-black h-16 text-xl rounded-2xl shadow-[0_0_30px_rgba(201,150,42,0.3)] transition-all hover:scale-[1.01]"
+              >
                 <Heart className="h-6 w-6 mr-3" />
-                {p.dons.donateAmount.replace('{amount}', currentMontant ? currentMontant.toLocaleString(locale === 'ar' ? 'ar-SN' : locale === 'en' ? 'en-SN' : 'fr-FR') : '0')}
+                Valider mon don sur WhatsApp
               </Button>
 
               {/* Trust indicators */}
