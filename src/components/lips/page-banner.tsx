@@ -5,14 +5,12 @@ import { motion } from 'framer-motion';
 interface PageBannerProps {
   label: string;
   title: string;
-  titleAr?: string;
   description: string;
 }
 
 export default function PageBanner({
   label,
   title,
-  titleAr,
   description,
 }: PageBannerProps) {
   return (
@@ -58,14 +56,6 @@ export default function PageBanner({
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-white mb-6 tracking-tight drop-shadow-xl">
             {title}
           </h1>
-          
-          {titleAr && (
-            <div className="p-4 rounded-3xl bg-black/20 backdrop-blur-sm border border-white/5 mb-8 inline-block shadow-inner">
-              <p className="font-arabic text-2xl sm:text-3xl md:text-4xl text-transparent bg-clip-text bg-gradient-to-r from-lips-gold to-[#C9962A] drop-shadow-sm">
-                {titleAr}
-              </p>
-            </div>
-          )}
           
           <p className="text-white/70 text-lg sm:text-xl leading-relaxed max-w-3xl font-medium">
             {description}

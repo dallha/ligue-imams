@@ -18,7 +18,6 @@ export default function VerifierCartePage() {
         <PageBanner
           label={p.pages.verify.label}
           title={p.pages.verify.title}
-          titleAr="التحقق من بطاقة العضوية"
           description={p.pages.verify.description}
         />
         <VerificationSection />

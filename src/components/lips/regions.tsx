@@ -14,7 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { useLanguage } from '@/lib/lips/i18n/language-context';
 
 export default function RegionsSection() {
-  const { p, locale } = useLanguage();
+  const { p, locale, isRTL } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
 
@@ -107,12 +107,9 @@ export default function RegionsSection() {
                         >
                           {region.code}
                         </Badge>
-                        <span className="font-arabic text-sm text-lips-gold">
-                          {region.nomAr}
-                        </span>
                       </div>
                       <h3 className="font-semibold text-lips-green-dark mt-1">
-                        {region.nom}
+                        {isRTL ? region.nomAr : region.nom}
                       </h3>
                     </div>
                     <ChevronRight className="h-4 w-4 text-muted-foreground/50 group-hover:text-lips-green group-hover:translate-x-0.5 transition-all" />

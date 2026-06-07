@@ -122,9 +122,6 @@ export default function MissionSection() {
                   <h3 className="font-bold text-foreground text-lg mb-1">
                     {pillar.title}
                   </h3>
-                  <span className="font-arabic text-sm text-lips-gold block">
-                    {pillar.titleAr}
-                  </span>
                 </div>
               </div>
               <p className="text-muted-foreground leading-relaxed">

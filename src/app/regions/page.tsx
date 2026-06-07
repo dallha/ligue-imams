@@ -18,7 +18,6 @@ export default function RegionsPage() {
         <PageBanner
           label={p.pages.regions.label}
           title={p.pages.regions.title}
-          titleAr="أقاليمنا الأربعة عشر"
           description={p.pages.regions.description}
         />
 
