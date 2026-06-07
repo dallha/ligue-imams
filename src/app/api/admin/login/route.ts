@@ -1,18 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { db } from '@/lib/db'
 import { compare } from 'bcryptjs'
 import { checkRateLimit, resetRateLimit, getClientIp } from '@/lib/rate-limit'
 
-// Rate limit config: 5 attempts per 15 minutes, then 30 min lockout
 const RATE_LIMIT_CONFIG = {
   maxAttempts: 5,
-  windowMs: 15 * 60 * 1000,   // 15 minutes
-  lockoutMs: 30 * 60 * 1000,   // 30 minutes lockout (stricter for admin)
+  windowMs: 15 * 60 * 1000,
+  lockoutMs: 30 * 60 * 1000,
 }
 
-// Minimum time for a login response to prevent timing attacks (ms)
 const MIN_RESPONSE_TIME = 300
 
 async function timingSafeDelay(start: number): Promise<void> {
@@ -141,46 +138,48 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // ── 7. Try Supabase Auth (create session) ─────────────────────
+    // ── 7. Create Supabase Auth session ───────────────────────────
     const supabase = await createClient()
     const { error: signInError } = await supabase.auth.signInWithPassword({
       email: email.toLowerCase().trim(),
       password,
     })
 
-    // Si l'utilisateur n'existe pas dans Supabase Auth, on le crée avec la service role key
+    // Si l'utilisateur n'existe pas dans Supabase Auth, on essaie de le créer
     if (signInError) {
       console.error('Supabase signIn error:', signInError.message)
 
-      // Créer l'utilisateur dans Supabase Auth via la service role key
-      try {
-        const serviceClient = createServiceClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.SUPABASE_SERVICE_ROLE_KEY!,
-          { auth: { autoRefreshToken: false, persistSession: false } }
-        )
+      // Essayer avec la service role key si disponible
+      const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+      if (serviceRoleKey) {
+        try {
+          const { createClient: createSC } = await import('@supabase/supabase-js')
+          const serviceClient = createSC(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            serviceRoleKey
+          )
 
-        const { error: createError } = await serviceClient.auth.admin.createUser({
-          email: email.toLowerCase().trim(),
-          password,
-          email_confirm: true, // Confirmer l'email automatiquement
-        })
-
-        if (createError) {
-          console.error('Supabase createUser error:', createError.message)
-          // Si la création échoue, on continue avec la session locale
-        } else {
-          // Réessayer la connexion Supabase
-          const { error: retryError } = await supabase.auth.signInWithPassword({
+          const { error: createError } = await serviceClient.auth.admin.createUser({
             email: email.toLowerCase().trim(),
             password,
+            email_confirm: true,
           })
-          if (retryError) {
-            console.error('Supabase retry signIn error:', retryError.message)
+
+          if (createError) {
+            console.error('Supabase createUser error:', createError.message)
+          } else {
+            // Réessayer la connexion
+            const { error: retryError } = await supabase.auth.signInWithPassword({
+              email: email.toLowerCase().trim(),
+              password,
+            })
+            if (retryError) {
+              console.error('Supabase retry error:', retryError.message)
+            }
           }
+        } catch (serviceError) {
+          console.error('Service client error:', serviceError)
         }
-      } catch (serviceError) {
-        console.error('Service client error:', serviceError)
       }
     }
 
