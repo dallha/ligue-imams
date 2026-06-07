@@ -4,9 +4,10 @@ import { Bell, Search, UserCircle, Menu, LayoutDashboard, Users, Building2, Badg
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
+import { createClient } from '@/lib/supabase/client';
 
 const ADMIN_LINKS = [
   { name: 'Tableau de bord', href: '/admin', icon: LayoutDashboard },
@@ -37,6 +38,7 @@ function getRoleLabel(role: string): string {
 
 export default function AdminHeader() {
   const pathname = usePathname();
+  const router = useRouter();
   const [user, setUser] = useState<AdminUser | null>(null);
 
   useEffect(() => {
@@ -53,6 +55,18 @@ export default function AdminHeader() {
     }
     fetchUser();
   }, []);
+
+  async function handleLogout() {
+    try {
+      const supabase = createClient();
+      await supabase.auth.signOut();
+      router.push('/admin/login');
+      router.refresh();
+    } catch {
+      // Force redirect even if signOut fails
+      router.push('/admin/login');
+    }
+  }
 
   return (
     <header className="h-16 md:h-20 bg-background/80 backdrop-blur-xl border-b border-border/50 flex items-center justify-between px-4 md:px-8 sticky top-0 z-40">
@@ -100,7 +114,10 @@ export default function AdminHeader() {
             </nav>
 
             <div className="p-4 border-t border-white/5 shrink-0">
-              <button className="flex items-center gap-3 px-3 py-2.5 w-full rounded-xl text-sm font-medium text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors">
+              <button 
+                onClick={handleLogout}
+                className="flex items-center gap-3 px-3 py-2.5 w-full rounded-xl text-sm font-medium text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors"
+              >
                 <LogOut className="h-4 w-4" />
                 Déconnexion
               </button>

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
 import { db } from '@/lib/db'
-import { compare } from 'bcryptjs'
-import { createAdminSession, setAdminCookie } from '@/lib/admin-auth'
 import { checkRateLimit, resetRateLimit, getClientIp } from '@/lib/rate-limit'
 
 // Rate limit config: 5 attempts per 15 minutes, then 30 min lockout
@@ -88,7 +87,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Password length check (bcrypt won't hash >72 chars, and short ones are weak)
+    // Password length check
     if (password.length < 4 || password.length > 128) {
       await timingSafeDelay(startTime)
       return NextResponse.json(
@@ -97,67 +96,78 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // ── 3. Look up user ──────────────────────────────────────────
+    // ── 3. Authenticate with Supabase Auth ────────────────────────
+    const supabase = await createClient()
+
+    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+      email: email.toLowerCase().trim(),
+      password,
+    })
+
+    if (authError || !authData.user) {
+      await timingSafeDelay(startTime)
+
+      // Distinguer les erreurs pour le logging mais pas pour le client
+      if (authError?.message?.includes('Email not confirmed')) {
+        return NextResponse.json(
+          { error: 'Email non confirmé. Veuillez vérifier votre boîte de réception.', code: 'EMAIL_NOT_CONFIRMED' },
+          { status: 401 }
+        )
+      }
+
+      return NextResponse.json(
+        { error: 'Identifiants invalides', code: 'INVALID_CREDENTIALS' },
+        { status: 401 }
+      )
+    }
+
+    // ── 4. Look up user in our database ───────────────────────────
     const user = await db.user.findUnique({
       where: { email: email.toLowerCase().trim() },
       include: { region: true },
     })
 
     if (!user) {
-      // Generic error — don't reveal whether the email exists
+      // L'utilisateur existe dans Supabase Auth mais pas dans notre DB
+      // On sign out pour nettoyer la session Supabase
+      await supabase.auth.signOut()
       await timingSafeDelay(startTime)
       return NextResponse.json(
-        { error: 'Identifiants invalides', code: 'INVALID_CREDENTIALS' },
+        { error: 'Compte non trouvé. Contactez l\'administrateur.', code: 'USER_NOT_FOUND' },
         { status: 401 }
       )
     }
 
-    // ── 4. Check role ─────────────────────────────────────────────
-    // Note: user.role peut être une chaîne (stockée directement) ou un objet Role (relation).
-    // On gère les deux cas pour la compatibilité.
-    const userRole = typeof user.role === 'string' 
-      ? user.role 
-      : (user.role as { name?: string } | null)?.name || '';
+    // ── 5. Check role ─────────────────────────────────────────────
+    const userRole = typeof user.role === 'string'
+      ? user.role
+      : (user.role as { name?: string } | null)?.name || ''
 
     if (!['ADMIN', 'PRESIDENT', 'RESPONSABLE_REGIONAL'].includes(userRole)) {
+      await supabase.auth.signOut()
       await timingSafeDelay(startTime)
       return NextResponse.json(
-        { error: 'Identifiants invalides', code: 'INVALID_CREDENTIALS' },
-        { status: 401 }
+        { error: 'Accès non autorisé', code: 'UNAUTHORIZED_ROLE' },
+        { status: 403 }
       )
     }
 
-    // ── 5. Verify password ────────────────────────────────────────
-    const passwordValid = await compare(password, user.password)
-    if (!passwordValid) {
+    // ── 6. Check status ───────────────────────────────────────────
+    if (user.status !== 'ACTIF') {
+      await supabase.auth.signOut()
       await timingSafeDelay(startTime)
       return NextResponse.json(
-        {
-          error: 'Identifiants invalides',
-          code: 'INVALID_CREDENTIALS',
-          remaining: rateLimitResult.remaining - 1,
-        },
-        { status: 401 }
+        { error: 'Compte désactivé. Contactez l\'administrateur.', code: 'ACCOUNT_DISABLED' },
+        { status: 403 }
       )
     }
 
-    // ── 6. Success — create session ───────────────────────────────
+    // ── 7. Success ────────────────────────────────────────────────
     resetRateLimit(rateLimitKey)
 
-    // Normaliser le rôle : si c'est un objet Role, extraire le nom
-    const normalizedRole = typeof user.role === 'string' 
-      ? user.role 
-      : (user.role as { name?: string } | null)?.name || 'ADMIN';
-
-    const token = await createAdminSession({
-      id: user.id,
-      email: user.email,
-      nom: user.nom,
-      prenom: user.prenom,
-      role: normalizedRole,
-    })
-
-    await setAdminCookie(token)
+    const normalizedRole = typeof user.role === 'string'
+      ? user.role
+      : (user.role as { name?: string } | null)?.name || 'ADMIN'
 
     return NextResponse.json({
       user: {

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
 
 interface AdminUser {
   id: number;
@@ -13,7 +14,7 @@ interface AdminUser {
 
 /**
  * Composant de garde d'authentification côté client.
- * Vérifie que l'utilisateur est bien connecté en appelant /api/admin/me.
+ * Vérifie que l'utilisateur est bien connecté via Supabase Auth.
  * Si non connecté, redirige vers /admin/login.
  * Le middleware Next.js fait déjà la première protection côté serveur,
  * ce composant ajoute une couche de vérification supplémentaire.
@@ -26,9 +27,21 @@ export function AdminAuthGuard({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     async function checkAuth() {
       try {
-        const res = await fetch('/api/admin/me');
-        if (res.ok) {
-          setIsAuthenticated(true);
+        const supabase = createClient();
+        const { data: { session } } = await supabase.auth.getSession();
+
+        if (session) {
+          // Vérifier que l'utilisateur existe dans notre DB avec le bon rôle
+          const res = await fetch('/api/admin/me');
+          if (res.ok) {
+            setIsAuthenticated(true);
+          } else {
+            // L'utilisateur Supabase n'a pas accès à l'admin
+            await supabase.auth.signOut();
+            setIsAuthenticated(false);
+            const loginUrl = `/admin/login?redirect=${encodeURIComponent(pathname)}`;
+            router.push(loginUrl);
+          }
         } else {
           setIsAuthenticated(false);
           const loginUrl = `/admin/login?redirect=${encodeURIComponent(pathname)}`;
