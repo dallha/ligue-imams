@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { motion, useInView } from 'framer-motion';
 import {
   ChevronLeft,
@@ -126,7 +126,7 @@ function getIslamicEventsForHijriDate(hMonth: number, hDay: number): IslamicEven
 
 // ─── LIPS Events ─────────────────────────────────────────────────
 
-type EventCategory = 'Assemblée' | 'Formation' | 'Colloque' | 'Conférence' | 'Conseil';
+type EventCategory = 'Assemblée' | 'Formation' | 'Colloque' | 'Conférence' | 'Conseil' | 'LIPS' | 'ISLAMIQUE' | 'FORMATION' | 'COMMUNAUTE';
 
 interface LIPSEvent {
   id: number;
@@ -135,12 +135,12 @@ interface LIPSEvent {
   dateEnd?: Date;
   hijriDate?: string; // e.g., "1 Ramadan 1447"
   location: string;
-  category: EventCategory;
+  category: string;
   description: string;
   published: boolean;
 }
 
-const LIPS_EVENTS: LIPSEvent[] = [
+const HARDCODED_LIPS_EVENTS: LIPSEvent[] = [
   {
     id: 1,
     title: 'Assemblée Générale LIPS',
@@ -209,20 +209,28 @@ const LIPS_EVENTS: LIPSEvent[] = [
   },
 ];
 
-const CATEGORY_COLORS: Record<EventCategory, string> = {
+const CATEGORY_COLORS: Record<string, string> = {
   Assemblée: 'bg-lips-green/10 text-lips-green border-lips-green/20',
   Formation: 'bg-lips-emerald/10 text-lips-emerald border-lips-emerald/20',
   Colloque: 'bg-blue-50 text-blue-700 border-blue-200',
   Conférence: 'bg-lips-gold/10 text-lips-gold border-lips-gold/20',
   Conseil: 'bg-purple-50 text-purple-700 border-purple-200',
+  LIPS: 'bg-lips-green/10 text-lips-green border-lips-green/20',
+  ISLAMIQUE: 'bg-lips-gold/10 text-lips-gold border-lips-gold/20',
+  FORMATION: 'bg-lips-emerald/10 text-lips-emerald border-lips-emerald/20',
+  COMMUNAUTE: 'bg-blue-50 text-blue-700 border-blue-200',
 };
 
-const CATEGORY_DOT_COLORS: Record<EventCategory, string> = {
+const CATEGORY_DOT_COLORS: Record<string, string> = {
   Assemblée: 'bg-lips-green',
   Formation: 'bg-lips-emerald',
   Colloque: 'bg-blue-500',
   Conférence: 'bg-lips-gold',
   Conseil: 'bg-purple-500',
+  LIPS: 'bg-lips-green',
+  ISLAMIQUE: 'bg-lips-gold',
+  FORMATION: 'bg-lips-emerald',
+  COMMUNAUTE: 'bg-blue-500',
 };
 
 // ─── Helper functions ─────────────────────────────────────────────
@@ -266,7 +274,7 @@ interface CalendarGridProps {
   onNavigate: (direction: 'prev' | 'next') => void;
 }
 
-function CalendarGrid({ year, month, type, onNavigate }: CalendarGridProps) {
+function CalendarGrid({ year, month, type, onNavigate, lipsEvents }: CalendarGridProps & { lipsEvents?: LIPSEvent[] }) {
   const { p, locale } = useLanguage();
   const today = new Date();
   const todayHijri = gregorianToHijri(today);
@@ -347,7 +355,7 @@ function CalendarGrid({ year, month, type, onNavigate }: CalendarGridProps) {
             const eventsOnDay = getIslamicEventsForHijriDate(hijri.month, hijri.day);
 
             // Check for LIPS events on this date
-            const lipsEventsOnDay = LIPS_EVENTS.filter((e) => {
+            const lipsEventsOnDay = (lipsEvents || HARDCODED_LIPS_EVENTS).filter((e) => {
               if (e.dateEnd) {
                 return cellDate >= new Date(e.date.getFullYear(), e.date.getMonth(), e.date.getDate()) &&
                        cellDate <= new Date(e.dateEnd.getFullYear(), e.dateEnd.getMonth(), e.dateEnd.getDate());
@@ -511,12 +519,13 @@ function IslamicEventsList() {
 
 // ─── LIPS Events List View ────────────────────────────────────────
 
-function LIPSEventsListView({ filter }: { filter: string }) {
+function LIPSEventsListView({ filter, lipsEvents }: { filter: string; lipsEvents?: LIPSEvent[] }) {
   const { p, locale } = useLanguage();
+  const events = lipsEvents || HARDCODED_LIPS_EVENTS;
   const filteredEvents = useMemo(() => {
-    if (filter === p.agendaComp.filterAll) return LIPS_EVENTS;
-    return LIPS_EVENTS.filter((e) => e.category === filter);
-  }, [filter, p.agendaComp.filterAll]);
+    if (filter === p.agendaComp.filterAll) return events;
+    return events.filter((e) => e.category === filter);
+  }, [filter, p.agendaComp.filterAll, events]);
 
   const sortedEvents = useMemo(() => {
     return [...filteredEvents].sort((a, b) => a.date.getTime() - b.date.getTime());
@@ -631,6 +640,31 @@ export default function AgendaSection() {
   const [viewMode, setViewMode] = useState<'calendar' | 'list'>('calendar');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [filter, setFilter] = useState(p.agendaComp.filterAll);
+  const [dbEvents, setDbEvents] = useState<LIPSEvent[]>([]);
+
+  // Fetch events from DB
+  useEffect(() => {
+    fetch('/api/public/agenda')
+      .then(r => r.json())
+      .then(data => {
+        if (data.data?.length > 0) {
+          const events: LIPSEvent[] = data.data.map((e: any) => ({
+            id: e.id,
+            title: e.titre,
+            date: new Date(e.dateDebut),
+            dateEnd: e.dateFin ? new Date(e.dateFin) : undefined,
+            location: e.lieu || '',
+            category: e.type || 'LIPS',
+            description: e.description || '',
+            published: e.published,
+          }));
+          setDbEvents(events);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const lipsEvents = dbEvents.length > 0 ? dbEvents : HARDCODED_LIPS_EVENTS;
 
   const currentYear = currentDate.getFullYear();
   const currentMonth = currentDate.getMonth();
@@ -758,12 +792,14 @@ export default function AgendaSection() {
                 month={currentMonth}
                 type="gregorian"
                 onNavigate={navigateMonth}
+                lipsEvents={lipsEvents}
               />
               <CalendarGrid
                 year={hijriYear}
                 month={hijriMonth}
                 type="hijri"
                 onNavigate={navigateMonth}
+                lipsEvents={lipsEvents}
               />
             </div>
 
@@ -782,7 +818,7 @@ export default function AgendaSection() {
                 {p.agendaComp.upcomingLips}
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {LIPS_EVENTS
+                {lipsEvents
                   .filter((e) => filter === p.agendaComp.filterAll || e.category === filter)
                   .sort((a, b) => a.date.getTime() - b.date.getTime())
                   .map((event, index) => {
@@ -844,7 +880,7 @@ export default function AgendaSection() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
           >
-            <LIPSEventsListView filter={filter} />
+            <LIPSEventsListView filter={filter} lipsEvents={lipsEvents} />
           </motion.div>
         )}
       </div>

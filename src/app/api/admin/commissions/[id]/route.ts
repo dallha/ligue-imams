@@ -14,7 +14,7 @@ export async function PUT(
 
     const { id } = await params
     const body = await request.json()
-    const { nom, nomAr, members, desc, icon, ordre } = body
+    const { nom, nomAr, members, desc, icon, ordre, published } = body
 
     const existing = await db.commission.findUnique({ where: { id: parseInt(id) } })
     if (!existing) {
@@ -30,6 +30,7 @@ export async function PUT(
         ...(desc !== undefined && { desc }),
         ...(icon !== undefined && { icon }),
         ...(ordre !== undefined && { ordre }),
+        ...(published !== undefined && { published }),
       },
     })
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { motion, useInView } from 'framer-motion';
 import {
   MapPin,
@@ -8,7 +8,7 @@ import {
   Building,
   ChevronRight,
 } from 'lucide-react';
-import { REGIONS_DATA } from '@/lib/lips/types';
+import { REGIONS_DATA, RegionData, RegionCode } from '@/lib/lips/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useLanguage } from '@/lib/lips/i18n/language-context';
@@ -17,6 +17,44 @@ export default function RegionsSection() {
   const { p, locale } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
+
+  const [dbRegions, setDbRegions] = useState<RegionData[] | null>(null);
+
+  useEffect(() => {
+    fetch('/api/public/regions')
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.data && Array.isArray(json.data) && json.data.length > 0) {
+          const mapped: RegionData[] = json.data.map(
+            (r: {
+              code: string;
+              nom: string;
+              nomAr: string;
+              population?: number;
+              mosqueCount?: number;
+              latitude?: number;
+              longitude?: number;
+              _count?: { members?: number; mosques?: number };
+            }) => ({
+              code: r.code as RegionCode,
+              nom: r.nom,
+              nomAr: r.nomAr,
+              population: r.population,
+              mosqueCount: r._count?.mosques ?? r.mosqueCount,
+              ...(r.latitude != null && r.longitude != null
+                ? { coordinates: { lat: r.latitude, lng: r.longitude } }
+                : {}),
+            })
+          );
+          setDbRegions(mapped);
+        }
+      })
+      .catch(() => {
+        // Silently fall back to static data
+      });
+  }, []);
+
+  const regions = dbRegions ?? REGIONS_DATA;
 
   return (
     <section
@@ -51,7 +89,7 @@ export default function RegionsSection() {
 
         {/* Regions grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {REGIONS_DATA.map((region, index) => (
+          {regions.map((region, index) => (
             <motion.div
               key={region.code}
               initial={{ opacity: 0, y: 20 }}

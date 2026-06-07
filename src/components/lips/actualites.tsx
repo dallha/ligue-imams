@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { motion, useInView } from 'framer-motion';
 import {
   FileText,
@@ -28,7 +28,7 @@ interface Article {
   type: 'communique' | 'fatwa' | 'article' | 'evenement';
 }
 
-const ARTICLES: Article[] = [
+const HARDCODED_ARTICLES: Article[] = [
   {
     id: 1,
     titre: 'Communiqué : Position de la LIPS sur le dialogue interreligieux',
@@ -114,6 +114,49 @@ export default function ActualitesSection() {
   const { p } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
+  const [dbArticles, setDbArticles] = useState<Article[]>([]);
+
+  // Fetch published content from DB
+  useEffect(() => {
+    fetch('/api/public/contenus?limit=20')
+      .then(r => r.json())
+      .then(data => {
+        if (data.data?.length > 0) {
+          const typeMap: Record<string, Article['type']> = {
+            COMMUNIQUE: 'communique',
+            FATWA: 'fatwa',
+            ARTICLE: 'article',
+            EVENEMENT: 'evenement',
+            COURS: 'article',
+            SEMINAIRE: 'evenement',
+          };
+          const catMap: Record<string, string> = {
+            COMMUNIQUE: 'Communiqué',
+            FATWA: 'Fatwa',
+            ARTICLE: 'Article',
+            EVENEMENT: 'Événement',
+            COURS: 'Cours',
+            SEMINAIRE: 'Séminaire',
+          };
+          const articles: Article[] = data.data.map((c: any) => ({
+            id: c.id,
+            titre: c.titre,
+            titreAr: c.titreAr || undefined,
+            extrait: c.contenu?.substring(0, 200) || '',
+            categorie: catMap[c.type] || c.type,
+            categorieAr: '',
+            date: new Date(c.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }),
+            auteur: 'LIPS',
+            lu: true,
+            type: typeMap[c.type] || 'article',
+          }));
+          setDbArticles(articles);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const ARTICLES = dbArticles.length > 0 ? dbArticles : HARDCODED_ARTICLES;
 
   const featured = ARTICLES[0];
   const rest = ARTICLES.slice(1);

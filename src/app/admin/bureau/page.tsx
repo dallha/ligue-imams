@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
+import { Switch } from '@/components/ui/switch'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import {
   Dialog,
@@ -26,7 +27,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { Plus, Edit, Trash2, GripVertical, UserCircle } from 'lucide-react'
+import { Plus, Edit, Trash2, GripVertical, UserCircle, Eye, EyeOff } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface BureauMemberItem {
@@ -40,6 +41,7 @@ interface BureauMemberItem {
   initiales: string | null
   photo: string | null
   ordre: number
+  published: boolean
 }
 
 const emptyForm = {
@@ -52,6 +54,7 @@ const emptyForm = {
   initiales: '',
   photo: '',
   ordre: 0,
+  published: true,
 }
 
 export default function BureauPage() {
@@ -100,6 +103,7 @@ export default function BureauPage() {
       initiales: member.initiales || '',
       photo: member.photo || '',
       ordre: member.ordre,
+      published: member.published,
     })
     setDialogOpen(true)
   }
@@ -144,6 +148,21 @@ export default function BureauPage() {
       toast.error('Erreur lors de la sauvegarde')
     } finally {
       setSaving(false)
+    }
+  }
+
+  async function togglePublish(member: BureauMemberItem) {
+    try {
+      const res = await fetch(`/api/admin/bureau/${member.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ published: !member.published }),
+      })
+      if (!res.ok) throw new Error()
+      toast.success(member.published ? 'Membre dépublié' : 'Membre publié')
+      fetchMembers()
+    } catch {
+      toast.error('Erreur lors du changement de statut')
     }
   }
 
@@ -228,9 +247,26 @@ export default function BureauPage() {
                         {member.bio}
                       </p>
                     )}
-                    <p className="text-xs text-muted-foreground mt-1">Ordre: {member.ordre}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <p className="text-xs text-muted-foreground">Ordre: {member.ordre}</p>
+                      <Badge variant={member.published ? 'default' : 'secondary'} className="text-xs">
+                        {member.published ? 'Publié' : 'Brouillon'}
+                      </Badge>
+                    </div>
                   </div>
                   <div className="flex gap-1 shrink-0">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => togglePublish(member)}
+                      title={member.published ? 'Dépublier' : 'Publier'}
+                    >
+                      {member.published ? (
+                        <Eye className="h-4 w-4 text-lips-green" />
+                      ) : (
+                        <EyeOff className="h-4 w-4 text-muted-foreground" />
+                      )}
+                    </Button>
                     <Button variant="ghost" size="icon" onClick={() => openEdit(member)}>
                       <Edit className="h-4 w-4" />
                     </Button>
@@ -343,6 +379,14 @@ export default function BureauPage() {
                   onChange={(e) => setForm({ ...form, ordre: parseInt(e.target.value) || 0 })}
                 />
               </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <Switch
+                checked={form.published}
+                onCheckedChange={(v) => setForm({ ...form, published: v })}
+              />
+              <Label>Publié</Label>
             </div>
           </div>
 

@@ -207,8 +207,42 @@ export default function CoranSection() {
 
   const dailyVerse = useMemo(() => getDailyVerse(t), [t]);
 
-  // ─── Quran Resources (computed inside component for i18n) ──
-  const quranResources = useMemo(() => [
+  // ─── DB-driven data for daily verse & resources ────────
+  const [dbVerse, setDbVerse] = useState<DailyVerse | null>(null);
+  const [dbResources, setDbResources] = useState<Array<{ title: string; description: string; icon: React.ElementType; href: string; color: string }>>([]);
+
+  useEffect(() => {
+    fetch('/api/public/coran')
+      .then(r => r.json())
+      .then(data => {
+        // Use today's active verse if available, else most recent published
+        if (data.data?.verses?.length > 0) {
+          const today = new Date().toISOString().slice(0, 10);
+          const todayVerse = data.data.verses.find((v: any) => v.dateActive && v.dateActive.slice(0, 10) === today);
+          const verse = todayVerse || data.data.verses[0];
+          setDbVerse({ arabic: verse.arabic, translation: verse.french, reference: verse.reference });
+        }
+        // Map DB resources
+        if (data.data?.resources?.length > 0) {
+          const iconMap: Record<string, React.ElementType> = { BookOpen, Headphones, Mic, Globe, GraduationCap };
+          const colorMap: Record<string, string> = { BookOpen: 'text-lips-green', Headphones: 'text-lips-gold', Mic: 'text-amber-600', Globe: 'text-lips-gold', GraduationCap: 'text-lips-green-dark' };
+          const res = data.data.resources.map((r: any) => ({
+            title: r.title,
+            description: r.description || '',
+            icon: iconMap[r.icon] || BookOpen,
+            href: r.url || '#',
+            color: colorMap[r.icon] || 'text-lips-green',
+          }));
+          setDbResources(res);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const activeVerse = dbVerse || dailyVerse;
+
+  // ─── Quran Resources (DB or fallback to i18n) ──
+  const quranResources = dbResources.length > 0 ? dbResources : useMemo(() => [
     { title: t.coran.resReadCoran, description: t.coran.resReadCoranDesc, icon: BookOpen, href: 'https://quran.com/fr/', color: 'text-lips-green' },
     { title: t.coran.resMp3Quran, description: t.coran.resMp3QuranDesc, icon: Headphones, href: 'https://www.mp3quran.net/fr', color: 'text-lips-gold' },
     { title: t.coran.resWolof, description: t.coran.resWolofDesc, icon: Globe, href: '#', color: 'text-lips-gold' },
@@ -453,10 +487,10 @@ export default function CoranSection() {
                   </div>
                   <Badge className="bg-lips-gold/10 text-lips-gold border-lips-gold/20 text-xs">{t.coran.verseOfDay}</Badge>
                 </div>
-                <p className="font-arabic text-2xl sm:text-3xl lg:text-4xl text-lips-green-dark text-right leading-loose mb-4" dir="rtl">{dailyVerse.arabic}</p>
+                <p className="font-arabic text-2xl sm:text-3xl lg:text-4xl text-lips-green-dark text-right leading-loose mb-4" dir="rtl">{activeVerse.arabic}</p>
                 <div className="w-16 h-0.5 bg-lips-gold/40 mx-auto my-4" />
-                <p className="text-base sm:text-lg text-foreground/80 italic text-center leading-relaxed mb-3">&laquo; {dailyVerse.translation} &raquo;</p>
-                <p className="text-sm text-lips-gold text-center font-medium">— {dailyVerse.reference}</p>
+                <p className="text-base sm:text-lg text-foreground/80 italic text-center leading-relaxed mb-3">&laquo; {activeVerse.translation} &raquo;</p>
+                <p className="text-sm text-lips-gold text-center font-medium">— {activeVerse.reference}</p>
               </CardContent>
             </Card>
           </motion.div>

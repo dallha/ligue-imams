@@ -14,7 +14,7 @@ export async function PUT(
 
     const { id } = await params
     const body = await request.json()
-    const { nom, prenom, role, roleAr, region, bio, initiales, photo, ordre } = body
+    const { nom, prenom, role, roleAr, region, bio, initiales, photo, ordre, published } = body
 
     const existing = await db.bureauMember.findUnique({ where: { id: parseInt(id) } })
     if (!existing) {
@@ -33,6 +33,7 @@ export async function PUT(
         ...(initiales !== undefined && { initiales }),
         ...(photo !== undefined && { photo }),
         ...(ordre !== undefined && { ordre }),
+        ...(published !== undefined && { published }),
       },
     })
 

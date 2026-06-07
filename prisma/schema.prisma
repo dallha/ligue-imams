@@ -140,6 +140,7 @@ model BureauMember {
   initiales String?
   ordre     Int      @default(0)
   photo     String?
+  published Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -147,13 +148,14 @@ model BureauMember {
 // --- DOMAINE COMMISSIONS ---
 
 model Commission {
-  id      Int    @id @default(autoincrement())
-  nom     String
-  nomAr   String?
-  members Int    @default(0)
-  desc    String?
-  icon    String? // lucide icon name
-  ordre   Int    @default(0)
+  id        Int      @id @default(autoincrement())
+  nom       String
+  nomAr     String?
+  members   Int      @default(0)
+  desc      String?
+  icon      String? // lucide icon name
+  ordre     Int      @default(0)
+  published Boolean  @default(true)
 }
 
 // --- DOMAINE CONCOURS ---
@@ -206,6 +208,25 @@ model CoranResource {
   url         String?
   icon        String   @default("BookOpen")
   published   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// --- DOMAINE AGENDA ---
+
+model Event {
+  id          Int      @id @default(autoincrement())
+  titre       String
+  titreAr     String?
+  description String?
+  descriptionAr String?
+  dateDebut   DateTime
+  dateFin     DateTime?
+  lieu        String?
+  type        String   @default("LIPS") // LIPS, ISLAMIQUE, FORMATION, COMMUNAUTE
+  categorie   String?  // conference, formation, celebration, etc.
+  published   Boolean  @default(false)
+  imageUrl    String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

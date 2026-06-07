@@ -45,3 +45,34 @@ Stage Summary:
 - All hardcoded light colors replaced with theme-aware alternatives
 - Hydration mismatch resolved by removing Radix Tabs from coran page
 - Build compiles successfully
+
+---
+Task ID: 2
+Agent: Main Agent
+Task: Verify and fix that all site content is editable from admin
+
+Work Log:
+- Audited all public pages vs admin CRUD capabilities
+- Found critical gap: public pages used hardcoded data, not DB content
+- Added Prisma models: Event, published field on BureauMember & Commission
+- Created 7 public API routes (no auth, returns only published items):
+  /api/public/faq, /api/public/contenus, /api/public/bureau,
+  /api/public/commissions, /api/public/regions, /api/public/coran, /api/public/agenda
+- Created admin API routes for agenda CRUD:
+  /api/admin/agenda (GET/POST), /api/admin/agenda/[id] (PUT/DELETE)
+- Updated public components to fetch from DB with i18n fallback:
+  - faq.tsx: fetches from /api/public/faq
+  - gouvernance.tsx: fetches bureau + commissions from DB
+  - actualites.tsx: fetches content from /api/public/contenus
+  - agenda.tsx: fetches events from /api/public/agenda
+  - coran.tsx: fetches daily verse + resources from /api/public/coran
+  - regions.tsx: fetches from /api/public/regions
+- Rewrote admin agenda page with real DB CRUD (was mock data only)
+- Added published toggle to bureau & commissions admin pages
+- Updated bureau & commissions API routes to support `published` field
+- Seeded initial data for events, bureau members
+
+Stage Summary:
+- All public pages now read from database when data exists, fallback to i18n/hardcoded when empty
+- Admin panel fully controls what appears on public site
+- Build passes successfully

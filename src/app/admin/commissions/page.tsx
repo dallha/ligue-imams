@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
+import { Switch } from '@/components/ui/switch'
 import {
   Dialog,
   DialogContent,
@@ -33,7 +34,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Plus, Edit, Trash2, Handshake } from 'lucide-react'
+import { Plus, Edit, Trash2, Handshake, Eye, EyeOff } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface CommissionItem {
@@ -44,6 +45,7 @@ interface CommissionItem {
   desc: string | null
   icon: string | null
   ordre: number
+  published: boolean
 }
 
 const emptyForm = {
@@ -53,6 +55,7 @@ const emptyForm = {
   desc: '',
   icon: '',
   ordre: 0,
+  published: true,
 }
 
 export default function CommissionsPage() {
@@ -98,6 +101,7 @@ export default function CommissionsPage() {
       desc: item.desc || '',
       icon: item.icon || '',
       ordre: item.ordre,
+      published: item.published,
     })
     setDialogOpen(true)
   }
@@ -142,6 +146,21 @@ export default function CommissionsPage() {
       toast.error('Erreur lors de la sauvegarde')
     } finally {
       setSaving(false)
+    }
+  }
+
+  async function togglePublish(item: CommissionItem) {
+    try {
+      const res = await fetch(`/api/admin/commissions/${item.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ published: !item.published }),
+      })
+      if (!res.ok) throw new Error()
+      toast.success(item.published ? 'Commission dépubliée' : 'Commission publiée')
+      fetchCommissions()
+    } catch {
+      toast.error('Erreur lors du changement de statut')
     }
   }
 
@@ -190,19 +209,20 @@ export default function CommissionsPage() {
                   <TableHead>Description</TableHead>
                   <TableHead>Icône</TableHead>
                   <TableHead>Ordre</TableHead>
+                  <TableHead>Statut</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                       Chargement...
                     </TableCell>
                   </TableRow>
                 ) : commissions.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                       <div className="flex flex-col items-center">
                         <Handshake className="h-8 w-8 text-muted-foreground/50 mb-2" />
                         Aucune commission
@@ -229,7 +249,24 @@ export default function CommissionsPage() {
                       </TableCell>
                       <TableCell className="text-sm">{item.ordre}</TableCell>
                       <TableCell>
+                        <Badge variant={item.published ? 'default' : 'secondary'} className="text-xs">
+                          {item.published ? 'Publié' : 'Brouillon'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
                         <div className="flex items-center justify-end gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => togglePublish(item)}
+                            title={item.published ? 'Dépublier' : 'Publier'}
+                          >
+                            {item.published ? (
+                              <Eye className="h-4 w-4 text-lips-green" />
+                            ) : (
+                              <EyeOff className="h-4 w-4 text-muted-foreground" />
+                            )}
+                          </Button>
                           <Button variant="ghost" size="icon" onClick={() => openEdit(item)}>
                             <Edit className="h-4 w-4" />
                           </Button>
@@ -308,13 +345,22 @@ export default function CommissionsPage() {
               />
             </div>
 
-            <div className="space-y-2">
-              <Label>Ordre</Label>
-              <Input
-                type="number"
-                value={form.ordre}
-                onChange={(e) => setForm({ ...form, ordre: parseInt(e.target.value) || 0 })}
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Ordre</Label>
+                <Input
+                  type="number"
+                  value={form.ordre}
+                  onChange={(e) => setForm({ ...form, ordre: parseInt(e.target.value) || 0 })}
+                />
+              </div>
+              <div className="flex items-center gap-3 pt-8">
+                <Switch
+                  checked={form.published}
+                  onCheckedChange={(v) => setForm({ ...form, published: v })}
+                />
+                <Label>Publié</Label>
+              </div>
             </div>
           </div>
 
