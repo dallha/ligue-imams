@@ -167,12 +167,12 @@ export default function RegionsSection() {
             </div>
             <div className="w-px h-10 bg-border hidden sm:block" />
             <div className="text-center">
-              <div className="text-2xl font-bold text-lips-gold">15 000+</div>
+              <div className="text-2xl font-bold text-lips-gold">0</div>
               <div className="text-xs text-muted-foreground">{p.regionsPage.summaryMosques}</div>
             </div>
             <div className="w-px h-10 bg-border hidden sm:block" />
             <div className="text-center">
-              <div className="text-2xl font-bold text-lips-emerald">5 000+</div>
+              <div className="text-2xl font-bold text-lips-emerald">0</div>
               <div className="text-xs text-muted-foreground">{p.regionsPage.summaryMembers}</div>
             </div>
           </div>
