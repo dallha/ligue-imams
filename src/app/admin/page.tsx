@@ -1,324 +1,163 @@
-'use client'
+'use client';
 
-import { useEffect, useState } from 'react'
-import Link from 'next/link'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { motion } from 'framer-motion';
 import {
   Users,
-  UserCheck,
-  FileText,
-  Globe,
-  Heart,
-  CreditCard,
-  Plus,
-  ArrowRight,
+  BadgeDollarSign,
   TrendingUp,
-} from 'lucide-react'
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from 'recharts'
+  Building2,
+  Clock,
+  CheckCircle2,
+} from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-interface DashboardData {
-  stats: {
-    totalMembers: number
-    activeMembers: number
-    publishedContents: number
-    totalRegions: number
-    donsCeMois: number
-    cotisationsCeMois: number
-  }
-  recentContents: Array<{
-    id: number
-    titre: string
-    type: string
-    published: boolean
-    createdAt: string
-  }>
-  recentMembers: Array<{
-    id: number
-    nom: string
-    prenom: string
-    matricule: string
-    role: string
-    status: string
-    createdAt: string
-    region: { nom: string } | null
-  }>
-  membersByRegion: Array<{
-    nom: string
-    code: string
-    members: number
-  }>
-}
+const DONATION_DATA = [
+  { month: 'Jan', total: 450000 },
+  { month: 'Fév', total: 600000 },
+  { month: 'Mar', total: 1200000 },
+  { month: 'Avr', total: 950000 },
+  { month: 'Mai', total: 1500000 },
+  { month: 'Juin', total: 2100000 },
+];
 
-const typeLabels: Record<string, string> = {
-  COMMUNIQUE: 'Communiqué',
-  ARTICLE: 'Article',
-  FATWA: 'Fatwa',
-  EVENEMENT: 'Événement',
-  SEMINAIRE: 'Séminaire',
-  COURS: 'Cours',
-}
+const REGION_DATA = [
+  { region: 'Dakar', membres: 1200 },
+  { region: 'Thiès', membres: 850 },
+  { region: 'Saint-Louis', membres: 600 },
+  { region: 'Kaolack', membres: 450 },
+  { region: 'Ziguinchor', membres: 300 },
+];
 
-const statusLabels: Record<string, { label: string; variant: 'default' | 'destructive' | 'secondary' | 'outline' }> = {
-  ACTIF: { label: 'Actif', variant: 'default' },
-  EXPIRE: { label: 'Expiré', variant: 'destructive' },
-  EN_ATTENTE: { label: 'En attente', variant: 'secondary' },
-}
-
-const roleLabels: Record<string, string> = {
-  IMAM: 'Imam',
-  PREDICATEUR: 'Prédicateur',
-  RESPONSABLE_REGIONAL: 'Resp. Régional',
-  ADMIN: 'Admin',
-  PRESIDENT: 'Président',
-  MEMBRE_CHOURA: 'Membre Choura',
-}
-
-export default function AdminDashboard() {
-  const [data, setData] = useState<DashboardData | null>(null)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    fetch('/api/admin/dashboard')
-      .then((res) => res.json())
-      .then((data) => setData(data))
-      .catch(console.error)
-      .finally(() => setLoading(false))
-  }, [])
-
-  if (loading) {
-    return (
-      <div className="space-y-6">
-        <h1 className="text-2xl font-bold text-foreground">Tableau de Bord</h1>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[...Array(6)].map((_, i) => (
-            <Card key={i} className="animate-pulse">
-              <CardContent className="p-6">
-                <div className="h-16 bg-muted rounded" />
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-    )
-  }
-
-  if (!data) return null
-
-  const statCards = [
-    {
-      title: 'Total Membres',
-      value: data.stats.totalMembers,
-      icon: Users,
-      color: 'text-lips-green',
-      bg: 'bg-lips-green/10',
-    },
-    {
-      title: 'Membres Actifs',
-      value: data.stats.activeMembers,
-      icon: UserCheck,
-      color: 'text-lips-emerald',
-      bg: 'bg-lips-emerald/10',
-    },
-    {
-      title: 'Contenus Publiés',
-      value: data.stats.publishedContents,
-      icon: FileText,
-      color: 'text-lips-gold',
-      bg: 'bg-lips-gold/10',
-    },
-    {
-      title: 'Régions',
-      value: data.stats.totalRegions,
-      icon: Globe,
-      color: 'text-blue-600 dark:text-blue-400',
-      bg: 'bg-blue-50 dark:bg-blue-500/10',
-    },
-    {
-      title: 'Dons ce mois',
-      value: data.stats.donsCeMois,
-      icon: Heart,
-      color: 'text-red-500 dark:text-red-400',
-      bg: 'bg-red-50 dark:bg-red-500/10',
-    },
-    {
-      title: 'Cotisations',
-      value: data.stats.cotisationsCeMois,
-      icon: CreditCard,
-      color: 'text-purple-600 dark:text-purple-400',
-      bg: 'bg-purple-50 dark:bg-purple-500/10',
-    },
-  ]
+export default function AdminDashboardPage() {
+  const KPIs = [
+    { title: 'Total Membres', value: '5,240', change: '+12%', icon: Users, color: 'text-blue-500', bg: 'bg-blue-500/10' },
+    { title: 'Dons (Ce mois)', value: '2.1M FCFA', change: '+24%', icon: BadgeDollarSign, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+    { title: 'Adhésions en attente', value: '45', change: '-5', icon: Clock, color: 'text-orange-500', bg: 'bg-orange-500/10' },
+    { title: 'Commissions Actives', value: '8', change: 'Stable', icon: Building2, color: 'text-purple-500', bg: 'bg-purple-500/10' },
+  ];
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Tableau de Bord</h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            Vue d&apos;ensemble du système LIPS
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Link href="/admin/contenus">
-            <Button size="sm" className="bg-lips-green hover:bg-lips-green-dark text-white gap-2">
-              <Plus className="h-4 w-4" />
-              Nouveau contenu
-            </Button>
-          </Link>
-        </div>
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-3xl font-black text-foreground mb-2">Tableau de Bord</h1>
+        <p className="text-muted-foreground text-sm">Aperçu global des activités de la Ligue.</p>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {statCards.map((stat) => (
-          <Card key={stat.title} className="hover:shadow-md transition-shadow">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className={`p-3 rounded-xl ${stat.bg}`}>
-                  <stat.icon className={`h-6 w-6 ${stat.color}`} />
+      {/* KPIs */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {KPIs.map((kpi, index) => (
+          <motion.div
+            key={kpi.title}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1 }}
+          >
+            <Card className="border-border/50 shadow-sm hover:shadow-md transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">{kpi.title}</p>
+                    <h3 className="text-2xl font-black text-foreground">{kpi.value}</h3>
+                  </div>
+                  <div className={`p-3 rounded-2xl ${kpi.bg}`}>
+                    <kpi.icon className={`h-5 w-5 ${kpi.color}`} />
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">{stat.title}</p>
-                  <p className="text-2xl font-bold">{stat.value.toLocaleString()}</p>
+                <div className="mt-4 flex items-center text-xs font-medium text-emerald-500">
+                  <TrendingUp className="h-3 w-3 mr-1" />
+                  {kpi.change} depuis le mois dernier
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </motion.div>
         ))}
       </div>
 
-      {/* Chart & Recent Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Members by Region Chart */}
-        <Card>
+      {/* Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Card className="lg:col-span-2 border-border/50 shadow-sm">
           <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-lips-green" />
-              Membres par Région
-            </CardTitle>
-            <CardDescription>Répartition des membres à travers les régions</CardDescription>
+            <CardTitle className="text-base font-bold">Évolution des Dons (2025)</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-72">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data.membersByRegion} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                  <XAxis
-                    dataKey="code"
-                    tick={{ fontSize: 11 }}
-                    angle={-45}
-                    textAnchor="end"
-                    height={60}
-                  />
-                  <YAxis tick={{ fontSize: 11 }} />
-                  <Tooltip
-                    formatter={(value: number) => [`${value} membres`, 'Membres']}
-                    contentStyle={{ borderRadius: '8px', border: '1px solid hsl(var(--border))', background: 'hsl(var(--card))', color: 'hsl(var(--card-foreground))' }}
-                  />
-                  <Bar dataKey="members" className="fill-lips-green" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+            <div className="h-[300px] w-full flex items-end justify-between gap-3 pt-12 pb-2">
+              {DONATION_DATA.map((data, i) => {
+                const max = Math.max(...DONATION_DATA.map(d => d.total));
+                const height = `${(data.total / max) * 100}%`;
+                return (
+                  <div key={i} className="flex flex-col items-center gap-2 flex-1 group h-full">
+                    <div className="relative w-full h-full flex flex-col justify-end items-center rounded-t-lg bg-muted/10 hover:bg-muted/30 transition-colors">
+                      <div 
+                        className="w-full bg-gradient-to-t from-lips-gold/20 to-lips-gold rounded-t-md transition-all duration-700 ease-out group-hover:brightness-110"
+                        style={{ height }}
+                      />
+                      <div className="absolute -top-10 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-bold text-foreground bg-background shadow-lg border border-border px-2 py-1 rounded z-10 pointer-events-none">
+                        {(data.total / 1000).toLocaleString('fr-FR')}k
+                      </div>
+                    </div>
+                    <span className="text-xs font-medium text-muted-foreground">{data.month}</span>
+                  </div>
+                );
+              })}
             </div>
           </CardContent>
         </Card>
 
-        {/* Recent Activity */}
-        <div className="space-y-6">
-          {/* Recent Content */}
-          <Card>
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <FileText className="h-5 w-5 text-lips-gold" />
-                  Contenus récents
-                </CardTitle>
-                <Link href="/admin/contenus">
-                  <Button variant="ghost" size="sm" className="text-lips-green gap-1">
-                    Voir tout <ArrowRight className="h-3 w-3" />
-                  </Button>
-                </Link>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {data.recentContents.map((content) => (
-                  <div key={content.id} className="flex items-center justify-between py-2 border-b last:border-0">
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium truncate">{content.titre}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {typeLabels[content.type] || content.type}
-                      </p>
+        <Card className="border-border/50 shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-base font-bold">Membres par Région (Top 5)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[300px] w-full flex flex-col justify-between py-4">
+              {REGION_DATA.map((data, i) => {
+                const max = Math.max(...REGION_DATA.map(d => d.membres));
+                const width = `${(data.membres / max) * 100}%`;
+                return (
+                  <div key={i} className="flex items-center gap-3 group">
+                    <div className="w-24 text-xs font-semibold text-muted-foreground truncate">{data.region}</div>
+                    <div className="flex-1 h-8 bg-muted/10 rounded-r-md relative flex items-center group-hover:bg-muted/20 transition-colors">
+                      <div 
+                        className="h-full bg-[#0A2E17] rounded-r-md transition-all duration-700 ease-out group-hover:brightness-110"
+                        style={{ width }}
+                      />
+                      <span className="ml-3 text-xs font-bold text-foreground">{data.membres.toLocaleString('fr-FR')}</span>
                     </div>
-                    <Badge variant={content.published ? 'default' : 'secondary'} className="ml-2 shrink-0">
-                      {content.published ? 'Publié' : 'Brouillon'}
-                    </Badge>
                   </div>
-                ))}
-                {data.recentContents.length === 0 && (
-                  <p className="text-sm text-muted-foreground text-center py-4">
-                    Aucun contenu récent
-                  </p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Recent Members */}
-          <Card>
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Users className="h-5 w-5 text-lips-emerald" />
-                  Membres récents
-                </CardTitle>
-                <Link href="/admin/membres">
-                  <Button variant="ghost" size="sm" className="text-lips-green gap-1">
-                    Voir tout <ArrowRight className="h-3 w-3" />
-                  </Button>
-                </Link>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {data.recentMembers.map((member) => (
-                  <div key={member.id} className="flex items-center justify-between py-2 border-b last:border-0">
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium truncate">
-                        {member.prenom} {member.nom}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {roleLabels[member.role] || member.role} — {member.region?.nom || 'N/A'}
-                      </p>
-                    </div>
-                    <Badge
-                      variant={statusLabels[member.status]?.variant || 'secondary'}
-                      className="ml-2 shrink-0"
-                    >
-                      {statusLabels[member.status]?.label || member.status}
-                    </Badge>
-                  </div>
-                ))}
-                {data.recentMembers.length === 0 && (
-                  <p className="text-sm text-muted-foreground text-center py-4">
-                    Aucun membre récent
-                  </p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
       </div>
+
+      {/* Recent Activity */}
+      <Card className="border-border/50 shadow-sm">
+        <CardHeader>
+          <CardTitle className="text-base font-bold">Dernières Inscriptions Validées</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {[
+              { name: 'Oustaz Mamadou Sy', region: 'Dakar', role: 'Imam', time: 'Il y a 2 heures' },
+              { name: 'Cheikh Ahmadou Bamba', region: 'Thiès', role: 'Prédicateur', time: 'Il y a 5 heures' },
+              { name: 'Imam Alioune Badara', region: 'Saint-Louis', role: 'Membre', time: 'Il y a 1 jour' },
+            ].map((activity, i) => (
+              <div key={i} className="flex items-center justify-between p-4 bg-muted/50 rounded-xl border border-border/50">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-full bg-lips-green/10 flex items-center justify-center">
+                    <CheckCircle2 className="h-5 w-5 text-lips-green" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-foreground">{activity.name}</h4>
+                    <p className="text-xs text-muted-foreground">{activity.role} • {activity.region}</p>
+                  </div>
+                </div>
+                <div className="text-xs font-medium text-muted-foreground">{activity.time}</div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
-  )
+  );
 }

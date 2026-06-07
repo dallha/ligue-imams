@@ -111,7 +111,7 @@ const TYPE_COLORS: Record<string, string> = {
 };
 
 export default function ActualitesSection() {
-  const { p } = useLanguage();
+  const { p, isRTL } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
   const [dbArticles, setDbArticles] = useState<Article[]>([]);
@@ -211,11 +211,8 @@ export default function ActualitesSection() {
                       {featured.categorie}
                     </Badge>
                     <h3 className="text-xl font-bold mb-2 group-hover:text-lips-gold transition-colors">
-                      {featured.titre}
+                      {isRTL && featured.titreAr ? featured.titreAr : featured.titre}
                     </h3>
-                    {featured.titreAr && (
-                      <p className="font-arabic text-sm text-white/50 mb-3">{featured.titreAr}</p>
-                    )}
                   </div>
                   <p className="text-white/70 text-sm leading-relaxed">
                     {featured.extrait}
@@ -273,11 +270,8 @@ export default function ActualitesSection() {
                     )}
                   </div>
                   <h4 className="font-semibold text-lips-green-dark text-sm mb-1.5 group-hover:text-lips-green transition-colors leading-snug">
-                    {article.titre}
+                    {isRTL && article.titreAr ? article.titreAr : article.titre}
                   </h4>
-                  {article.titreAr && (
-                    <span className="font-arabic text-[10px] text-lips-gold mb-2">{article.titreAr}</span>
-                  )}
                   <p className="text-xs text-muted-foreground leading-relaxed flex-1 mb-3">
                     {article.extrait.substring(0, 120)}...
                   </p>

@@ -290,8 +290,7 @@ function MemberLoginForm() {
                       className="pl-11 pr-11 bg-white/5 border-white/10 text-white placeholder:text-white/25 focus:border-lips-green/50 focus:ring-lips-green/20 h-11 rounded-xl"
                       disabled={lockout.locked}
                       onFocus={() => setPasswordFocused(true)}
-                      onBlur={() => setPasswordFocused(false)}
-                      {...register('password')}
+                      {...register('password', { onBlur: () => setPasswordFocused(false) })}
                     />
                     <button
                       type="button"

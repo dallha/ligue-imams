@@ -1,7 +1,6 @@
 'use client';
 
 import LipsHeader from '@/components/lips/header';
-import PrayerTimesWidget from '@/components/lips/prayer-times';
 import PageBanner from '@/components/lips/page-banner';
 import AgendaSection from '@/components/lips/agenda';
 import NewsletterSection from '@/components/lips/newsletter';
@@ -14,8 +13,7 @@ export default function AgendaPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <LipsHeader />
-      <PrayerTimesWidget />
-      <main className="flex-1">
+            <main className="flex-1">
         <PageBanner
           label={p.pages.agenda.label}
           title={p.pages.agenda.title}

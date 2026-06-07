@@ -1,12 +1,23 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { Camera, Calendar, MapPin, Users } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useLanguage } from '@/lib/lips/i18n/language-context';
 
-const PHOTOS = [
+interface GalerieItem {
+  id: number;
+  titre: string;
+  titreAr?: string;
+  lieu?: string;
+  date?: string;
+  count: number;
+  gradient: string;
+  imageUrl?: string;
+}
+
+const FALLBACK_PHOTOS: GalerieItem[] = [
   {
     id: 1,
     titre: 'Assemblée Générale 2025',
@@ -58,9 +69,24 @@ const PHOTOS = [
 ];
 
 export default function GalerieSection() {
-  const { p } = useLanguage();
+  const { p, isRTL } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
+  const [dbPhotos, setDbPhotos] = useState<GalerieItem[]>([]);
+
+  useEffect(() => {
+    fetch('/api/public/galerie?limit=6')
+      .then(res => res.json())
+      .then(data => {
+        if (data.data && data.data.length > 0) {
+          setDbPhotos(data.data);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const PHOTOS = dbPhotos.length > 0 ? dbPhotos : FALLBACK_PHOTOS;
+
 
   return (
     <section
@@ -118,16 +144,22 @@ export default function GalerieSection() {
                   </div>
 
                   <div className="text-white transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-                    <h4 className="font-bold text-sm leading-tight">{photo.titre}</h4>
+                    <h4 className="font-bold text-sm leading-tight">
+                      {isRTL && photo.titreAr ? photo.titreAr : photo.titre}
+                    </h4>
                     <div className="flex items-center gap-3 mt-1.5 text-[10px] text-white/70">
-                      <span className="flex items-center gap-1">
-                        <MapPin className="h-3 w-3" />
-                        {photo.lieu}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Calendar className="h-3 w-3" />
-                        {photo.date}
-                      </span>
+                      {photo.lieu && (
+                        <span className="flex items-center gap-1">
+                          <MapPin className="h-3 w-3" />
+                          {photo.lieu}
+                        </span>
+                      )}
+                      {photo.date && (
+                        <span className="flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          {photo.date}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>

@@ -39,13 +39,15 @@ model User {
   prenom    String
   telephone String
   photo     String?
-  role      String    @default("IMAM") // IMAM, PREDICATEUR, RESPONSABLE_REGIONAL, ADMIN, PRESIDENT, MEMBRE_CHOURA
+  roleId    Int?
+  role      Role?     @relation(fields: [roleId], references: [id])
   status    String    @default("EN_ATTENTE") // ACTIF, EXPIRE, EN_ATTENTE
 
   regionId  Int
   region    Region    @relation(fields: [regionId], references: [id])
   mosqueId  Int?
   mosque    Mosque?   @relation(fields: [mosqueId], references: [id])
+  commissions Commission[] @relation("UserCommissions")
 
   carteMembre   CarteMembre?
   paiements     Paiement[]
@@ -60,6 +62,23 @@ model Mosque {
   regionId Int
   region   Region @relation(fields: [regionId], references: [id])
   imams    User[]
+}
+
+// --- DOMAINE RBAC (Role-Based Access Control) ---
+
+model Role {
+  id          Int          @id @default(autoincrement())
+  name        String       @unique // Ex: SUPER_ADMIN, ADMIN_REGIONAL, IMAM
+  description String?
+  permissions Permission[] @relation("RolePermissions")
+  users       User[]
+}
+
+model Permission {
+  id          Int     @id @default(autoincrement())
+  action      String  @unique // Ex: manage:users, manage:finances, publish:fatwa
+  description String?
+  roles       Role[]  @relation("RolePermissions")
 }
 
 // --- DOMAINE CARTE MEMBRE & VÉRIFICATION ---
@@ -154,8 +173,9 @@ model Commission {
   members   Int      @default(0)
   desc      String?
   icon      String? // lucide icon name
-  ordre     Int      @default(0)
-  published Boolean  @default(true)
+  ordre        Int      @default(0)
+  published    Boolean  @default(true)
+  membersList  User[]   @relation("UserCommissions")
 }
 
 // --- DOMAINE CONCOURS ---
@@ -229,4 +249,62 @@ model Event {
   imageUrl    String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+// --- DOMAINE CMS STATIC PAGES & UI TEXTS ---
+
+model StaticPage {
+  id          Int      @id @default(autoincrement())
+  slug        String   @unique // ex: 'accueil', 'a-propos'
+  title       String
+  titleAr     String?
+  content     String?  // Peut stocker du JSON structuré ou du Markdown/HTML
+  contentAr   String?
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model UIText {
+  id          Int      @id @default(autoincrement())
+  key         String   @unique // ex: 'btn.adherer', 'home.hero.title'
+  value       String
+  valueAr     String?
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// --- DOMAINE GALERIE ---
+
+model Galerie {
+  id        Int      @id @default(autoincrement())
+  titre     String
+  titreAr   String?
+  lieu      String?
+  date      String?
+  count     Int      @default(0)
+  gradient  String?  @default("from-lips-green-dark to-lips-green")
+  imageUrl  String?
+  published Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// --- DOMAINE STATISTIQUES ---
+
+model Statistique {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique // ex: 'mosquees', 'membres'
+  icon      String?  // lucide icon name
+  value     Int
+  suffix    String?
+  label     String
+  labelAr   String?
+  desc      String?
+  descAr    String?
+  ordre     Int      @default(0)
+  published Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

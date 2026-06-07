@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/db'
+import { NextResponse } from 'next/server'
 import { getAdminSession } from '@/lib/admin-auth'
+import { CoranService } from '@/services/coran.service'
 
 export async function PUT(
-  request: NextRequest,
+  request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -12,24 +12,14 @@ export async function PUT(
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
     }
 
-    const { id } = await params
-    const body = await request.json()
-    const { name, bio, ordre, published } = body
-
-    const existing = await db.coranReciter.findUnique({ where: { id: parseInt(id) } })
-    if (!existing) {
-      return NextResponse.json({ error: 'Récitateur non trouvé' }, { status: 404 })
+    const { id: paramId } = await params
+    const id = parseInt(paramId)
+    if (isNaN(id)) {
+      return NextResponse.json({ error: 'ID invalide' }, { status: 400 })
     }
 
-    const reciter = await db.coranReciter.update({
-      where: { id: parseInt(id) },
-      data: {
-        ...(name !== undefined && { name }),
-        ...(bio !== undefined && { bio }),
-        ...(ordre !== undefined && { ordre }),
-        ...(published !== undefined && { published }),
-      },
-    })
+    const body = await request.json()
+    const reciter = await CoranService.updateReciter(id, body)
 
     return NextResponse.json({ data: reciter })
   } catch (error) {
@@ -39,7 +29,7 @@ export async function PUT(
 }
 
 export async function DELETE(
-  _request: NextRequest,
+  request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -48,13 +38,13 @@ export async function DELETE(
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
     }
 
-    const { id } = await params
-    const existing = await db.coranReciter.findUnique({ where: { id: parseInt(id) } })
-    if (!existing) {
-      return NextResponse.json({ error: 'Récitateur non trouvé' }, { status: 404 })
+    const { id: paramId } = await params
+    const id = parseInt(paramId)
+    if (isNaN(id)) {
+      return NextResponse.json({ error: 'ID invalide' }, { status: 400 })
     }
 
-    await db.coranReciter.delete({ where: { id: parseInt(id) } })
+    await CoranService.deleteReciter(id)
 
     return NextResponse.json({ success: true })
   } catch (error) {

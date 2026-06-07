@@ -1,7 +1,6 @@
 'use client';
 
 import LipsHeader from '@/components/lips/header';
-import PrayerTimesWidget from '@/components/lips/prayer-times';
 import PageBanner from '@/components/lips/page-banner';
 import SenegalMap from '@/components/lips/senegal-map';
 import RegionsSection from '@/components/lips/regions';
@@ -15,8 +14,7 @@ export default function RegionsPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <LipsHeader />
-      <PrayerTimesWidget />
-      <main className="flex-1">
+            <main className="flex-1">
         <PageBanner
           label={p.pages.regions.label}
           title={p.pages.regions.title}
@@ -25,7 +23,7 @@ export default function RegionsPage() {
         />
 
         {/* Interactive Map Section */}
-        <section className="py-12 sm:py-16 bg-white relative overflow-hidden">
+        <section className="py-12 sm:py-16 bg-background relative overflow-hidden">
           <div className="absolute inset-0 islamic-pattern opacity-5" />
           <div className="relative max-w-7xl mx-auto px-4">
             <div className="text-center mb-8">

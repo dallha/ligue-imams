@@ -27,7 +27,7 @@ interface LanguageContextValue {
 const LanguageContext = createContext<LanguageContextValue | null>(null);
 
 // ─── Provider ──────────────────────────────────────────────────
-export function LanguageProvider({ children }: { children: React.ReactNode }) {
+export function LanguageProvider({ children, uiTexts = [] }: { children: React.ReactNode, uiTexts?: any[] }) {
   const [locale, setLocaleState] = useState<Locale>('fr');
 
   // Read saved locale from localStorage on mount
@@ -69,19 +69,49 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   const isRTL = RTL_LOCALES.includes(locale);
   const dir = isRTL ? 'rtl' as const : 'ltr' as const;
-  const t = dictionaries[locale];
-  const p = pageDictionaries[locale];
+
+  // Merge dynamic UI Texts from DB
+  const { mergedT, mergedP } = useMemo(() => {
+    const t = structuredClone(dictionaries[locale]) as any;
+    const p = structuredClone(pageDictionaries[locale]) as any;
+
+    if (uiTexts && uiTexts.length > 0) {
+      uiTexts.forEach((item) => {
+        const val = locale === 'ar' && item.valueAr ? item.valueAr : item.value;
+        const keys = item.key.split('.');
+        
+        let target = t;
+        if (keys[0] === 'pages' || keys[0] === 'p') {
+          target = p;
+          if (keys[0] === 'pages' || keys[0] === 'p') keys.shift();
+        }
+
+        // Deep set
+        let current = target;
+        for (let i = 0; i < keys.length - 1; i++) {
+          if (!current[keys[i]]) current[keys[i]] = {};
+          current = current[keys[i]];
+        }
+        if (current) {
+          current[keys[keys.length - 1]] = val;
+        }
+      });
+    }
+
+    return { mergedT: t as TranslationDict, mergedP: p as PageTranslations };
+  }, [locale, uiTexts]);
+
   const localeName = LOCALE_NAMES[locale];
 
   const value = useMemo<LanguageContextValue>(() => ({
     locale,
-    t,
-    p,
+    t: mergedT,
+    p: mergedP,
     dir,
     isRTL,
     setLocale,
     localeName,
-  }), [locale, t, p, dir, isRTL, setLocale, localeName]);
+  }), [locale, mergedT, mergedP, dir, isRTL, setLocale, localeName]);
 
   return (
     <LanguageContext.Provider value={value}>

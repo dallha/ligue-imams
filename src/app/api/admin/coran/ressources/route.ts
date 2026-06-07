@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
-import { db } from '@/lib/db'
 import { getAdminSession } from '@/lib/admin-auth'
+import { CoranService } from '@/services/coran.service'
 
 export async function GET() {
   try {
@@ -9,10 +9,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
     }
 
-    const ressources = await db.coranResource.findMany({
-      orderBy: { id: 'desc' },
-    })
-
+    const ressources = await CoranService.getResources()
     return NextResponse.json({ data: ressources })
   } catch (error) {
     console.error('Get ressources error:', error)
@@ -28,22 +25,12 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { title, description, url, icon, published } = body
-
-    if (!title) {
+    
+    if (!body.title) {
       return NextResponse.json({ error: 'Le titre est requis' }, { status: 400 })
     }
 
-    const ressource = await db.coranResource.create({
-      data: {
-        title,
-        description: description || null,
-        url: url || null,
-        icon: icon || 'BookOpen',
-        published: published ?? false,
-      },
-    })
-
+    const ressource = await CoranService.createResource(body)
     return NextResponse.json({ data: ressource }, { status: 201 })
   } catch (error) {
     console.error('Create ressource error:', error)

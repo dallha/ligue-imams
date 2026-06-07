@@ -15,11 +15,10 @@ import {
   Globe,
   Mic,
   GraduationCap,
-  ChevronRight,
   Loader2,
   RefreshCw,
   ListMusic,
-  X,
+  ChevronDown,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -89,7 +88,7 @@ const SURAH_NAMES_AR: Record<number, string> = {
   110:'النصر',111:'المسد',112:'الإخلاص',113:'الفلق',114:'الناس',
 };
 
-// ─── Daily Verses (now from translations) ────────────────────
+// ─── Daily Verses ──────────────────────────────────────────────
 interface DailyVerse {
   arabic: string;
   translation: string;
@@ -119,57 +118,31 @@ function cn(...classes: (string | false | undefined | null)[]): string {
   return classes.filter(Boolean).join(' ');
 }
 
-// ─── Reciter Pill Component ───────────────────────────────────
-function ReciterPill({ reciter, isSelected, onClick }: { reciter: Reciter; isSelected: boolean; onClick: () => void }) {
-  const btnCls = cn(
-    'flex-shrink-0 flex items-center gap-2.5 pl-2 pr-4 py-2 rounded-full transition-all duration-200 border',
-    isSelected
-      ? 'bg-lips-green text-white border-lips-green shadow-lg shadow-lips-green/20'
-      : 'bg-white border-border/50 hover:border-lips-green/30 hover:shadow-sm'
-  );
-  const avatarCls = cn(
-    'w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0',
-    isSelected ? 'bg-lips-gold' : 'bg-lips-green/10'
-  );
-  const initialCls = cn('font-bold text-xs', isSelected ? 'text-lips-green-dark' : 'text-lips-green');
-  const nameCls = cn('text-xs font-medium whitespace-nowrap', isSelected ? 'text-white' : 'text-lips-green-dark');
-
-  return (
-    <motion.button key={reciter.id} onClick={onClick} className={btnCls} whileTap={{ scale: 0.97 }}>
-      <div className={avatarCls}>
-        <span className={initialCls}>{reciter.name.charAt(0)}</span>
-      </div>
-      <span className={nameCls}>{reciter.name}</span>
-    </motion.button>
-  );
-}
-
-// ─── Search Result Row ────────────────────────────────────────
+// ─── Reciter Search Row ────────────────────────────────────────
 function ReciterSearchRow({ reciter, isSelected, isPopular, onClick }: { reciter: Reciter; isSelected: boolean; isPopular: boolean; onClick: () => void }) {
   const { t } = useLanguage();
-  const rowCls = cn(
-    'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-left',
-    isSelected ? 'bg-lips-green text-white' : 'hover:bg-lips-green/5'
-  );
-  const avatarCls = cn(
-    'w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0',
-    isSelected ? 'bg-lips-gold' : 'bg-lips-green/10'
-  );
-  const initialCls = cn('font-bold text-xs', isSelected ? 'text-lips-green-dark' : 'text-lips-green');
-  const nameCls = cn('text-sm font-medium truncate', isSelected ? 'text-white' : 'text-lips-green-dark');
-  const subCls = cn('text-[10px] truncate', isSelected ? 'text-white/60' : 'text-muted-foreground');
-
   return (
-    <button key={reciter.id} onClick={onClick} className={rowCls}>
-      <div className={avatarCls}>
-        <span className={initialCls}>{reciter.name.charAt(0)}</span>
+    <button
+      onClick={onClick}
+      className={cn(
+        'w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 text-left group',
+        isSelected ? 'bg-lips-green text-white shadow-md' : 'hover:bg-muted/50'
+      )}
+    >
+      <div className={cn(
+        'w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 transition-colors',
+        isSelected ? 'bg-white/20' : 'bg-lips-green/10 group-hover:bg-lips-green/20'
+      )}>
+        <span className={cn('font-bold text-sm', isSelected ? 'text-white' : 'text-lips-green')}>{reciter.name.charAt(0)}</span>
       </div>
       <div className="min-w-0 flex-1">
-        <p className={nameCls}>{reciter.name}</p>
-        <p className={subCls}>{reciter.moshaf.length} {reciter.moshaf.length > 1 ? t.coran.styles : t.coran.style} — {reciter.letter}</p>
+        <p className={cn('text-sm font-semibold truncate', isSelected ? 'text-white' : 'text-foreground')}>{reciter.name}</p>
+        <p className={cn('text-[11px] truncate mt-0.5', isSelected ? 'text-white/70' : 'text-muted-foreground')}>
+          {reciter.moshaf.length} {reciter.moshaf.length > 1 ? t.coran.styles : t.coran.style}
+        </p>
       </div>
-      {isPopular && (
-        <Badge className="bg-lips-gold/10 text-lips-gold border-lips-gold/20 text-[9px] shrink-0">{t.coran.popular}</Badge>
+      {isPopular && !isSelected && (
+        <Badge variant="outline" className="text-[10px] text-lips-gold border-lips-gold/20 bg-lips-gold/5 shrink-0">{t.coran.popular}</Badge>
       )}
     </button>
   );
@@ -178,8 +151,8 @@ function ReciterSearchRow({ reciter, isSelected, isPopular, onClick }: { reciter
 // ─── Main Component ───────────────────────────────────────────
 export default function CoranSection() {
   const { t } = useLanguage();
-  const sectionRef = useRef<HTMLElement>(null);
-  const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const playerRef = useRef<HTMLDivElement>(null);
 
   // Data state
   const [reciters, setReciters] = useState<Reciter[]>([]);
@@ -203,11 +176,8 @@ export default function CoranSection() {
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
   const [reciterSearch, setReciterSearch] = useState('');
-  const [showReciterSearch, setShowReciterSearch] = useState(false);
 
   const dailyVerse = useMemo(() => getDailyVerse(t), [t]);
-
-  // ─── DB-driven data for daily verse & resources ────────
   const [dbVerse, setDbVerse] = useState<DailyVerse | null>(null);
   const [dbResources, setDbResources] = useState<Array<{ title: string; description: string; icon: React.ElementType; href: string; color: string }>>([]);
 
@@ -215,23 +185,20 @@ export default function CoranSection() {
     fetch('/api/public/coran')
       .then(r => r.json())
       .then(data => {
-        // Use today's active verse if available, else most recent published
         if (data.data?.verses?.length > 0) {
           const today = new Date().toISOString().slice(0, 10);
           const todayVerse = data.data.verses.find((v: any) => v.dateActive && v.dateActive.slice(0, 10) === today);
           const verse = todayVerse || data.data.verses[0];
           setDbVerse({ arabic: verse.arabic, translation: verse.french, reference: verse.reference });
         }
-        // Map DB resources
         if (data.data?.resources?.length > 0) {
           const iconMap: Record<string, React.ElementType> = { BookOpen, Headphones, Mic, Globe, GraduationCap };
-          const colorMap: Record<string, string> = { BookOpen: 'text-lips-green', Headphones: 'text-lips-gold', Mic: 'text-amber-600', Globe: 'text-lips-gold', GraduationCap: 'text-lips-green-dark' };
           const res = data.data.resources.map((r: any) => ({
             title: r.title,
             description: r.description || '',
             icon: iconMap[r.icon] || BookOpen,
             href: r.url || '#',
-            color: colorMap[r.icon] || 'text-lips-green',
+            color: 'text-lips-green',
           }));
           setDbResources(res);
         }
@@ -240,17 +207,11 @@ export default function CoranSection() {
   }, []);
 
   const activeVerse = dbVerse || dailyVerse;
-
-  // ─── Quran Resources (DB or fallback to i18n) ──
   const quranResources = dbResources.length > 0 ? dbResources : useMemo(() => [
     { title: t.coran.resReadCoran, description: t.coran.resReadCoranDesc, icon: BookOpen, href: 'https://quran.com/fr/', color: 'text-lips-green' },
     { title: t.coran.resMp3Quran, description: t.coran.resMp3QuranDesc, icon: Headphones, href: 'https://www.mp3quran.net/fr', color: 'text-lips-gold' },
-    { title: t.coran.resWolof, description: t.coran.resWolofDesc, icon: Globe, href: '#', color: 'text-lips-gold' },
-    { title: t.coran.resTafsir, description: t.coran.resTafsirDesc, icon: Mic, href: '#', color: 'text-amber-600' },
-    { title: t.coran.resHifz, description: t.coran.resHifzDesc, icon: GraduationCap, href: '#', color: 'text-lips-green-dark' },
   ], [t]);
 
-  // ─── Fetch data ───────────────────────────────────────────
   useEffect(() => {
     async function fetchData() {
       try {
@@ -261,29 +222,24 @@ export default function CoranSection() {
         ]);
 
         if (!recitersRes.ok || !suwarRes.ok) throw new Error('API error');
-
         const recitersData = await recitersRes.json();
         const suwarData = await suwarRes.json();
 
         setSuwar(suwarData.suwar || []);
 
-        // Sort: popular reciters first
         const all = recitersData.reciters || [];
-        const popular = POPULAR_RECITER_IDS
-          .map(id => all.find((r: Reciter) => r.id === id))
-          .filter(Boolean) as Reciter[];
+        const popular = POPULAR_RECITER_IDS.map(id => all.find((r: Reciter) => r.id === id)).filter(Boolean) as Reciter[];
         const others = all.filter((r: Reciter) => !POPULAR_RECITER_IDS.includes(r.id));
 
         setReciters([...popular, ...others]);
 
-        // Auto-select first popular reciter
         if (popular.length > 0) {
           setSelectedReciter(popular[0]);
           const murattal = popular[0].moshaf.find(m => m.moshafType === 11) || popular[0].moshaf[0];
           setSelectedMoshaf(murattal);
         }
       } catch (err) {
-        console.error('Fetch error:', err);
+        console.error(err);
         setDataError(t.coran.fetchError);
       } finally {
         setLoading(false);
@@ -292,11 +248,8 @@ export default function CoranSection() {
     fetchData();
   }, [t.coran.fetchError]);
 
-  // ─── Audio player logic ──────────────────────────────────
   useEffect(() => {
-    if (!audioRef.current) {
-      audioRef.current = new Audio();
-    }
+    if (!audioRef.current) audioRef.current = new Audio();
     return () => {
       if (audioRef.current) {
         audioRef.current.pause();
@@ -308,10 +261,8 @@ export default function CoranSection() {
   const playSurah = useCallback((surahNum: number, moshaf?: Moshaf) => {
     const m = moshaf || selectedMoshaf;
     if (!m) return;
-
     const audio = audioRef.current!;
-    const url = getAudioUrl(m.server, surahNum);
-    audio.src = url;
+    audio.src = getAudioUrl(m.server, surahNum);
     audio.volume = isMuted ? 0 : volume;
     setAudioLoading(true);
     setCurrentSurah(surahNum);
@@ -319,16 +270,12 @@ export default function CoranSection() {
     setCurrentTime(0);
     setDuration(0);
 
-    audio.play()
-      .then(() => { setIsPlaying(true); setAudioLoading(false); })
-      .catch((err) => { console.error('Play error:', err); setAudioLoading(false); });
+    audio.play().then(() => { setIsPlaying(true); setAudioLoading(false); }).catch(() => setAudioLoading(false));
   }, [selectedMoshaf, volume, isMuted]);
 
-  // Audio event listeners
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
-
     const onTimeUpdate = () => {
       setCurrentTime(audio.currentTime);
       if (audio.duration && isFinite(audio.duration)) {
@@ -336,18 +283,8 @@ export default function CoranSection() {
         setDuration(audio.duration);
       }
     };
-    const onEnded = () => {
-      setIsPlaying(false);
-      if (currentSurah < 114 && selectedMoshaf) {
-        playSurah(currentSurah + 1);
-      }
-    };
-    const onLoadedMetadata = () => {
-      if (audio.duration && isFinite(audio.duration)) {
-        setDuration(audio.duration);
-      }
-      setAudioLoading(false);
-    };
+    const onEnded = () => { setIsPlaying(false); if (currentSurah < 114) playSurah(currentSurah + 1); };
+    const onLoadedMetadata = () => { if (audio.duration && isFinite(audio.duration)) setDuration(audio.duration); setAudioLoading(false); };
     const onCanPlay = () => setAudioLoading(false);
     const onWaiting = () => setAudioLoading(true);
 
@@ -356,7 +293,6 @@ export default function CoranSection() {
     audio.addEventListener('loadedmetadata', onLoadedMetadata);
     audio.addEventListener('canplay', onCanPlay);
     audio.addEventListener('waiting', onWaiting);
-
     return () => {
       audio.removeEventListener('timeupdate', onTimeUpdate);
       audio.removeEventListener('ended', onEnded);
@@ -368,25 +304,15 @@ export default function CoranSection() {
 
   const togglePlay = () => {
     const audio = audioRef.current!;
-    if (isPlaying) {
-      audio.pause();
-      setIsPlaying(false);
-    } else {
-      if (!audio.src || audio.src === window.location.href) {
-        playSurah(currentSurah);
-      } else {
-        audio.play().then(() => setIsPlaying(true)).catch(console.error);
-      }
+    if (isPlaying) { audio.pause(); setIsPlaying(false); }
+    else {
+      if (!audio.src || audio.src === window.location.href) playSurah(currentSurah);
+      else audio.play().then(() => setIsPlaying(true)).catch(console.error);
     }
   };
 
-  const handlePrev = () => {
-    if (currentSurah > 1) playSurah(currentSurah - 1);
-  };
-  const handleNext = () => {
-    if (currentSurah < 114) playSurah(currentSurah + 1);
-  };
-
+  const handlePrev = () => { if (currentSurah > 1) playSurah(currentSurah - 1); };
+  const handleNext = () => { if (currentSurah < 114) playSurah(currentSurah + 1); };
   const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
     const audio = audioRef.current!;
     if (!audio.duration || !isFinite(audio.duration)) return;
@@ -394,486 +320,388 @@ export default function CoranSection() {
     const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
     audio.currentTime = ratio * audio.duration;
   };
-
   const toggleMute = () => {
     const audio = audioRef.current!;
-    if (isMuted) {
-      audio.volume = volume;
-      setIsMuted(false);
-    } else {
-      audio.volume = 0;
-      setIsMuted(true);
-    }
+    if (isMuted) { audio.volume = volume; setIsMuted(false); }
+    else { audio.volume = 0; setIsMuted(true); }
   };
-
   const handleVolumeChange = (val: number) => {
     const audio = audioRef.current!;
-    setVolume(val);
-    audio.volume = val;
+    setVolume(val); audio.volume = val;
     if (val > 0 && isMuted) setIsMuted(false);
   };
-
   const selectReciter = (reciter: Reciter, moshaf?: Moshaf) => {
     setSelectedReciter(reciter);
     const m = moshaf || reciter.moshaf.find(m2 => m2.moshafType === 11) || reciter.moshaf[0];
     setSelectedMoshaf(m);
-    if (isPlaying) {
-      playSurah(currentSurah, m);
-    }
+    if (isPlaying) playSurah(currentSurah, m);
   };
 
-  // ─── Filtered surahs ────────────────────────────────────
+  const scrollToPlayer = () => {
+    playerRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   const filteredSurahs = useMemo(() => {
     if (!searchQuery.trim()) return suwar;
     const q = searchQuery.toLowerCase();
-    return suwar.filter((s) =>
-      s.name.toLowerCase().includes(q) ||
-      (SURAH_NAMES_AR[s.id] || '').includes(q) ||
-      s.id.toString() === q
-    );
+    return suwar.filter((s) => s.name.toLowerCase().includes(q) || (SURAH_NAMES_AR[s.id] || '').includes(q) || s.id.toString() === q);
   }, [searchQuery, suwar]);
 
-  // ─── Popular reciters (first 12) ─────────────────────────
-  const popularReciters = useMemo(() => {
-    return reciters.slice(0, 12);
-  }, [reciters]);
-
-  // ─── Search results for additional reciters ───────────────
   const reciterSearchResults = useMemo(() => {
-    if (!reciterSearch.trim()) return [];
+    if (!reciterSearch.trim()) return reciters.slice(0, 15);
     const q = reciterSearch.toLowerCase();
-    return reciters.filter(r =>
-      r.name.toLowerCase().includes(q) ||
-      r.letter.toLowerCase().includes(q)
-    ).slice(0, 20);
+    return reciters.filter(r => r.name.toLowerCase().includes(q) || r.letter.toLowerCase().includes(q)).slice(0, 15);
   }, [reciterSearch, reciters]);
 
   const currentSurahName = suwar.find(s => s.id === currentSurah)?.name || t.coran.surahLabel + ' ' + currentSurah;
   const currentSurahNameAr = SURAH_NAMES_AR[currentSurah] || '';
 
   return (
-    <div ref={sectionRef}>
+    <div ref={sectionRef} className="bg-background min-h-screen font-sans">
+      
       {/* ===== A. Hero Section ===== */}
-      <section className="relative py-12 sm:py-20 lg:py-28 bg-gradient-to-b from-lips-green-dark via-lips-green to-lips-green-dark text-white overflow-hidden">
-        <div className="absolute inset-0 islamic-pattern opacity-10" />
-        <div className="absolute top-10 left-10 w-32 h-32 border border-white/5 rotate-45 rounded-sm" />
-        <div className="absolute bottom-10 right-16 w-20 h-20 border border-lips-gold/10 rotate-12 rounded-sm" />
-        <div className="absolute top-1/3 right-10 w-12 h-12 border border-white/5 rotate-45 rounded-full" />
+      <section className="relative min-h-[60vh] flex items-center justify-center bg-[#0D3B1F] text-white overflow-hidden py-20">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0D3B1F] via-[#1B6B3A]/80 to-[#0D3B1F] z-0" />
+        
+        {/* Abstract typography background */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.03] select-none pointer-events-none z-0">
+          <p className="font-arabic text-[30vw] leading-none whitespace-nowrap text-white drop-shadow-2xl">القرآن</p>
+        </div>
+        
+        <div className="absolute inset-0 bg-[url('/noise.png')] opacity-20 mix-blend-overlay z-0" />
 
-        <div className="relative max-w-4xl mx-auto px-4 text-center">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
-            <span className="text-sm font-semibold text-lips-gold tracking-widest uppercase">{t.coran.heroTag}</span>
-            <p className="font-arabic text-4xl sm:text-5xl lg:text-7xl text-lips-gold mt-4 mb-4 leading-relaxed">القرآن الكريم</p>
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-4">{t.coran.heroTitle}</h1>
-            <div className="separator-islamic text-lips-gold text-2xl my-4">&#10022;</div>
-            <p className="text-white/70 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed">
+        <div className="relative z-10 max-w-5xl mx-auto px-4 text-center">
+          <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: 'easeOut' }}>
+            <Badge variant="outline" className="text-lips-gold border-lips-gold/30 bg-lips-gold/5 mb-6 px-4 py-1 text-xs tracking-widest uppercase backdrop-blur-sm shadow-sm">
+              {t.coran.heroTag}
+            </Badge>
+            <h1 className="text-5xl sm:text-7xl lg:text-8xl font-bold font-arabic text-transparent bg-clip-text bg-gradient-to-r from-[#E5BE5A] to-[#C9962A] mb-6 drop-shadow-xl" dir="rtl">
+              القرآن الكريم
+            </h1>
+            <h2 className="text-2xl sm:text-4xl font-semibold mb-6 tracking-tight text-white/90">Le Saint Coran</h2>
+            <p className="text-white/70 max-w-2xl mx-auto text-lg mb-10 font-light leading-relaxed">
               {t.coran.heroSubtitle}
             </p>
+            <Button 
+              onClick={scrollToPlayer}
+              className="bg-lips-gold hover:bg-[#C9962A] text-[#0D3B1F] font-bold text-base sm:text-lg px-8 py-6 rounded-full shadow-[0_0_40px_rgba(201,150,42,0.3)] hover:shadow-[0_0_60px_rgba(201,150,42,0.5)] transition-all hover:-translate-y-1"
+            >
+              <Headphones className="mr-3 h-5 w-5" /> Écouter la Récitation
+            </Button>
           </motion.div>
         </div>
-        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-lips-gold/40 to-transparent" />
+
+        {/* Scroll indicator */}
+        <motion.div 
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1, duration: 1 }}
+          className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center text-white/50 animate-bounce cursor-pointer hover:text-white transition-colors"
+          onClick={scrollToPlayer}
+        >
+          <ChevronDown className="h-8 w-8" />
+        </motion.div>
       </section>
 
-      {/* ===== E. Daily Verse Widget ===== */}
-      <section className="py-10 sm:py-16 bg-lips-cream relative">
-        <div className="absolute inset-0 islamic-pattern opacity-5" />
-        <div className="relative max-w-4xl mx-auto px-4">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay: 0.1 }}>
-            <Card className="border-lips-gold/30 bg-white/90 backdrop-blur-sm shadow-lg overflow-hidden">
-              <CardContent className="p-6 sm:p-8 lg:p-10">
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="w-8 h-8 rounded-full bg-lips-gold/20 flex items-center justify-center">
-                    <BookOpen className="h-4 w-4 text-lips-gold" />
-                  </div>
-                  <Badge className="bg-lips-gold/10 text-lips-gold border-lips-gold/20 text-xs">{t.coran.verseOfDay}</Badge>
+      {/* ===== B. Daily Verse Widget ===== */}
+      <section className="py-24 relative -mt-10 z-20 px-4">
+        <div className="max-w-4xl mx-auto">
+          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
+            <Card className="border-0 bg-card/80 backdrop-blur-xl shadow-2xl overflow-hidden relative ring-1 ring-border/50">
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-lips-gold via-lips-green to-lips-gold" />
+              <div className="absolute -top-40 -right-40 w-80 h-80 bg-lips-gold/10 rounded-full blur-[100px] pointer-events-none" />
+              <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-lips-green/10 rounded-full blur-[100px] pointer-events-none" />
+              
+              <CardContent className="p-10 sm:p-16 text-center relative z-10">
+                <BookOpen className="h-8 w-8 text-lips-gold mx-auto mb-6 opacity-80" />
+                <div className="w-full flex justify-center mb-8">
+                  <p className="font-arabic text-3xl sm:text-4xl lg:text-5xl text-foreground dark:text-[#E5BE5A] leading-[1.8] drop-shadow-sm" dir="rtl" style={{ textAlign: 'center' }}>
+                    {activeVerse.arabic}
+                  </p>
                 </div>
-                <p className="font-arabic text-2xl sm:text-3xl lg:text-4xl text-lips-green-dark text-right leading-loose mb-4" dir="rtl">{activeVerse.arabic}</p>
-                <div className="w-16 h-0.5 bg-lips-gold/40 mx-auto my-4" />
-                <p className="text-base sm:text-lg text-foreground/80 italic text-center leading-relaxed mb-3">&laquo; {activeVerse.translation} &raquo;</p>
-                <p className="text-sm text-lips-gold text-center font-medium">— {activeVerse.reference}</p>
+                <p className="text-lg sm:text-xl text-muted-foreground font-light italic leading-relaxed mb-8 max-w-2xl mx-auto">
+                  &laquo; {activeVerse.translation} &raquo;
+                </p>
+                <div className="inline-flex items-center gap-2 bg-muted/50 px-4 py-1.5 rounded-full border border-border/50">
+                  <span className="w-2 h-2 rounded-full bg-lips-gold" />
+                  <span className="text-xs sm:text-sm font-semibold tracking-wide text-foreground/80">{activeVerse.reference}</span>
+                </div>
               </CardContent>
             </Card>
           </motion.div>
         </div>
       </section>
 
-      {/* ===== B. Audio Player Section ===== */}
-      <section className="py-12 sm:py-20 lg:py-28 bg-white relative">
+      {/* ===== C. Audio Player Section ===== */}
+      <section ref={playerRef} className="py-20 relative bg-muted/30 border-y border-border/50">
         <div className="max-w-7xl mx-auto px-4">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay: 0.2 }} className="text-center mb-12">
-            <span className="text-sm font-semibold text-lips-gold tracking-widest uppercase">{t.coran.recitationTag}</span>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-lips-green-dark mt-3 mb-4">{t.coran.recitationTitle}</h2>
-            <div className="separator-islamic text-lips-gold text-2xl my-4">&#10022;</div>
-            <p className="text-muted-foreground max-w-2xl mx-auto text-base">
-              {t.coran.recitationSubtitle}
-            </p>
-          </motion.div>
+          
+          <div className="text-center mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4 tracking-tight">Récitations Audio</h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">Écoutez le Saint Coran avec les plus belles voix du monde islamique.</p>
+          </div>
 
           {loading ? (
-            <div className="flex items-center justify-center py-20">
-              <Loader2 className="h-8 w-8 text-lips-green animate-spin" />
-              <span className="ml-3 text-muted-foreground">{t.coran.loadingReciters}</span>
+            <div className="flex flex-col items-center justify-center py-20">
+              <Loader2 className="h-10 w-10 text-lips-green animate-spin mb-4" />
+              <span className="text-muted-foreground font-medium">{t.coran.loadingReciters}</span>
             </div>
           ) : dataError ? (
             <div className="text-center py-20">
-              <p className="text-red-500 mb-4">{dataError}</p>
-              <Button onClick={() => window.location.reload()} variant="outline" className="gap-2">
-                <RefreshCw className="h-4 w-4" /> {t.coran.retry}
-              </Button>
+              <p className="text-destructive mb-4 font-medium">{dataError}</p>
+              <Button onClick={() => window.location.reload()} variant="outline"><RefreshCw className="mr-2 h-4 w-4" /> {t.coran.retry}</Button>
             </div>
           ) : (
-            <>
-              {/* ─── Popular Reciters: Horizontal scroll strip ─── */}
-              <div className="mb-6">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <Headphones className="h-4 w-4 text-lips-gold" />
-                    <span className="text-sm font-semibold text-lips-green-dark">{t.coran.popularReciters}</span>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowReciterSearch(!showReciterSearch)}
-                    className="gap-1.5 text-xs text-lips-green hover:text-lips-green-dark hover:bg-lips-green/5"
-                  >
-                    <Search className="h-3.5 w-3.5" />
-                    {t.coran.searchReciter}
-                  </Button>
-                </div>
-
-                {/* Horizontal scroll */}
-                <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none -mx-1 px-1">
-                  {popularReciters.map((reciter) => (
-                    <ReciterPill
-                      key={reciter.id}
-                      reciter={reciter}
-                      isSelected={selectedReciter?.id === reciter.id}
-                      onClick={() => selectReciter(reciter)}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              {/* ─── Reciter Search (expandable) ──────────────── */}
-              <AnimatePresence>
-                {showReciterSearch && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.25, ease: 'easeInOut' }}
-                    className="overflow-hidden mb-6"
-                  >
-                    <div className="bg-white rounded-xl border border-border/50 p-4 shadow-sm">
-                      <div className="relative mb-3">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          placeholder={t.coran.searchPlaceholder}
-                          className="pl-10 border-lips-green/20 focus:border-lips-green h-10"
-                          value={reciterSearch}
-                          onChange={(e) => setReciterSearch(e.target.value)}
-                          autoFocus
-                        />
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+              
+              {/* Left Column: Player & Selected Reciter */}
+              <div className="lg:col-span-8 flex flex-col gap-6">
+                
+                {/* The Player Card (Glassmorphism) */}
+                <Card className="bg-card border-border/50 shadow-2xl overflow-hidden relative group">
+                  <div className="absolute inset-0 bg-gradient-to-br from-lips-green/5 to-lips-gold/5 opacity-50 transition-opacity group-hover:opacity-100" />
+                  
+                  <CardContent className="p-8 sm:p-10 relative z-10">
+                    <div className="flex flex-col sm:flex-row items-center gap-8">
+                      
+                      {/* Play Button Massive */}
+                      <div className="relative group/play shrink-0">
+                        <div className={`absolute -inset-2 bg-lips-gold rounded-full blur-xl transition-opacity duration-500 ${isPlaying ? 'opacity-40' : 'opacity-0 group-hover/play:opacity-20'}`} />
+                        <Button
+                          onClick={togglePlay}
+                          className="relative h-24 w-24 sm:h-32 sm:w-32 rounded-full bg-gradient-to-b from-[#1B6B3A] to-[#0D3B1F] hover:from-[#1B6B3A] hover:to-[#124d29] text-white shadow-xl border-4 border-white dark:border-background flex items-center justify-center transition-transform hover:scale-105 active:scale-95"
+                          disabled={audioLoading}
+                        >
+                          {audioLoading ? <Loader2 className="h-10 w-10 animate-spin" /> : isPlaying ? <Pause className="h-10 w-10 sm:h-12 sm:w-12" /> : <Play className="h-10 w-10 sm:h-12 sm:w-12 ml-2" />}
+                        </Button>
                       </div>
 
-                      {reciterSearch.trim() ? (
-                        reciterSearchResults.length > 0 ? (
-                          <div className="max-h-60 overflow-y-auto">
-                            {reciterSearchResults.map((reciter) => (
-                              <ReciterSearchRow
-                                key={reciter.id}
-                                reciter={reciter}
-                                isSelected={selectedReciter?.id === reciter.id}
-                                isPopular={POPULAR_RECITER_IDS.includes(reciter.id)}
-                                onClick={() => { selectReciter(reciter); setShowReciterSearch(false); setReciterSearch(''); }}
-                              />
-                            ))}
-                          </div>
-                        ) : (
-                          <p className="text-center text-sm text-muted-foreground py-6">{t.coran.noResult} &laquo; {reciterSearch} &raquo;</p>
-                        )
-                      ) : (
-                        <p className="text-center text-sm text-muted-foreground py-4">{t.coran.typeToSearch} {reciters.length} {t.coran.styles}</p>
-                      )}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {/* ─── Selected Reciter Card + Moshaf selector ──── */}
-              {selectedReciter && (
-                <Card className="mb-6 border-lips-green/20 bg-white shadow-sm">
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-10 h-10 rounded-full bg-lips-green flex items-center justify-center flex-shrink-0">
-                        <span className="font-bold text-sm text-lips-gold">{selectedReciter.name.charAt(0)}</span>
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="font-semibold text-lips-green-dark text-sm truncate">{selectedReciter.name}</p>
-                        <p className="text-[11px] text-muted-foreground truncate">{selectedMoshaf?.name || 'Murattal'}</p>
-                      </div>
-                      {selectedReciter.moshaf.length > 1 && (
-                        <Badge className="bg-lips-gold/10 text-lips-gold border-lips-gold/20 text-[10px] shrink-0">
-                          {selectedReciter.moshaf.length} {t.coran.styles}
+                      <div className="flex-1 w-full text-center sm:text-left min-w-0">
+                        <Badge variant="outline" className="mb-4 border-lips-green/30 text-lips-green bg-lips-green/5 text-xs font-semibold tracking-wide">
+                          Sourate {currentSurah}/114
                         </Badge>
-                      )}
+                        <h3 className="text-3xl sm:text-4xl font-bold text-foreground mb-2 truncate">{currentSurahName}</h3>
+                        <p className="font-arabic text-3xl sm:text-4xl text-lips-gold mb-6 truncate" dir="rtl">{currentSurahNameAr}</p>
+                        
+                        {/* Progress Bar */}
+                        <div className="relative group/progress cursor-pointer py-2" onClick={handleSeek}>
+                          <div className="h-3 bg-muted rounded-full overflow-hidden shadow-inner">
+                            <div className="h-full bg-gradient-to-r from-lips-green to-lips-gold transition-all duration-200 ease-linear" style={{ width: `${progress}%` }} />
+                          </div>
+                          <div className="absolute top-1/2 -translate-y-1/2 w-5 h-5 bg-white border-[3px] border-lips-gold rounded-full shadow-md opacity-0 group-hover/progress:opacity-100 transition-all scale-75 group-hover/progress:scale-100" style={{ left: `calc(${progress}% - 10px)` }} />
+                        </div>
+                        
+                        <div className="flex justify-between text-xs sm:text-sm font-semibold text-muted-foreground mt-2">
+                          <span>{formatTime(currentTime)}</span>
+                          <span>{formatTime(duration)}</span>
+                        </div>
+                      </div>
                     </div>
 
-                    {/* Moshaf selector */}
-                    {selectedReciter.moshaf.length > 1 && (
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{t.coran.style}</span>
-                        {selectedReciter.moshaf.map((m) => (
-                          <button
-                            key={m.id}
-                            onClick={() => {
-                              setSelectedMoshaf(m);
-                              if (isPlaying) playSurah(currentSurah, m);
-                            }}
-                            className={cn(
-                              'px-3 py-1.5 rounded-full text-xs font-medium transition-all',
-                              selectedMoshaf?.id === m.id
-                                ? 'bg-lips-gold text-lips-green-dark shadow-sm'
-                                : 'bg-lips-green/10 text-lips-green hover:bg-lips-green/20'
-                            )}
-                          >
-                            {m.name.replace('Rewayat ', '').replace('Almusshaf ', '')}
-                          </button>
-                        ))}
+                    {/* Controls Footer */}
+                    <div className="flex flex-col sm:flex-row items-center justify-between mt-10 pt-6 border-t border-border/50 gap-6">
+                      <div className="flex gap-4">
+                        <Button variant="outline" size="icon" onClick={handlePrev} disabled={currentSurah <= 1} className="h-12 w-12 rounded-full border-border hover:bg-muted text-foreground">
+                          <SkipBack className="h-5 w-5" />
+                        </Button>
+                        <Button variant="outline" size="icon" onClick={handleNext} disabled={currentSurah >= 114} className="h-12 w-12 rounded-full border-border hover:bg-muted text-foreground">
+                          <SkipForward className="h-5 w-5" />
+                        </Button>
                       </div>
-                    )}
+
+                      <div className="flex items-center gap-3 bg-muted/30 px-4 py-2 rounded-full border border-border/50">
+                        <button onClick={toggleMute} className="text-muted-foreground hover:text-foreground transition-colors">
+                          {isMuted || volume === 0 ? <VolumeX className="h-5 w-5 text-destructive" /> : <Volume2 className="h-5 w-5" />}
+                        </button>
+                        <input type="range" min={0} max={1} step={0.05} value={isMuted ? 0 : volume} onChange={(e) => handleVolumeChange(parseFloat(e.target.value))} className="w-24 sm:w-32 accent-lips-green" />
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
-              )}
-            </>
-          )}
 
-          {/* ─── Audio Player Bar ──────────────────────────── */}
-          {selectedReciter && selectedMoshaf && (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-              <Card className="bg-lips-green-dark text-white border-0 shadow-xl overflow-hidden">
-                <CardContent className="p-4 sm:p-6">
-                  {/* Surah info */}
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <ListMusic className="h-4 w-4 text-lips-gold flex-shrink-0" />
-                        <span className="font-semibold text-sm truncate">{currentSurahName}</span>
-                        <span className="font-arabic text-lips-gold text-sm" dir="rtl">{currentSurahNameAr}</span>
+                {/* Selected Reciter Card */}
+                {selectedReciter && (
+                  <Card className="bg-card border-border/50 shadow-md transition-all hover:shadow-lg">
+                    <CardContent className="p-6">
+                      <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+                        <div className="flex items-center gap-4 w-full sm:w-auto">
+                          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-lips-green to-[#0D3B1F] flex items-center justify-center text-white text-2xl font-bold shadow-inner shrink-0">
+                            {selectedReciter.name.charAt(0)}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-[10px] text-lips-gold font-bold uppercase tracking-widest mb-1">En lecture</p>
+                            <h4 className="font-bold text-lg sm:text-xl text-foreground truncate">{selectedReciter.name}</h4>
+                          </div>
+                        </div>
+
+                        {selectedReciter.moshaf.length > 1 && (
+                          <div className="flex flex-wrap gap-2 justify-center sm:justify-end w-full sm:w-auto">
+                            {selectedReciter.moshaf.map((m) => (
+                              <button
+                                key={m.id}
+                                onClick={() => { setSelectedMoshaf(m); if (isPlaying) playSurah(currentSurah, m); }}
+                                className={cn('px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm', selectedMoshaf?.id === m.id ? 'bg-foreground text-background scale-105' : 'bg-muted text-muted-foreground hover:bg-muted/80')}
+                              >
+                                {m.name.replace('Rewayat ', '').replace('Almusshaf ', '')}
+                              </button>
+                            ))}
+                          </div>
+                        )}
                       </div>
-                      <p className="text-[11px] text-white/50 truncate mt-0.5">{selectedReciter.name} — {selectedMoshaf.name}</p>
-                    </div>
-                    <Badge className="bg-lips-gold/20 text-lips-gold border-lips-gold/30 text-[10px] ml-2 shrink-0">
-                      {currentSurah}/114
-                    </Badge>
-                  </div>
+                    </CardContent>
+                  </Card>
+                )}
 
-                  {/* Progress bar (clickable) */}
-                  <div
-                    className="relative h-2 bg-white/10 rounded-full cursor-pointer group mb-3"
-                    onClick={handleSeek}
-                  >
-                    <div
-                      className="absolute top-0 left-0 h-full bg-lips-gold rounded-full transition-all"
-                      style={{ width: `${progress}%` }}
-                    />
-                    <div
-                      className="absolute top-1/2 -translate-y-1/2 w-3.5 h-3.5 bg-lips-gold rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
-                      style={{ left: `${progress}%`, transform: 'translate(-50%, -50%)' }}
-                    />
-                  </div>
+              </div>
 
-                  {/* Time */}
-                  <div className="flex items-center justify-between text-[10px] text-white/50 mb-3">
-                    <span>{formatTime(currentTime)}</span>
-                    <span>{formatTime(duration)}</span>
-                  </div>
-
-                  {/* Controls */}
-                  <div className="flex items-center justify-center gap-2 sm:gap-4">
-                    <Button variant="ghost" size="icon" onClick={handlePrev} disabled={currentSurah <= 1} className="text-white/60 hover:text-white hover:bg-white/10 h-9 w-9">
-                      <SkipBack className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      onClick={togglePlay}
-                      className="h-12 w-12 rounded-full bg-lips-gold hover:bg-lips-gold/90 text-lips-green-dark shrink-0 shadow-lg"
-                      size="icon"
-                      disabled={audioLoading}
-                    >
-                      {audioLoading ? (
-                        <Loader2 className="h-5 w-5 animate-spin" />
-                      ) : isPlaying ? (
-                        <Pause className="h-5 w-5" />
-                      ) : (
-                        <Play className="h-5 w-5 ml-0.5" />
-                      )}
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={handleNext} disabled={currentSurah >= 114} className="text-white/60 hover:text-white hover:bg-white/10 h-9 w-9">
-                      <SkipForward className="h-4 w-4" />
-                    </Button>
-
-                    {/* Volume */}
-                    <div className="hidden sm:flex items-center gap-2 ml-4">
-                      <button onClick={toggleMute} className="text-white/60 hover:text-white transition-colors">
-                        {isMuted || volume === 0 ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-                      </button>
-                      <input
-                        type="range"
-                        min={0}
-                        max={1}
-                        step={0.05}
-                        value={isMuted ? 0 : volume}
-                        onChange={(e) => handleVolumeChange(parseFloat(e.target.value))}
-                        className="w-20 accent-lips-gold"
+              {/* Right Column: Reciters List (Sidebar) */}
+              <div className="lg:col-span-4 flex flex-col h-[600px] lg:h-auto">
+                <Card className="flex flex-col h-full bg-card border-border/50 shadow-md overflow-hidden">
+                  <div className="p-5 border-b border-border/50 bg-muted/10">
+                    <h4 className="font-bold text-lg text-foreground mb-4 flex items-center gap-2">
+                      <Mic className="h-5 w-5 text-lips-gold" />
+                      Choisir un Récitateur
+                    </h4>
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Rechercher un récitateur..."
+                        className="pl-10 h-12 bg-background border-border shadow-sm rounded-xl"
+                        value={reciterSearch}
+                        onChange={(e) => setReciterSearch(e.target.value)}
                       />
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            </motion.div>
+                  <div className="flex-1 overflow-y-auto p-3 space-y-1 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
+                    {reciterSearchResults.map((reciter) => (
+                      <ReciterSearchRow
+                        key={reciter.id}
+                        reciter={reciter}
+                        isSelected={selectedReciter?.id === reciter.id}
+                        isPopular={POPULAR_RECITER_IDS.includes(reciter.id)}
+                        onClick={() => selectReciter(reciter)}
+                      />
+                    ))}
+                    {reciterSearchResults.length === 0 && (
+                      <div className="p-8 text-center flex flex-col items-center">
+                        <Search className="h-8 w-8 text-muted-foreground/30 mb-3" />
+                        <p className="text-muted-foreground text-sm font-medium">Aucun récitateur trouvé</p>
+                      </div>
+                    )}
+                  </div>
+                </Card>
+              </div>
+
+            </div>
           )}
         </div>
       </section>
 
-      {/* ===== C. Surah Index ===== */}
-      <section className="py-12 sm:py-20 lg:py-28 bg-lips-cream relative">
-        <div className="absolute inset-0 islamic-pattern opacity-5" />
-        <div className="relative max-w-7xl mx-auto px-4">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay: 0.3 }} className="text-center mb-12">
-            <span className="text-sm font-semibold text-lips-gold tracking-widest uppercase">{t.coran.surahIndexTag}</span>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-lips-green-dark mt-3 mb-4">{t.coran.surahIndexTitle}</h2>
-            <div className="separator-islamic text-lips-gold text-2xl my-4">&#10022;</div>
-            <p className="text-muted-foreground max-w-2xl mx-auto text-base">
-              {t.coran.surahIndexSubtitle}
-            </p>
-          </motion.div>
+      {/* ===== D. Surah Index ===== */}
+      <section className="py-24 relative">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4 tracking-tight">Index des Sourates</h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">Parcourez les 114 sourates du Saint Coran. Cliquez sur une sourate pour la lancer instantanément dans le lecteur.</p>
+          </div>
 
-          {/* Search Bar */}
-          <div className="max-w-md mx-auto mb-8">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder={t.coran.searchSurah}
-                className="pl-10 bg-white border-lips-green/20 focus:border-lips-green h-11"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
+          {/* Search Bar for Surahs */}
+          <div className="max-w-2xl mx-auto mb-16">
+            <div className="relative group">
+              <div className="absolute -inset-1 bg-gradient-to-r from-lips-green to-lips-gold rounded-full opacity-20 group-hover:opacity-40 blur transition duration-500" />
+              <div className="relative flex items-center">
+                <Search className="absolute left-5 h-6 w-6 text-muted-foreground" />
+                <Input
+                  placeholder="Rechercher une sourate par nom ou numéro..."
+                  className="pl-14 h-16 rounded-full bg-card border-border shadow-md text-lg transition-shadow focus-visible:ring-lips-green"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
             </div>
           </div>
 
-          {/* Surah grid */}
           {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-6 w-6 text-lips-green animate-spin" />
-              <span className="ml-2 text-muted-foreground text-sm">{t.coran.loadingSurahs}</span>
-            </div>
+            <div className="flex items-center justify-center py-12"><Loader2 className="h-10 w-10 text-lips-green animate-spin" /></div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
-              {filteredSurahs.map((surah, idx) => {
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {filteredSurahs.map((surah) => {
                 const isActive = currentSurah === surah.id && isPlaying;
                 const isCurrent = currentSurah === surah.id;
                 const nameAr = SURAH_NAMES_AR[surah.id] || '';
-                const surahCls = cn(
-                  'text-left rounded-xl p-2.5 sm:p-3 transition-all duration-200 border relative overflow-hidden',
-                  isActive && 'bg-lips-green text-white border-lips-green shadow-lg shadow-lips-green/20 cursor-pointer',
-                  !isActive && isCurrent && 'bg-lips-gold/10 border-lips-gold/30 cursor-pointer',
-                  !isActive && !isCurrent && 'bg-white/90 border-border/50 hover:border-lips-green/30 hover:shadow-sm cursor-pointer',
-                  !selectedMoshaf && 'opacity-50 cursor-not-allowed'
-                );
-                const numBgCls = cn(
-                  'w-7 h-7 rounded-lg flex items-center justify-center shrink-0',
-                  isActive ? 'bg-lips-gold' : 'bg-lips-green/10'
-                );
-                const numCls = cn(
-                  'text-[10px] font-bold font-mono',
-                  isActive ? 'text-lips-green-dark' : 'text-lips-green'
-                );
-                const nameCls = cn(
-                  'text-[10px] truncate leading-tight',
-                  isActive ? 'text-white/80' : 'text-muted-foreground'
-                );
-                const badgeCls = cn(
-                  'text-[8px] h-3.5 px-1',
-                  isActive ? 'bg-white/20 text-white' : 'bg-lips-green/5 text-lips-green'
-                );
+                
                 return (
                   <motion.button
                     key={surah.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.15, delay: Math.min(idx * 0.01, 0.5) }}
-                    onClick={() => { if (selectedMoshaf) playSurah(surah.id); }}
+                    onClick={() => { playSurah(surah.id); scrollToPlayer(); }}
                     disabled={!selectedMoshaf}
-                    className={surahCls}
-                  >
-                    {isActive && (
-                      <div className="absolute top-2 right-2 flex items-end gap-0.5 h-3">
-                        <span className="w-0.5 bg-lips-gold rounded-full animate-pulse" style={{ height: '60%', animationDelay: '0ms' }} />
-                        <span className="w-0.5 bg-lips-gold rounded-full animate-pulse" style={{ height: '100%', animationDelay: '150ms' }} />
-                        <span className="w-0.5 bg-lips-gold rounded-full animate-pulse" style={{ height: '40%', animationDelay: '300ms' }} />
-                      </div>
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.98 }}
+                    className={cn(
+                      'relative h-36 rounded-2xl p-6 text-left overflow-hidden transition-all duration-300 border group shadow-sm',
+                      isActive ? 'bg-[#1B6B3A] text-white border-[#1B6B3A] shadow-xl shadow-[#1B6B3A]/30' : 
+                      isCurrent ? 'bg-lips-gold/10 border-lips-gold/40' : 
+                      'bg-card border-border/60 hover:border-lips-green/50 hover:shadow-lg'
                     )}
-                    <div className="flex items-center gap-2">
-                      <div className={numBgCls}>
-                        <span className={numCls}>{surah.id}</span>
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="font-arabic text-xs truncate text-lips-gold">{nameAr}</p>
-                        <p className={nameCls}>{surah.name}</p>
-                      </div>
+                  >
+                    {/* Watermark Number */}
+                    <div className={cn(
+                      "absolute -bottom-6 -right-4 text-[100px] font-bold italic pointer-events-none transition-all duration-500",
+                      isActive ? "text-white opacity-10" : "text-foreground group-hover:text-lips-green opacity-5 group-hover:opacity-[0.08]"
+                    )}>
+                      {surah.id}
                     </div>
-                    <div className="mt-1.5">
-                      <Badge variant="secondary" className={badgeCls}>
-                        {surah.makkia ? t.coran.makki : t.coran.madani}
-                      </Badge>
+
+                    <div className="flex flex-col h-full justify-between relative z-10">
+                      <div className="flex items-start justify-between">
+                        <div className={cn("text-sm font-bold w-8 h-8 rounded-full flex items-center justify-center shrink-0", isActive ? "bg-white/20 text-lips-gold" : "bg-muted text-muted-foreground group-hover:bg-lips-green/10 group-hover:text-lips-green")}>
+                          {surah.id}
+                        </div>
+                        <p className={cn("font-arabic text-2xl leading-none", isActive ? "text-lips-gold" : "text-foreground/80 group-hover:text-lips-gold transition-colors")} dir="rtl">{nameAr}</p>
+                      </div>
+                      
+                      <div className="mt-4">
+                        <h4 className={cn("text-lg font-bold truncate", isActive ? "text-white" : "text-foreground group-hover:text-lips-green transition-colors")}>{surah.name}</h4>
+                        <p className={cn("text-xs uppercase tracking-wider font-bold mt-1", isActive ? "text-white/70" : "text-muted-foreground")}>
+                          {surah.makkia ? 'Mecquoise' : 'Médinoise'}
+                        </p>
+                      </div>
                     </div>
                   </motion.button>
                 );
               })}
             </div>
           )}
-
-          {searchQuery.trim() && filteredSurahs.length === 0 && (
-            <div className="text-center py-12 text-muted-foreground">
-              <Search className="h-8 w-8 mx-auto mb-2 opacity-30" />
-              <p>{t.coran.noSurahFound} &laquo; {searchQuery} &raquo;</p>
-            </div>
-          )}
         </div>
       </section>
 
-      {/* ===== D. Quran Resources ===== */}
-      <section className="py-12 sm:py-20 lg:py-28 bg-white relative">
+      {/* ===== E. Quran Resources ===== */}
+      <section className="py-24 bg-muted/30 relative border-t border-border/50">
         <div className="max-w-7xl mx-auto px-4">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay: 0.4 }} className="text-center mb-12">
-            <span className="text-sm font-semibold text-lips-gold tracking-widest uppercase">{t.coran.resourcesTag}</span>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-lips-green-dark mt-3 mb-4">{t.coran.resourcesTitle}</h2>
-            <div className="separator-islamic text-lips-gold text-2xl my-4">&#10022;</div>
-            <p className="text-muted-foreground max-w-2xl mx-auto text-base">{t.coran.resourcesSubtitle}</p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {quranResources.map((resource, index) => (
-              <motion.div key={resource.title} initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.4, delay: 0.1 * index }}>
-                <Card className="group hover:shadow-lg hover:shadow-lips-green/10 transition-all duration-300 hover:border-lips-green/30 border-border/50 h-full">
-                  <CardContent className="p-6 flex flex-col h-full">
-                    <div className="w-12 h-12 rounded-xl bg-lips-green/10 flex items-center justify-center mb-4">
-                      <resource.icon className={cn('h-6 w-6', resource.color)} />
+          <div className="text-center mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4 tracking-tight">Ressources Coraniques</h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">Sites et applications de référence pour la lecture et l'apprentissage.</p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {quranResources.map((resource, idx) => (
+              <a key={idx} href={resource.href} target="_blank" rel="noopener noreferrer" className="block group h-full">
+                <Card className="bg-card border-border/50 hover:border-lips-gold/50 transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 h-full overflow-hidden relative">
+                  <div className="absolute inset-0 bg-gradient-to-br from-lips-gold/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <CardContent className="p-8 sm:p-10 flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-6 relative z-10 h-full">
+                    <div className={cn("w-20 h-20 rounded-3xl bg-muted/50 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform shadow-inner", resource.color)}>
+                      <resource.icon className="h-10 w-10" />
                     </div>
-                    <h3 className="font-semibold text-lips-green-dark text-base mb-2">{resource.title}</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed mb-4 flex-1">{resource.description}</p>
-                    <Button asChild variant="outline" className="w-full gap-2 border-lips-green/20 text-lips-green hover:bg-lips-green hover:text-white transition-colors">
-                      <a href={resource.href} target={resource.href.startsWith('http') ? '_blank' : undefined} rel={resource.href.startsWith('http') ? 'noopener noreferrer' : undefined}>
-                        Accéder <ChevronRight className="h-4 w-4" />
-                      </a>
-                    </Button>
+                    <div className="flex-1">
+                      <h3 className="text-2xl font-bold text-foreground mb-3 group-hover:text-lips-gold transition-colors">{resource.title}</h3>
+                      <p className="text-muted-foreground leading-relaxed">{resource.description}</p>
+                    </div>
                   </CardContent>
                 </Card>
-              </motion.div>
+              </a>
             ))}
           </div>
         </div>
       </section>
+      
     </div>
   );
 }

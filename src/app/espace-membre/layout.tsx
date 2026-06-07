@@ -52,7 +52,7 @@ function TopNav({ memberUser, onLogout, mounted }: { memberUser: MemberUser | nu
   }
 
   return (
-    <header className="sticky top-0 z-50 bg-white border-b border-lips-green/10 shadow-sm">
+    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-lips-green/10 shadow-sm">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}

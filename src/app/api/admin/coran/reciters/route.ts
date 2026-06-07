@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
-import { db } from '@/lib/db'
 import { getAdminSession } from '@/lib/admin-auth'
+import { CoranService } from '@/services/coran.service'
 
 export async function GET() {
   try {
@@ -9,10 +9,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
     }
 
-    const reciters = await db.coranReciter.findMany({
-      orderBy: { ordre: 'asc' },
-    })
-
+    const reciters = await CoranService.getReciters()
     return NextResponse.json({ data: reciters })
   } catch (error) {
     console.error('Get reciters error:', error)
@@ -28,21 +25,12 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { name, bio, ordre, published } = body
-
-    if (!name) {
+    
+    if (!body.name) {
       return NextResponse.json({ error: 'Le nom est requis' }, { status: 400 })
     }
 
-    const reciter = await db.coranReciter.create({
-      data: {
-        name,
-        bio: bio || null,
-        ordre: ordre ?? 0,
-        published: published ?? false,
-      },
-    })
-
+    const reciter = await CoranService.createReciter(body)
     return NextResponse.json({ data: reciter }, { status: 201 })
   } catch (error) {
     console.error('Create reciter error:', error)

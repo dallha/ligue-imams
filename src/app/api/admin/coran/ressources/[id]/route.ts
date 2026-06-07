@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/db'
+import { NextResponse } from 'next/server'
 import { getAdminSession } from '@/lib/admin-auth'
+import { CoranService } from '@/services/coran.service'
 
 export async function PUT(
-  request: NextRequest,
+  request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -12,25 +12,14 @@ export async function PUT(
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
     }
 
-    const { id } = await params
-    const body = await request.json()
-    const { title, description, url, icon, published } = body
-
-    const existing = await db.coranResource.findUnique({ where: { id: parseInt(id) } })
-    if (!existing) {
-      return NextResponse.json({ error: 'Ressource non trouvée' }, { status: 404 })
+    const { id: paramId } = await params
+    const id = parseInt(paramId)
+    if (isNaN(id)) {
+      return NextResponse.json({ error: 'ID invalide' }, { status: 400 })
     }
 
-    const ressource = await db.coranResource.update({
-      where: { id: parseInt(id) },
-      data: {
-        ...(title !== undefined && { title }),
-        ...(description !== undefined && { description }),
-        ...(url !== undefined && { url }),
-        ...(icon !== undefined && { icon }),
-        ...(published !== undefined && { published }),
-      },
-    })
+    const body = await request.json()
+    const ressource = await CoranService.updateResource(id, body)
 
     return NextResponse.json({ data: ressource })
   } catch (error) {
@@ -40,7 +29,7 @@ export async function PUT(
 }
 
 export async function DELETE(
-  _request: NextRequest,
+  request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -49,13 +38,13 @@ export async function DELETE(
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
     }
 
-    const { id } = await params
-    const existing = await db.coranResource.findUnique({ where: { id: parseInt(id) } })
-    if (!existing) {
-      return NextResponse.json({ error: 'Ressource non trouvée' }, { status: 404 })
+    const { id: paramId } = await params
+    const id = parseInt(paramId)
+    if (isNaN(id)) {
+      return NextResponse.json({ error: 'ID invalide' }, { status: 400 })
     }
 
-    await db.coranResource.delete({ where: { id: parseInt(id) } })
+    await CoranService.deleteResource(id)
 
     return NextResponse.json({ success: true })
   } catch (error) {

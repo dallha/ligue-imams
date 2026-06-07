@@ -14,7 +14,6 @@ import {
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { useLanguage } from '@/lib/lips/i18n/language-context';
 
@@ -23,7 +22,7 @@ const MONTANTS = [1000, 2500, 5000, 10000, 25000, 50000];
 export default function DonsSection() {
   const { p, locale } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
-  const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
+  const isInView = useInView(sectionRef, { once: true, margin: '-50px' });
   const [selected, setSelected] = useState<number | null>(5000);
   const [custom, setCustom] = useState('');
 
@@ -47,57 +46,76 @@ export default function DonsSection() {
     <section
       ref={sectionRef}
       id="dons"
-      className="py-12 sm:py-20 lg:py-28 bg-gradient-to-b from-lips-green-dark via-lips-green to-lips-green-dark text-white relative overflow-hidden"
+      className="py-16 sm:py-24 lg:py-32 bg-[#05180C] text-white relative overflow-hidden"
     >
-      <div className="absolute inset-0 islamic-pattern opacity-10" />
+      <div className="absolute inset-0 bg-[url('/noise.png')] opacity-20 mix-blend-overlay pointer-events-none" />
+      <div className="absolute inset-0 islamic-pattern opacity-[0.03] pointer-events-none" />
 
-      <div className="relative max-w-5xl mx-auto px-4">
+      {/* Decorative Glows */}
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-lips-gold/10 rounded-full blur-[100px] pointer-events-none -translate-y-1/3 translate-x-1/3" />
+      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-lips-emerald/10 rounded-full blur-[100px] pointer-events-none translate-y-1/3 -translate-x-1/3" />
+
+      <div className="relative z-10 max-w-5xl mx-auto px-4">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
-          className="text-center mb-14"
+          className="text-center mb-16"
         >
-          <span className="text-sm font-semibold text-lips-gold tracking-widest uppercase">
-            {p.dons.sectionTag}
-          </span>
-          <h2 className="text-3xl md:text-4xl font-bold text-white mt-3 mb-4">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-lips-gold/10 border border-lips-gold/20 mb-6">
+            <span className="w-1.5 h-1.5 rounded-full bg-lips-gold animate-pulse" />
+            <span className="text-xs font-bold text-lips-gold tracking-widest uppercase">
+              {p.dons.sectionTag}
+            </span>
+          </div>
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-8 tracking-tight drop-shadow-lg">
             {p.dons.sectionTitle}
           </h2>
-          <p className="font-arabic text-lips-gold text-xl mb-4">
-            مَّن ذَا الَّذِي يُقْرِضُ اللَّهَ قَرْضًا حَسَنًا
-          </p>
-          <p className="text-white/70 max-w-xl mx-auto text-sm italic">
-            &laquo; {p.dons.verseTranslation} &raquo; — Coran 2:245
-          </p>
-          <p className="text-white/60 max-w-2xl mx-auto text-sm mt-4">
+          
+          <div className="inline-block bg-black/30 backdrop-blur-md border border-white/5 p-6 rounded-3xl mb-8 shadow-inner">
+            <p className="font-arabic text-transparent bg-clip-text bg-gradient-to-r from-lips-gold to-[#C9962A] text-2xl sm:text-3xl mb-3 drop-shadow-sm">
+              مَّن ذَا الَّذِي يُقْرِضُ اللَّهَ قَرْضًا حَسَنًا
+            </p>
+            <p className="text-white/60 text-sm font-medium italic">
+              &laquo; {p.dons.verseTranslation} &raquo; — Coran 2:245
+            </p>
+          </div>
+          
+          <p className="text-white/70 max-w-2xl mx-auto text-lg leading-relaxed">
             {p.dons.sectionDesc}
           </p>
         </motion.div>
 
         {/* Donation card */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 40 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.2 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
         >
-          <Card className="bg-white/10 backdrop-blur-md border-white/20 shadow-2xl">
-            <CardContent className="p-6 lg:p-8">
+          <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2.5rem] shadow-2xl overflow-hidden relative">
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-lips-gold/40 to-transparent" />
+            
+            <div className="p-8 lg:p-12">
               {/* Amount selection */}
-              <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
-                <HandCoins className="h-5 w-5 text-lips-gold" />
-                {p.dons.chooseAmount}
-              </h3>
-              <div className="grid grid-cols-3 sm:grid-cols-3 gap-2 sm:gap-3 mb-4">
+              <div className="flex items-center gap-3 mb-6 border-b border-white/10 pb-4">
+                <div className="w-10 h-10 rounded-full bg-lips-gold/10 flex items-center justify-center border border-lips-gold/20">
+                  <HandCoins className="h-5 w-5 text-lips-gold" />
+                </div>
+                <h3 className="text-xl font-bold text-white">
+                  {p.dons.chooseAmount}
+                </h3>
+              </div>
+              
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mb-6">
                 {MONTANTS.map((m) => (
                   <button
                     key={m}
                     onClick={() => { setSelected(m); setCustom(''); }}
-                    className={`py-2.5 sm:py-3 rounded-lg text-xs sm:text-sm font-semibold transition-all ${
+                    className={`py-4 rounded-xl text-sm sm:text-base font-bold transition-all duration-300 ${
                       selected === m && !custom
-                        ? 'bg-lips-gold text-lips-green-dark shadow-lg shadow-lips-gold/30'
-                        : 'bg-white/10 text-white/80 hover:bg-white/20 border border-white/10'
+                        ? 'bg-gradient-to-br from-lips-gold to-[#C9962A] text-[#0A2E17] shadow-[0_0_20px_rgba(201,150,42,0.4)] scale-[1.02]'
+                        : 'bg-white/5 text-white/80 hover:bg-white/10 hover:text-white border border-white/10'
                     }`}
                   >
                     {m.toLocaleString(locale === 'ar' ? 'ar-SN' : locale === 'en' ? 'en-SN' : 'fr-FR')} FCFA
@@ -105,69 +123,76 @@ export default function DonsSection() {
                 ))}
               </div>
 
-              <div className="flex gap-3 mb-6">
+              <div className="mb-8">
                 <Input
                   type="number"
                   placeholder={p.dons.otherAmount}
                   value={custom}
                   onChange={(e) => { setCustom(e.target.value); setSelected(null); }}
-                  className="bg-white/10 border-white/20 text-white placeholder:text-white/40 h-11"
+                  className="bg-black/20 border-white/10 text-white placeholder:text-white/40 h-14 rounded-xl text-lg font-medium focus-visible:ring-lips-gold/50"
                 />
               </div>
 
               {/* Impact indicator */}
-              {currentMontant && (
-                <div className="bg-white/5 rounded-lg p-4 mb-6 border border-white/10">
-                  <div className="flex items-center gap-2 text-lips-gold text-sm font-medium mb-1">
-                    <Gift className="h-4 w-4" />
+              <div className="bg-black/30 rounded-2xl p-5 mb-10 border border-white/5 flex items-start gap-4 transition-all duration-500">
+                <div className="w-12 h-12 rounded-full bg-lips-emerald/10 flex items-center justify-center shrink-0 border border-lips-emerald/20">
+                  <Gift className="h-5 w-5 text-lips-emerald" />
+                </div>
+                <div>
+                  <div className="text-white font-bold mb-1">
                     {p.dons.impactTitle}
                   </div>
-                  {(() => {
-                    const impact = IMPACTS.filter((i) => i.montant <= (currentMontant || 0)).pop();
-                    return impact ? (
-                      <p className="text-white/70 text-xs">{impact.desc}</p>
-                    ) : (
-                      <p className="text-white/70 text-xs">{p.dons.fallbackImpact}</p>
-                    );
-                  })()}
+                  <p className="text-white/60 text-sm leading-relaxed">
+                    {(() => {
+                      const impact = IMPACTS.filter((i) => i.montant <= (currentMontant || 0)).pop();
+                      return impact ? impact.desc : p.dons.fallbackImpact;
+                    })()}
+                  </p>
                 </div>
-              )}
+              </div>
 
               {/* Payment methods */}
-              <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
-                <CreditCard className="h-5 w-5 text-lips-gold" />
-                {p.dons.paymentMethod}
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+              <div className="flex items-center gap-3 mb-6 border-b border-white/10 pb-4">
+                <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center border border-white/10">
+                  <CreditCard className="h-5 w-5 text-white/80" />
+                </div>
+                <h3 className="text-xl font-bold text-white">
+                  {p.dons.paymentMethod}
+                </h3>
+              </div>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
                 {METHODES.map((methode) => (
                   <div
                     key={methode.name}
-                    className="bg-white/10 rounded-lg p-3 text-center border border-white/10 hover:bg-white/15 cursor-pointer transition-colors"
+                    className="group bg-white/5 rounded-xl p-4 text-center border border-white/10 hover:bg-white/10 hover:border-white/20 cursor-pointer transition-all duration-300"
                   >
-                    <methode.icon className="h-5 w-5 text-lips-gold mx-auto mb-1.5" />
-                    <div className="text-xs font-medium text-white">{methode.name}</div>
-                    <div className="text-[10px] text-white/50">{methode.desc}</div>
+                    <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+                      <methode.icon className="h-6 w-6 text-lips-gold" />
+                    </div>
+                    <div className="text-sm font-bold text-white mb-1">{methode.name}</div>
+                    <div className="text-xs text-white/40">{methode.desc}</div>
                   </div>
                 ))}
               </div>
 
               {/* Submit */}
-              <Button className="w-full bg-lips-gold hover:bg-lips-gold-light text-lips-green-dark font-semibold h-12 text-base shadow-lg shadow-lips-gold/30">
-                <Heart className="h-5 w-5 mr-2" />
+              <Button className="w-full bg-lips-gold hover:bg-[#C9962A] text-[#0A2E17] font-black h-16 text-xl rounded-2xl shadow-[0_0_30px_rgba(201,150,42,0.3)] transition-all hover:scale-[1.01]">
+                <Heart className="h-6 w-6 mr-3" />
                 {p.dons.donateAmount.replace('{amount}', currentMontant ? currentMontant.toLocaleString(locale === 'ar' ? 'ar-SN' : locale === 'en' ? 'en-SN' : 'fr-FR') : '0')}
               </Button>
 
               {/* Trust indicators */}
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-6 mt-4 text-[10px] text-white/40">
-                <span className="flex items-center gap-1">
-                  <ShieldCheck className="h-3 w-3" /> {p.dons.securePayment}
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mt-8">
+                <span className="flex items-center gap-2 text-white/40 text-xs font-medium bg-black/20 px-4 py-2 rounded-full border border-white/5">
+                  <ShieldCheck className="h-4 w-4 text-lips-emerald" /> {p.dons.securePayment}
                 </span>
-                <span className="flex items-center gap-1">
-                  <CheckCircle2 className="h-3 w-3" /> {p.dons.fiscalReceipt}
+                <span className="flex items-center gap-2 text-white/40 text-xs font-medium bg-black/20 px-4 py-2 rounded-full border border-white/5">
+                  <CheckCircle2 className="h-4 w-4 text-lips-gold" /> {p.dons.fiscalReceipt}
                 </span>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </motion.div>
       </div>
     </section>

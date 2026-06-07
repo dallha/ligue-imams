@@ -1,7 +1,6 @@
 'use client';
 
 import LipsHeader from '@/components/lips/header';
-import PrayerTimesWidget from '@/components/lips/prayer-times';
 import PageBanner from '@/components/lips/page-banner';
 import ActualitesSection from '@/components/lips/actualites';
 import EvenementsSection from '@/components/lips/evenements';
@@ -16,8 +15,7 @@ export default function ActualitesPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <LipsHeader />
-      <PrayerTimesWidget />
-      <main className="flex-1">
+            <main className="flex-1">
         <PageBanner
           label={p.pages.news.label}
           title={p.pages.news.title}

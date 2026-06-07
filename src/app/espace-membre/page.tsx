@@ -11,9 +11,7 @@ import {
   CardDescription,
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Separator } from '@/components/ui/separator'
 import {
   Dialog,
   DialogContent,
@@ -25,154 +23,21 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
   Shield,
-  CreditCard,
   CalendarDays,
   BookOpen,
   Heart,
-  RotateCw,
-  CheckCircle2,
-  AlertCircle,
-  Clock,
   FileText,
   Pencil,
   ChevronRight,
 } from 'lucide-react'
 import { useLanguage } from '@/lib/lips/i18n/language-context'
 
-// --- QR Code SVG Generator ---
-function QrCodeSvg({ size = 80 }: { size?: number }) {
-  const modules = 21
-  const cellSize = size / modules
-  const pattern: boolean[][] = []
-  for (let r = 0; r < modules; r++) {
-    pattern[r] = []
-    for (let c = 0; c < modules; c++) {
-      const isFinderTL = r < 7 && c < 7
-      const isFinderTR = r < 7 && c >= modules - 7
-      const isFinderBL = r >= modules - 7 && c < 7
-      if (isFinderTL || isFinderTR || isFinderBL) {
-        const lr = isFinderTR ? r : isFinderBL ? r - (modules - 7) : r
-        const lc = isFinderTR ? c - (modules - 7) : isFinderBL ? c : c
-        if (lr === 0 || lr === 6 || lc === 0 || lc === 6) {
-          pattern[r][c] = true
-        } else if (lr >= 2 && lr <= 4 && lc >= 2 && lc <= 4) {
-          pattern[r][c] = true
-        } else {
-          pattern[r][c] = false
-        }
-      } else {
-        pattern[r][c] = ((r * 13 + c * 7 + r * c) % 3) === 0
-      }
-    }
-  }
-  return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-      <rect width={size} height={size} fill="white" rx={2} />
-      {pattern.map((row, r) =>
-        row.map((cell, c) =>
-          cell ? (
-            <rect
-              key={`${r}-${c}`}
-              x={c * cellSize}
-              y={r * cellSize}
-              width={cellSize}
-              height={cellSize}
-              fill="#0D3B1F"
-            />
-          ) : null
-        )
-      )}
-    </svg>
-  )
-}
+// Nouveaux imports extraits (Refactoring)
+import { StatusBadge, RoleBadge, CommTypeBadge } from './_components/member-badges'
+import { MemberCard3D } from './_components/member-card-3d'
+import { PaymentsTable } from './_components/payments-table'
+import { QuickLinkCard } from './_components/quick-links'
 
-// --- Types ---
-interface MemberProfile {
-  id: number
-  email: string
-  nom: string
-  prenom: string
-  role: string
-  matricule: string
-  status: string
-  telephone: string
-  photo: string | null
-  region: { nom: string; nomAr: string | null } | null
-  mosque: { nom: string; adresse: string } | null
-  carteMembre: {
-    numeroCarte: string
-    dateEmission: string
-    dateExpiration: string
-  } | null
-  paiements: Array<{
-    id: number
-    montant: number
-    type: string
-    methode: string
-    datePaiement: string
-    referenceTrans: string
-  }>
-  communications: Array<{
-    id: number
-    titre: string
-    type: string
-    date: string
-  }>
-}
-
-// --- Status Badge ---
-function StatusBadge({ status }: { status: string }) {
-  const { p } = useLanguage()
-  switch (status) {
-    case 'ACTIF':
-      return (
-        <Badge className="bg-green-100 text-green-800 border-green-200 hover:bg-green-100">
-          <CheckCircle2 className="h-3 w-3 mr-1" />
-          {p.espaceMembre.statusActive}
-        </Badge>
-      )
-    case 'EXPIRE':
-      return (
-        <Badge className="bg-red-100 text-red-800 border-red-200 hover:bg-red-100">
-          <AlertCircle className="h-3 w-3 mr-1" />
-          {p.espaceMembre.statusExpired}
-        </Badge>
-      )
-    case 'EN_ATTENTE':
-      return (
-        <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200 hover:bg-yellow-100">
-          <Clock className="h-3 w-3 mr-1" />
-          {p.espaceMembre.statusPending}
-        </Badge>
-      )
-    default:
-      return <Badge variant="secondary">{status}</Badge>
-  }
-}
-
-// --- Role Label ---
-function RoleBadge({ role }: { role: string }) {
-  const { p } = useLanguage()
-  const roleMap: Record<string, { label: string; color: string }> = {
-    IMAM: { label: p.espaceMembre.roleImam, color: 'bg-lips-green/10 text-lips-green border-lips-green/20' },
-    PREDICATEUR: { label: p.espaceMembre.rolePreacher, color: 'bg-lips-emerald/10 text-lips-emerald border-lips-emerald/20' },
-    RESPONSABLE_REGIONAL: { label: p.espaceMembre.roleRegionalHead, color: 'bg-lips-gold/10 text-lips-gold border-lips-gold/20' },
-    MEMBRE_CHOURA: { label: p.espaceMembre.roleShura, color: 'bg-amber-100 text-amber-700 border-amber-200' },
-  }
-  const info = roleMap[role] || { label: role, color: 'bg-gray-100 text-gray-700 border-gray-200' }
-  return (
-    <Badge className={`${info.color} hover:${info.color}`}>
-      {info.label}
-    </Badge>
-  )
-}
-
-// --- Format currency ---
-function formatCurrency(amount: number, currency: string): string {
-  return new Intl.NumberFormat('fr-FR').format(amount) + ' ' + currency
-}
-
-// --- Format date ---
 function formatDate(dateStr: string): string {
   try {
     const date = new Date(dateStr)
@@ -186,231 +51,9 @@ function formatDate(dateStr: string): string {
   }
 }
 
-function formatDateShort(dateStr: string): string {
-  try {
-    const date = new Date(dateStr)
-    return date.toLocaleDateString('fr-FR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    })
-  } catch {
-    return dateStr
-  }
-}
-
-// --- Communication type badge ---
-function CommTypeBadge({ type }: { type: string }) {
-  const { p } = useLanguage()
-  switch (type) {
-    case 'COMMUNIQUE':
-      return <Badge className="bg-lips-green/10 text-lips-green border-lips-green/20 text-xs">{p.espaceMembre.commCommunique}</Badge>
-    case 'FATWA':
-      return <Badge className="bg-lips-gold/10 text-lips-gold border-lips-gold/20 text-xs">{p.espaceMembre.commFatwa}</Badge>
-    case 'EVENEMENT':
-      return <Badge className="bg-lips-emerald/10 text-lips-emerald border-lips-emerald/20 text-xs">{p.espaceMembre.commEvent}</Badge>
-    default:
-      return <Badge variant="secondary" className="text-xs">{type}</Badge>
-  }
-}
-
-// --- 3D Membership Card ---
-function MemberCard3D({ member }: { member: MemberProfile }) {
-  const { p } = useLanguage()
-  const [flipped, setFlipped] = useState(false)
-  const card = member.carteMembre
-
-  return (
-    <div className="perspective-[1200px] w-full max-w-[480px] mx-auto" style={{ perspective: '1200px' }}>
-      <motion.div
-        animate={{ rotateY: flipped ? 180 : 0 }}
-        transition={{ duration: 0.6, ease: 'easeInOut' }}
-        className="relative w-full"
-        style={{ transformStyle: 'preserve-3d' }}
-      >
-        {/* FRONT */}
-        <div
-          className="w-full aspect-[1.586/1] rounded-2xl overflow-hidden shadow-2xl shadow-lips-green-dark/30"
-          style={{ backfaceVisibility: 'hidden' }}
-        >
-          <div className="relative w-full h-full bg-gradient-to-br from-lips-green-dark via-lips-green to-lips-emerald flex flex-col">
-            <div className="h-1.5 bg-gradient-to-r from-lips-gold via-lips-gold-light to-lips-gold" />
-            <div className="flex items-center justify-between px-5 pt-4 pb-2">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center border border-white/20 overflow-hidden p-0.5">
-                  <img src="/logo.png" alt="LIPS" className="w-full h-full object-contain" />
-                </div>
-                <div>
-                  <div className="text-white font-semibold text-[10px] sm:text-[11px] leading-tight">
-                    {p.espaceMembre.orgLine1}
-                  </div>
-                  <div className="text-white/70 text-[8px] sm:text-[9px] leading-tight">
-                    {p.espaceMembre.orgLine2}
-                  </div>
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="text-lips-gold text-[9px] sm:text-[10px] font-semibold tracking-wider">
-                  {p.espaceMembre.cardTitle}
-                </div>
-                <div className="text-lips-gold/60 text-[8px] sm:text-[9px]">{p.espaceMembre.nationalLabel}</div>
-              </div>
-            </div>
-            <div className="flex-1 flex items-center px-5 pb-2">
-              <div className="flex items-center gap-2 sm:gap-4 w-full">
-                <div className="w-16 h-20 sm:w-20 sm:h-24 rounded-lg bg-white/10 border-2 border-white/20 flex flex-col items-center justify-center shrink-0">
-                  {member.photo ? (
-                    <img src={member.photo} alt="Photo" className="w-full h-full object-cover rounded-lg" />
-                  ) : (
-                    <Avatar className="w-12 h-12 sm:w-16 sm:h-16">
-                      <AvatarFallback className="bg-white/10 text-white text-lg">
-                        {member.prenom[0]}{member.nom[0]}
-                      </AvatarFallback>
-                    </Avatar>
-                  )}
-                </div>
-                <div className="flex-1 space-y-1.5">
-                  <div>
-                    <div className="text-white/50 text-[9px] sm:text-[10px] uppercase tracking-wider">{p.espaceMembre.nameLabel}</div>
-                    <div className="text-white font-bold text-sm sm:text-base leading-tight">
-                      {member.prenom} {member.nom}
-                    </div>
-                  </div>
-                  <div className="flex gap-3 sm:gap-4">
-                    <div>
-                      <div className="text-white/50 text-[9px] sm:text-[10px] uppercase tracking-wider">{p.espaceMembre.roleLabel}</div>
-                      <div className="text-lips-gold font-semibold text-[10px] sm:text-[11px] leading-tight">
-                        {member.role}
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-white/50 text-[9px] sm:text-[10px] uppercase tracking-wider">{p.espaceMembre.regionLabel}</div>
-                      <div className="text-white font-semibold text-[10px] sm:text-[11px] leading-tight">
-                        {member.region?.nom || '—'}
-                      </div>
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-white/50 text-[9px] sm:text-[10px] uppercase tracking-wider">{p.espaceMembre.matriculeLabel2}</div>
-                    <div className="text-white font-mono font-bold text-xs sm:text-sm tracking-wide">
-                      {member.matricule}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="px-5 pb-3 pt-1 flex items-end justify-between">
-              <div className="flex items-center gap-3">
-                <div>
-                  <div className="text-white/40 text-[8px] sm:text-[9px]">{p.espaceMembre.issuedLabel}</div>
-                  <div className="text-white/80 text-[10px] sm:text-[11px] font-medium">
-                    {card ? formatDateShort(card.dateEmission) : '—'}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-white/40 text-[8px] sm:text-[9px]">{p.espaceMembre.expiresLabel}</div>
-                  <div className="text-lips-gold text-[10px] sm:text-[11px] font-bold">
-                    {card ? formatDateShort(card.dateExpiration) : '—'}
-                  </div>
-                </div>
-              </div>
-              <div className="bg-white p-1 rounded-md">
-                <QrCodeSvg size={44} />
-              </div>
-            </div>
-            <div className="h-1 bg-gradient-to-r from-lips-gold via-lips-gold-light to-lips-gold" />
-          </div>
-        </div>
-
-        {/* BACK */}
-        <div
-          className="absolute inset-0 w-full aspect-[1.586/1] rounded-2xl overflow-hidden shadow-2xl shadow-lips-green-dark/30"
-          style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
-        >
-          <div className="relative w-full h-full bg-gradient-to-br from-lips-green-dark via-lips-green to-lips-emerald flex flex-col">
-            <div className="h-1.5 bg-gradient-to-r from-lips-gold via-lips-gold-light to-lips-gold" />
-            <div className="flex-1 flex flex-col items-center justify-center px-6">
-              <p className="font-arabic text-lips-gold text-lg mb-2">
-                بِالصَّبْرِ وَالْيَقِينِ
-              </p>
-              <div className="text-white font-bold text-xs text-center mb-1">
-                {p.espaceMembre.orgLine1} {p.espaceMembre.orgLine2}
-              </div>
-              <div className="text-white/50 text-[10px] sm:text-[11px] text-center mb-4">
-                {p.espaceMembre.institutionLabel}
-              </div>
-              <div className="w-full bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/10 mb-3">
-                <div className="text-center text-[10px] sm:text-[11px] text-white/60 mb-1">
-                  {p.espaceMembre.verifyText}
-                </div>
-                <div className="text-center text-white font-mono text-[10px] sm:text-xs">
-                  https://lips.sn/verifier/{member.matricule}
-                </div>
-              </div>
-              <div className="flex items-center gap-4 text-white/40 text-[9px] sm:text-[10px]">
-                <span>+221 33 800 00 00</span>
-                <span>•</span>
-                <span>contact@lips.sn</span>
-              </div>
-            </div>
-            <div className="px-5 pb-3">
-              <div className="text-white/30 text-[8px] sm:text-[9px] text-center leading-relaxed">
-                {p.espaceMembre.legalNotice}
-              </div>
-            </div>
-            <div className="h-1 bg-gradient-to-r from-lips-gold via-lips-gold-light to-lips-gold" />
-          </div>
-        </div>
-      </motion.div>
-
-      <div className="flex justify-center mt-4">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setFlipped(!flipped)}
-          className="text-lips-green hover:text-lips-green-dark hover:bg-lips-green/5"
-        >
-          <RotateCw className="h-3.5 w-3.5 mr-1.5" />
-          {flipped ? p.espaceMembre.cardFront : p.espaceMembre.cardBack}
-        </Button>
-      </div>
-    </div>
-  )
-}
-
-// --- Quick Link Card ---
-function QuickLinkCard({ icon: Icon, title, description, href, color }: {
-  icon: React.ElementType
-  title: string
-  description: string
-  href: string
-  color: string
-}) {
-  return (
-    <Link href={href}>
-      <motion.div
-        whileHover={{ y: -2, scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-        className="h-full"
-      >
-        <Card className="h-full hover:shadow-md transition-shadow border-lips-green/5 cursor-pointer">
-          <CardContent className="p-4 flex flex-col items-center text-center gap-2">
-            <div className={`w-12 h-12 rounded-xl ${color} flex items-center justify-center`}>
-              <Icon className="h-5 w-5" />
-            </div>
-            <h3 className="font-semibold text-sm text-lips-green-dark">{title}</h3>
-            <p className="text-xs text-muted-foreground">{description}</p>
-          </CardContent>
-        </Card>
-      </motion.div>
-    </Link>
-  )
-}
-
-// --- Main Dashboard ---
 export default function EspaceMembreDashboard() {
   const { p } = useLanguage()
-  const [member, setMember] = useState<MemberProfile | null>(null)
+  const [member, setMember] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [editOpen, setEditOpen] = useState(false)
 
@@ -437,10 +80,6 @@ export default function EspaceMembreDashboard() {
       </div>
     )
   }
-
-  const totalCotisations = member.paiements
-    .filter(pay => pay.type === 'COTISATION')
-    .reduce((sum, pay) => sum + pay.montant, 0)
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6 space-y-8">
@@ -505,10 +144,7 @@ export default function EspaceMembreDashboard() {
                   </CardTitle>
                   <CardDescription>{p.espaceMembre.cardDesc}</CardDescription>
                 </div>
-                <Badge className="bg-lips-green/10 text-lips-green border-lips-green/20">
-                  <CheckCircle2 className="h-3 w-3 mr-1" />
-                  {p.espaceMembre.validLabel}
-                </Badge>
+                <StatusBadge status="ACTIF" />
               </div>
             </CardHeader>
             <CardContent>
@@ -637,99 +273,7 @@ export default function EspaceMembreDashboard() {
         transition={{ duration: 0.4, delay: 0.3 }}
         id="cotisations"
       >
-        <Card className="border-lips-green/10">
-          <CardHeader>
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-              <div>
-                <CardTitle className="text-lg text-lips-green-dark flex items-center gap-2">
-                  <CreditCard className="h-5 w-5 text-lips-green" />
-                  {p.espaceMembre.paymentsTitle}
-                </CardTitle>
-                <CardDescription>{p.espaceMembre.paymentsDesc}</CardDescription>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="text-right">
-                  <div className="text-xs text-muted-foreground">{p.espaceMembre.totalContributions}</div>
-                  <div className="text-lg font-bold text-lips-green">{formatCurrency(totalCotisations, p.espaceMembre.currency)}</div>
-                </div>
-                <Button asChild size="sm" className="bg-lips-green hover:bg-lips-green-dark text-white">
-                  <Link href="/faire-un-don">
-                    <Heart className="h-4 w-4 mr-1.5" />
-                    {p.espaceMembre.payContribution}
-                  </Link>
-                </Button>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            {/* Desktop Table */}
-            <div className="hidden sm:block">
-              <div className="rounded-lg border overflow-hidden">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="bg-lips-green/5">
-                      <th className="text-left p-3 font-medium text-muted-foreground">{p.espaceMembre.tableType}</th>
-                      <th className="text-left p-3 font-medium text-muted-foreground">{p.espaceMembre.tableAmount}</th>
-                      <th className="text-left p-3 font-medium text-muted-foreground">{p.espaceMembre.tableDate}</th>
-                      <th className="text-left p-3 font-medium text-muted-foreground">{p.espaceMembre.tableMethod}</th>
-                      <th className="text-left p-3 font-medium text-muted-foreground">{p.espaceMembre.tableReference}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {member.paiements.map((pay) => (
-                      <tr key={pay.id} className="border-t hover:bg-muted/50 transition-colors">
-                        <td className="p-3">
-                          <Badge
-                            className={
-                              pay.type === 'COTISATION'
-                                ? 'bg-lips-green/10 text-lips-green border-lips-green/20'
-                                : pay.type === 'DON'
-                                ? 'bg-lips-gold/10 text-lips-gold border-lips-gold/20'
-                                : 'bg-amber-100 text-amber-700 border-amber-200'
-                            }
-                          >
-                            {pay.type}
-                          </Badge>
-                        </td>
-                        <td className="p-3 font-medium">{formatCurrency(pay.montant, p.espaceMembre.currency)}</td>
-                        <td className="p-3 text-muted-foreground">{formatDate(pay.datePaiement)}</td>
-                        <td className="p-3">{pay.methode}</td>
-                        <td className="p-3 font-mono text-xs text-muted-foreground">{pay.referenceTrans}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            {/* Mobile Cards */}
-            <div className="sm:hidden space-y-3 max-h-96 overflow-y-auto">
-              {member.paiements.map((pay) => (
-                <div key={pay.id} className="rounded-lg border p-3 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Badge
-                      className={
-                        pay.type === 'COTISATION'
-                          ? 'bg-lips-green/10 text-lips-green border-lips-green/20'
-                          : pay.type === 'DON'
-                          ? 'bg-lips-gold/10 text-lips-gold border-lips-gold/20'
-                          : 'bg-amber-100 text-amber-700 border-amber-200'
-                      }
-                    >
-                      {pay.type}
-                    </Badge>
-                    <span className="font-bold text-lips-green-dark">{formatCurrency(pay.montant, p.espaceMembre.currency)}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span>{formatDate(pay.datePaiement)}</span>
-                    <span>{pay.methode}</span>
-                  </div>
-                  <div className="text-xs text-muted-foreground font-mono">{pay.referenceTrans}</div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        <PaymentsTable member={member} />
       </motion.div>
 
       {/* E. Quick Links Grid */}
@@ -801,7 +345,7 @@ export default function EspaceMembreDashboard() {
           <CardContent>
             <div className="space-y-3">
               {member.communications && member.communications.length > 0 ? (
-                member.communications.map((comm) => (
+                member.communications.map((comm: any) => (
                   <div
                     key={comm.id}
                     className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors border border-transparent hover:border-lips-green/10"

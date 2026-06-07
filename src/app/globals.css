@@ -3,7 +3,7 @@
 
 @custom-variant dark (&:is(.dark *));
 
-@theme inline {
+@theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
@@ -41,227 +41,62 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  /* LIPS Custom Colors — reference CSS variables so dark mode overrides work */
-  --color-lips-green: var(--lips-green);
-  --color-lips-green-light: var(--lips-green-light);
-  --color-lips-green-dark: var(--lips-green-dark);
-  --color-lips-gold: var(--lips-gold);
-  --color-lips-gold-light: var(--lips-gold-light);
-  --color-lips-cream: var(--lips-cream);
-  --color-lips-emerald: var(--lips-emerald);
+
+  /* LIPS Custom Colors */
+  --color-lips-green: #1B6B3A;
+  --color-lips-green-light: #2E8B57;
+  --color-lips-green-dark: #0D3B1F;
+  --color-lips-gold: #C9962A;
+  --color-lips-gold-light: #E5BE5A;
+  --color-lips-cream: #EFE8D8;
+  --color-lips-emerald: #0D7D5E;
 }
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(0.99 0.002 100);
-  --foreground: oklch(0.18 0.02 150);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.18 0.02 150);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.18 0.02 150);
-  /* LIPS Green as Primary - Islamic institutional green */
-  --primary: oklch(0.38 0.12 155);
-  --primary-foreground: oklch(0.99 0.002 100);
-  --secondary: oklch(0.96 0.01 100);
-  --secondary-foreground: oklch(0.25 0.02 150);
-  --muted: oklch(0.96 0.005 100);
-  --muted-foreground: oklch(0.5 0.02 150);
-  --accent: oklch(0.78 0.14 85);
-  --accent-foreground: oklch(0.25 0.05 85);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.92 0.005 100);
-  --input: oklch(0.92 0.005 100);
-  --ring: oklch(0.38 0.12 155);
-  --chart-1: oklch(0.38 0.12 155);
-  --chart-2: oklch(0.78 0.14 85);
-  --chart-3: oklch(0.55 0.1 155);
-  --chart-4: oklch(0.65 0.08 85);
-  --chart-5: oklch(0.45 0.06 155);
-  --sidebar: oklch(0.98 0.003 100);
-  --sidebar-foreground: oklch(0.18 0.02 150);
-  --sidebar-primary: oklch(0.38 0.12 155);
-  --sidebar-primary-foreground: oklch(0.99 0.002 100);
-  --sidebar-accent: oklch(0.96 0.01 100);
-  --sidebar-accent-foreground: oklch(0.25 0.02 150);
-  --sidebar-border: oklch(0.92 0.005 100);
-  --sidebar-ring: oklch(0.38 0.12 155);
+  --background: #EFE8D8; /* Very distinct beige/cream to definitively solve the 'too white' issue */
+  --foreground: #0D3B1F; /* lips-green-dark */
+  --card: #FFFFFF; /* Pure white cards pop against the cream */
+  --card-foreground: #0D3B1F;
+  --popover: #FFFFFF;
+  --popover-foreground: #0D3B1F;
+  --primary: #1B6B3A; /* lips-green */
+  --primary-foreground: #FFFFFF;
+  --secondary: #E5BE5A; /* lips-gold-light */
+  --secondary-foreground: #0D3B1F;
+  --muted: #E8F0EA;
+  --muted-foreground: #4A6B56;
+  --accent: #E8F0EA;
+  --accent-foreground: #1B6B3A;
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+  --border: #DDE8E0;
+  --input: #DDE8E0;
+  --ring: #1B6B3A;
+  
+  --chart-1: #1B6B3A;
+  --chart-2: #C9962A;
+  --chart-3: #0D7D5E;
+  --chart-4: #2E8B57;
+  --chart-5: #E5BE5A;
+  
+  --sidebar: #05180C;
+  --sidebar-foreground: #FBF8F0;
+  --sidebar-primary: #1B6B3A;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #113620;
+  --sidebar-accent-foreground: #FBF8F0;
+  --sidebar-border: #113620;
+  --sidebar-ring: #C9962A;
+
   /* LIPS Brand Colors */
-  --lips-green: #1B6B3A;
-  --lips-green-light: #2E8B57;
-  --lips-green-dark: #0D3B1F;
-  --lips-gold: #C9962A;
-  --lips-gold-light: #E5BE5A;
-  --lips-cream: #FBF8F0;
-  --lips-emerald: #0D7D5E;
-}
-
-.dark {
-  --background: oklch(0.13 0.01 155);
-  --foreground: oklch(0.96 0.005 100);
-  --card: oklch(0.18 0.015 155);
-  --card-foreground: oklch(0.96 0.005 100);
-  --popover: oklch(0.18 0.015 155);
-  --popover-foreground: oklch(0.96 0.005 100);
-  --primary: oklch(0.55 0.12 155);
-  --primary-foreground: oklch(0.13 0.01 155);
-  --secondary: oklch(0.22 0.02 155);
-  --secondary-foreground: oklch(0.96 0.005 100);
-  --muted: oklch(0.22 0.02 155);
-  --muted-foreground: oklch(0.65 0.03 100);
-  --accent: oklch(0.68 0.14 85);
-  --accent-foreground: oklch(0.13 0.01 155);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.55 0.12 155);
-  --chart-1: oklch(0.55 0.12 155);
-  --chart-2: oklch(0.68 0.14 85);
-  --chart-3: oklch(0.65 0.1 155);
-  --chart-4: oklch(0.58 0.08 85);
-  --chart-5: oklch(0.48 0.06 155);
-  --sidebar: oklch(0.16 0.015 155);
-  --sidebar-foreground: oklch(0.96 0.005 100);
-  --sidebar-primary: oklch(0.55 0.12 155);
-  --sidebar-primary-foreground: oklch(0.13 0.01 155);
-  --sidebar-accent: oklch(0.22 0.02 155);
-  --sidebar-accent-foreground: oklch(0.96 0.005 100);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.55 0.12 155);
-  --lips-green: #2E8B57;
-  --lips-green-light: #3CA06A;
-  --lips-green-dark: #1B6B3A;
-  --lips-gold: #E5BE5A;
-  --lips-gold-light: #F0D47A;
-  --lips-cream: #1A2E20;
-  --lips-emerald: #0D7D5E;
-}
-
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-}
-
-/* Arabic font support */
-.font-arabic {
-  font-family: 'Noto Naskh Arabic', 'Amiri', 'Traditional Arabic', serif;
-  direction: rtl;
-  line-height: 1.8;
-}
-
-/* Hide scrollbar utility */
-.scrollbar-none {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-.scrollbar-none::-webkit-scrollbar {
-  display: none;
-}
-
-/* Islamic geometric pattern background */
-.islamic-pattern {
-  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M30 0l30 30-30 30L0 30zM30 8l22 22-22 22L8 30z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-}
-
-.dark .islamic-pattern {
-  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.08'%3E%3Cpath d='M30 0l30 30-30 30L0 30zM30 8l22 22-22 22L8 30z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-}
-
-/* Scroll animation utilities */
-.reveal-on-scroll {
-  opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-}
-
-.reveal-on-scroll.revealed {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* Gold gradient text */
-.text-gradient-gold {
-  background: linear-gradient(135deg, var(--lips-gold) 0%, var(--lips-gold-light) 50%, var(--lips-gold) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Green gradient */
-.bg-gradient-lips {
-  background: linear-gradient(135deg, var(--lips-green-dark) 0%, var(--lips-green) 50%, var(--lips-emerald) 100%);
-}
-
-/* Decorative separator */
-.separator-islamic {
-  position: relative;
-  text-align: center;
-}
-
-.separator-islamic::before,
-.separator-islamic::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  width: 40%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--lips-gold), transparent);
-}
-
-/* Dark mode smooth transitions */
-.dark * {
-  transition-property: background-color, border-color, color;
-  transition-duration: 0.15s;
-  transition-timing-function: ease-in-out;
-}
-
-/* Badge color adjustments for dark mode */
-.dark .bg-red-500\/10 {
-  background-color: rgb(239 68 68 / 0.2);
-}
-.dark .bg-purple-500\/10 {
-  background-color: rgb(168 85 247 / 0.2);
-}
-.dark .bg-green-500\/10 {
-  background-color: rgb(34 197 94 / 0.2);
-}
-.dark .text-red-600 {
-  color: rgb(248 113 113);
-}
-.dark .text-purple-600 {
-  color: rgb(192 132 252);
-}
-.dark .text-green-600 {
-  color: rgb(74 222 128);
-}
-.dark .text-sky-600 {
-  color: rgb(56 189 248);
-}
-.dark .text-amber-600 {
-  color: rgb(252 211 77);
-}
-.dark .text-rose-600 {
-  color: rgb(251 113 133);
-}
-.dark .text-emerald-600 {
-  color: rgb(52 211 153);
-}
-
-/* Service card border colors in dark mode */
-.dark .hover\:border-sky-200:hover {
-  border-color: rgb(56 189 248 / 0.3);
-}
-.dark .hover\:border-emerald-200:hover {
-  border-color: rgb(52 211 153 / 0.3);
-}
-.dark .hover\:border-amber-200:hover {
-  border-color: rgb(252 211 77 / 0.3);
-}
-.dark .hover\:border-rose-200:hover {
-  border-color: rgb(251 113 133 / 0.3);
+  --color-lips-green: #1B6B3A;
+  --color-lips-green-light: #2E8B57;
+  --color-lips-green-dark: #0D3B1F;
+  --color-lips-gold: #C9962A;
+  --color-lips-gold-light: #E5BE5A;
+  --color-lips-cream: #EFE8D8;
+  --color-lips-emerald: #0D7D5E;
 }
 
 .separator-islamic::before {
@@ -270,6 +105,11 @@
 
 .separator-islamic::after {
   left: 55%;
+}
+
+/* ─── Base Styles ──────────────────────────────────────────── */
+body {
+  background-color: var(--background);
 }
 
 /* ─── RTL Support ──────────────────────────────────────────── */

@@ -4,9 +4,9 @@ import tailwindcssAnimate from "tailwindcss-animate";
 const config: Config = {
     darkMode: "class",
     content: [
-    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
   	extend: {
@@ -50,7 +50,14 @@ const config: Config = {
   				'3': 'hsl(var(--chart-3))',
   				'4': 'hsl(var(--chart-4))',
   				'5': 'hsl(var(--chart-5))'
-  			}
+  			},
+			'lips-green': 'var(--color-lips-green)',
+			'lips-green-light': 'var(--color-lips-green-light)',
+			'lips-green-dark': 'var(--color-lips-green-dark)',
+			'lips-gold': 'var(--color-lips-gold)',
+			'lips-gold-light': 'var(--color-lips-gold-light)',
+			'lips-cream': 'var(--color-lips-cream)',
+			'lips-emerald': 'var(--color-lips-emerald)',
   		},
   		borderRadius: {
   			lg: 'var(--radius)',

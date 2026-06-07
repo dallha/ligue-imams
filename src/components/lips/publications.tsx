@@ -13,7 +13,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useLanguage } from '@/lib/lips/i18n/language-context';
 
 export default function PublicationsSection() {
-  const { p } = useLanguage();
+  const { p, isRTL } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
 
@@ -56,7 +56,7 @@ export default function PublicationsSection() {
     <section
       ref={sectionRef}
       id="publications"
-      className="py-12 sm:py-20 lg:py-28 bg-white relative"
+      className="py-12 sm:py-20 lg:py-28 bg-lips-cream relative"
     >
       <div className="max-w-7xl mx-auto px-4">
         {/* Section header */}
@@ -101,11 +101,8 @@ export default function PublicationsSection() {
                       <div className="flex items-center justify-between mb-1">
                         <div>
                           <h3 className="font-semibold text-lips-green-dark">
-                            {category.title}
+                            {isRTL && category.titleAr ? category.titleAr : category.title}
                           </h3>
-                          <span className="font-arabic text-xs text-lips-gold">
-                            {category.titleAr}
-                          </span>
                         </div>
                         <span className="text-xs font-medium text-muted-foreground bg-muted px-2 py-1 rounded-full">
                           {category.count}

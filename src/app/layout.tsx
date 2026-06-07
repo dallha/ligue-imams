@@ -51,38 +51,29 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+import Script from 'next/script';
+import { db as prisma } from '@/lib/db'
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  let uiTexts: any[] = [];
+  try {
+    uiTexts = await prisma.uIText.findMany();
+  } catch (e) {
+    console.error('Failed to load UI Texts', e);
+  }
+
   return (
     <html lang="fr" dir="ltr" suppressHydrationWarning>
       <head>
-        {/* Auto day/night theme — runs before React to avoid flash */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){
-              try{
-                var mode=localStorage.getItem('lips-theme-mode');
-                if(mode==='auto'||!mode){
-                  var h=new Date().toLocaleTimeString('en-GB',{hour:'numeric',hour12:false,timeZone:'Africa/Dakar'});
-                  var hr=parseInt(h,10);
-                  if(hr>=19||hr<6) document.documentElement.classList.add('dark');
-                }else if(mode==='dark'){
-                  document.documentElement.classList.add('dark');
-                }else if(mode==='system'&&window.matchMedia('(prefers-color-scheme:dark)').matches){
-                  document.documentElement.classList.add('dark');
-                }
-                // If auto and no saved mode yet, save it
-                if(!mode) localStorage.setItem('lips-theme-mode','auto');
-              }catch(e){}
-            })()`,
-          }}
-        />
         {/* Schema.org pour Organisation Institutionnelle */}
-        <script
+        <Script
+          id="schema-org"
           type="application/ld+json"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
@@ -95,11 +86,11 @@ export default function RootLayout({
                 "Institution nationale de référence au service des imams, de la communauté et de la paix sociale.",
               address: {
                 "@type": "PostalAddress",
-                streetAddress: "Grande Mosquée AN-NOUR Liberté II",
+                streetAddress: "Institut Islamique",
                 addressLocality: "Dakar",
                 addressCountry: "SN",
               },
-              foundingDate: "2006",
+              foundingDate: "2011",
               areaServed: {
                 "@type": "Country",
                 name: "Sénégal",
@@ -109,10 +100,11 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-lips-cream text-foreground`}
+        suppressHydrationWarning
       >
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
-          <LanguageProvider>
+        <ThemeProvider attribute="class" defaultTheme="light" forcedTheme="light" enableSystem={false} disableTransitionOnChange>
+          <LanguageProvider uiTexts={uiTexts}>
             {children}
             <Toaster />
           </LanguageProvider>

@@ -96,7 +96,7 @@ const TYPE_STYLES: Record<string, string> = {
 };
 
 export default function EvenementsSection() {
-  const { p } = useLanguage();
+  const { p, isRTL } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
 
@@ -104,7 +104,7 @@ export default function EvenementsSection() {
     <section
       ref={sectionRef}
       id="evenements"
-      className="py-12 sm:py-20 lg:py-28 bg-white relative"
+      className="py-12 sm:py-20 lg:py-28 bg-lips-cream relative"
     >
       <div className="max-w-7xl mx-auto px-4">
         {/* Header */}
@@ -156,16 +156,13 @@ export default function EvenementsSection() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1.5">
                         <Badge className={`${TYPE_STYLES[event.type] || 'bg-gray-100 text-gray-600'} text-[10px]`}>
-                          {event.type}
+                          {isRTL ? event.typeAr : event.type}
                         </Badge>
-                        <span className="font-arabic text-[10px] text-lips-gold">{event.typeAr}</span>
                       </div>
 
-                      <h4 className="font-semibold text-lips-green-dark text-sm mb-1 group-hover:text-lips-green transition-colors">
-                        {event.titre}
+                      <h4 className="font-bold text-lips-green-dark text-lg group-hover:text-lips-green transition-colors leading-snug">
+                        {isRTL && event.titreAr ? event.titreAr : event.titre}
                       </h4>
-                      <span className="font-arabic text-[10px] text-lips-gold">{event.titreAr}</span>
-
                       <p className="text-xs text-muted-foreground leading-relaxed mt-2">
                         {event.description.substring(0, 100)}...
                       </p>

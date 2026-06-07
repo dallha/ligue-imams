@@ -1,9 +1,10 @@
 import { SignJWT, jwtVerify } from 'jose'
 import { cookies } from 'next/headers'
 
-const SECRET_KEY = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'lips-member-secret-key-2025-siin'
-)
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is missing. This is required for security.');
+}
+const SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET);
 
 const COOKIE_NAME = 'lips-member-session'
 

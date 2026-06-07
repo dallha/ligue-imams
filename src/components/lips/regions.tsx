@@ -96,7 +96,7 @@ export default function RegionsSection() {
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.4, delay: index * 0.05 }}
             >
-              <Card id={`region-${region.code}`} className="group hover:shadow-lg hover:shadow-lips-green/10 transition-all duration-300 hover:border-lips-green/30 cursor-pointer border-border/50 bg-white/80 backdrop-blur-sm transition-shadow">
+              <Card id={`region-${region.code}`} className="group hover:shadow-lg hover:shadow-lips-green/10 transition-all duration-300 hover:border-lips-green/30 cursor-pointer border-border/50 bg-card/80 backdrop-blur-sm transition-shadow">
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between mb-3">
                     <div>
@@ -158,7 +158,7 @@ export default function RegionsSection() {
           transition={{ duration: 0.6, delay: 0.8 }}
           className="mt-12 text-center"
         >
-          <div className="inline-flex flex-wrap items-center justify-center gap-4 sm:gap-6 bg-white/80 backdrop-blur-sm rounded-xl px-4 sm:px-8 py-4 border border-border/50 shadow-sm">
+          <div className="inline-flex flex-wrap items-center justify-center gap-4 sm:gap-6 bg-card/80 backdrop-blur-sm rounded-xl px-4 sm:px-8 py-4 border border-border/50 shadow-sm">
             <div className="text-center">
               <div className="text-2xl font-bold text-lips-green">14</div>
               <div className="text-xs text-muted-foreground">{p.regionsPage.summaryRegions}</div>

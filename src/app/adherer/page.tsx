@@ -1,7 +1,6 @@
 'use client';
 
 import LipsHeader from '@/components/lips/header';
-import PrayerTimesWidget from '@/components/lips/prayer-times';
 import PageBanner from '@/components/lips/page-banner';
 import DevenirMembreSection from '@/components/lips/devenir-membre';
 import NewsletterSection from '@/components/lips/newsletter';
@@ -14,8 +13,7 @@ export default function AdhererPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <LipsHeader />
-      <PrayerTimesWidget />
-      <main className="flex-1">
+            <main className="flex-1">
         <PageBanner
           label={p.pages.join.label}
           title={p.pages.join.title}

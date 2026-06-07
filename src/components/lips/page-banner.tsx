@@ -7,7 +7,6 @@ interface PageBannerProps {
   title: string;
   titleAr?: string;
   description: string;
-  gradient?: string;
 }
 
 export default function PageBanner({
@@ -15,47 +14,64 @@ export default function PageBanner({
   title,
   titleAr,
   description,
-  gradient = 'from-lips-green-dark via-lips-green to-lips-green-dark',
 }: PageBannerProps) {
   return (
-    <section className={`relative py-10 sm:py-16 lg:py-24 bg-gradient-to-r ${gradient} text-white overflow-hidden`}>
-      {/* Decorative elements */}
-      <div className="absolute inset-0 islamic-pattern opacity-10" />
-      <div className="hidden sm:block absolute top-10 left-10 w-24 h-24 border border-white/10 rotate-45 rounded-sm" />
-      <div className="hidden sm:block absolute bottom-8 right-16 w-16 h-16 border border-lips-gold/20 rotate-12 rounded-sm" />
-      <div className="hidden sm:block absolute top-1/3 right-10 w-12 h-12 border border-white/5 rotate-45 rounded-full" />
+    <section className="relative py-16 sm:py-24 lg:py-32 bg-[#0A2E17] text-white overflow-hidden">
+      {/* Immersive Background */}
+      <div className="absolute inset-0 bg-[url('/noise.png')] opacity-20 mix-blend-overlay pointer-events-none" />
+      <div className="absolute inset-0 islamic-pattern opacity-[0.03] pointer-events-none" />
+      
+      {/* Golden & Green Glows */}
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-lips-gold/10 rounded-full blur-[100px] pointer-events-none -translate-y-1/2 translate-x-1/3" />
+      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-lips-emerald/10 rounded-full blur-[100px] pointer-events-none translate-y-1/2 -translate-x-1/4" />
 
-      {/* Top gold line */}
-      <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-lips-gold/40 to-transparent" />
+      {/* Decorative borders */}
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-lips-gold/60 to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-lips-gold/20 to-transparent" />
 
-      <div className="relative max-w-7xl mx-auto px-4 text-center">
+      {/* Floating abstract elements */}
+      <motion.div 
+        animate={{ rotate: 360 }}
+        transition={{ duration: 100, repeat: Infinity, ease: "linear" }}
+        className="hidden sm:block absolute top-20 left-20 w-32 h-32 border border-lips-gold/10 rounded-lg" 
+      />
+      <motion.div 
+        animate={{ rotate: -360 }}
+        transition={{ duration: 120, repeat: Infinity, ease: "linear" }}
+        className="hidden sm:block absolute bottom-16 right-24 w-24 h-24 border border-white/5 rounded-full" 
+      />
+
+      <div className="relative z-10 max-w-4xl mx-auto px-4 text-center">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="flex flex-col items-center"
         >
-          <span className="text-sm font-semibold text-lips-gold tracking-widest uppercase">
-            {label}
-          </span>
-          <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-white mt-3 mb-3">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-lips-gold/10 border border-lips-gold/20 mb-6">
+            <span className="w-1.5 h-1.5 rounded-full bg-lips-gold animate-pulse" />
+            <span className="text-xs font-bold text-lips-gold tracking-widest uppercase">
+              {label}
+            </span>
+          </div>
+          
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-white mb-6 tracking-tight drop-shadow-xl">
             {title}
           </h1>
+          
           {titleAr && (
-            <p className="font-arabic text-lg sm:text-xl md:text-2xl text-lips-gold mb-4">
-              {titleAr}
-            </p>
+            <div className="p-4 rounded-3xl bg-black/20 backdrop-blur-sm border border-white/5 mb-8 inline-block shadow-inner">
+              <p className="font-arabic text-2xl sm:text-3xl md:text-4xl text-transparent bg-clip-text bg-gradient-to-r from-lips-gold to-[#C9962A] drop-shadow-sm">
+                {titleAr}
+              </p>
+            </div>
           )}
-          <div className="separator-islamic text-lips-gold text-2xl my-4">
-            &#10022;
-          </div>
-          <p className="text-white/70 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed">
+          
+          <p className="text-white/70 text-lg sm:text-xl leading-relaxed max-w-3xl font-medium">
             {description}
           </p>
         </motion.div>
       </div>
-
-      {/* Bottom gold line */}
-      <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-lips-gold/40 to-transparent" />
     </section>
   );
 }
