@@ -140,7 +140,7 @@ export async function POST(request: NextRequest) {
 
     // ── 7. Create Supabase Auth session ───────────────────────────
     const supabase = await createClient()
-    const { error: signInError } = await supabase.auth.signInWithPassword({
+    let { error: signInError } = await supabase.auth.signInWithPassword({
       email: email.toLowerCase().trim(),
       password,
     })
@@ -176,11 +176,23 @@ export async function POST(request: NextRequest) {
             if (retryError) {
               console.error('Supabase retry error:', retryError.message)
             }
+            signInError = retryError ?? null
           }
         } catch (serviceError) {
           console.error('Service client error:', serviceError)
         }
       }
+    }
+
+    if (signInError) {
+      await timingSafeDelay(startTime)
+      return NextResponse.json(
+        {
+          error: 'Impossible de créer la session Supabase',
+          code: 'SUPABASE_SESSION_FAILED',
+        },
+        { status: 500 }
+      )
     }
 
     // ── 8. Success ────────────────────────────────────────────────

@@ -58,6 +58,7 @@ export default function AdminHeader() {
 
   async function handleLogout() {
     try {
+      await fetch('/api/admin/logout', { method: 'POST' });
       const supabase = createClient();
       await supabase.auth.signOut();
       router.push('/admin/login');
