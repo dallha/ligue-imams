@@ -67,12 +67,14 @@ export default function DevenirMembreSection() {
     <section
       ref={sectionRef}
       id="devenir-membre"
-      className="py-16 sm:py-24 lg:py-32 bg-muted/20 relative overflow-hidden"
+      className="py-16 sm:py-24 lg:py-32 bg-gradient-to-b from-lips-cream via-[#F8F5EF] to-lips-cream relative overflow-hidden"
     >
-      <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-lips-emerald/5 rounded-full blur-[100px] pointer-events-none -translate-x-1/2 -translate-y-1/2" />
-      <div className="absolute inset-0 islamic-pattern opacity-[0.02] pointer-events-none" />
+      {/* Decorative Orbs */}
+      <div className="absolute top-0 left-0 w-[800px] h-[800px] bg-lips-emerald/10 rounded-full blur-[120px] pointer-events-none -translate-x-1/3 -translate-y-1/3" />
+      <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-lips-gold/10 rounded-full blur-[100px] pointer-events-none translate-x-1/3 translate-y-1/3" />
+      <div className="absolute inset-0 islamic-pattern opacity-[0.03] pointer-events-none" />
 
-      <div className="relative max-w-7xl mx-auto px-4">
+      <div className="relative z-10 max-w-7xl mx-auto px-4">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -80,16 +82,16 @@ export default function DevenirMembreSection() {
           transition={{ duration: 0.6 }}
           className="text-center mb-16 sm:mb-20"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-lips-green/10 border border-lips-green/20 mb-6">
-            <span className="w-1.5 h-1.5 rounded-full bg-lips-green animate-pulse" />
-            <span className="text-xs font-bold text-lips-green tracking-widest uppercase">
+          <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white border border-lips-green/10 mb-6 shadow-sm">
+            <span className="w-2 h-2 rounded-full bg-lips-green animate-pulse" />
+            <span className="text-xs font-black text-lips-green tracking-widest uppercase">
               {p.devenirMembre.sectionTag}
             </span>
           </div>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-foreground mb-6 tracking-tight">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-[#0A2E17] mb-6 tracking-tight">
             {p.devenirMembre.sectionTitle}
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-lg leading-relaxed">
+          <p className="text-muted-foreground/80 max-w-2xl mx-auto text-lg leading-relaxed font-medium">
             {p.devenirMembre.sectionDesc}
           </p>
         </motion.div>
@@ -100,53 +102,69 @@ export default function DevenirMembreSection() {
             initial={{ opacity: 0, x: -30 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="lg:col-span-5 space-y-10"
+            className="lg:col-span-5 space-y-12"
           >
+            {/* Steps Timeline */}
             <div>
-              <div className="flex items-center gap-4 mb-8">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-lips-green to-lips-emerald flex items-center justify-center shadow-lg shadow-lips-green/20">
-                  <UserPlus className="h-6 w-6 text-white" />
+              <div className="flex items-center gap-4 mb-10">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#0A2E17] to-lips-green flex items-center justify-center shadow-xl shadow-lips-green/20">
+                  <UserPlus className="h-6 w-6 text-lips-gold" />
                 </div>
-                <h3 className="text-2xl font-bold text-foreground">
+                <h3 className="text-2xl lg:text-3xl font-black text-[#0A2E17]">
                   {p.devenirMembre.howToJoin}
                 </h3>
               </div>
               
-              <div className="space-y-6">
+              <div className="space-y-8 relative before:absolute before:inset-0 before:ml-[1.4rem] before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-lips-green/30 before:via-lips-gold/30 before:to-transparent">
                 {STEPS.map((step, index) => (
-                  <div key={step.title} className="flex gap-5 group">
-                    <div className="flex flex-col items-center">
-                      <div className="w-12 h-12 rounded-xl bg-card border border-border/50 shadow-sm flex items-center justify-center shrink-0 group-hover:bg-lips-green group-hover:text-white transition-colors duration-300 text-lips-green">
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    viewport={{ once: true }}
+                    key={step.title} 
+                    className="relative flex items-start justify-between gap-6 group"
+                  >
+                    <div className="flex flex-col items-center justify-start z-10">
+                      <div className="w-12 h-12 rounded-full bg-white border-4 border-[#F8F5EF] shadow-md flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:border-lips-gold/30 group-hover:bg-[#0A2E17] group-hover:text-lips-gold transition-all duration-300 text-lips-green">
                         <step.icon className="h-5 w-5" />
                       </div>
-                      {index < STEPS.length - 1 && (
-                        <div className="w-px h-full bg-border mt-3 mb-1" />
-                      )}
                     </div>
-                    <div className="pb-6">
-                      <div className="font-bold text-base text-foreground mb-1">{step.title}</div>
+                    <div className="flex-1 bg-white/60 backdrop-blur-sm p-5 rounded-2xl border border-white shadow-sm hover:shadow-md transition-shadow group-hover:border-lips-green/20">
+                      <div className="font-bold text-lg text-[#0A2E17] mb-2">{step.title}</div>
                       <p className="text-sm text-muted-foreground leading-relaxed">{step.desc}</p>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             </div>
 
             {/* Benefits */}
-            <div className="bg-card rounded-3xl p-8 border border-border/50 shadow-md relative overflow-hidden">
-              <div className="absolute top-0 right-0 p-8 opacity-5">
-                <BadgeCheck className="w-32 h-32 text-lips-gold" />
+            <div className="bg-[#0A2E17] rounded-[2rem] p-8 sm:p-10 shadow-2xl relative overflow-hidden group">
+              <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity duration-500 group-hover:rotate-12 group-hover:scale-110">
+                <BadgeCheck className="w-48 h-48 text-white" />
               </div>
-              <h4 className="font-bold text-lg text-foreground mb-5 relative z-10 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-lips-gold" />
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-lips-gold to-yellow-200" />
+              
+              <h4 className="font-black text-2xl text-white mb-8 relative z-10 flex items-center gap-3">
+                <span className="w-3 h-3 rounded-full bg-lips-gold animate-pulse" />
                 {p.devenirMembre.benefitsTitle}
               </h4>
-              <div className="grid grid-cols-1 gap-3 relative z-10">
-                {BENEFITS.map((benefit) => (
-                  <div key={benefit} className="flex items-center gap-3 text-sm font-medium text-muted-foreground bg-muted/50 p-2.5 rounded-xl border border-border/30">
-                    <CheckCircle2 className="h-4 w-4 text-lips-gold shrink-0" />
+              <div className="grid grid-cols-1 gap-4 relative z-10">
+                {BENEFITS.map((benefit, i) => (
+                  <motion.div 
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.4, delay: i * 0.1 }}
+                    viewport={{ once: true }}
+                    key={benefit} 
+                    className="flex items-center gap-4 text-[15px] font-medium text-white/90 bg-white/5 p-4 rounded-xl border border-white/5 hover:bg-white/10 transition-colors"
+                  >
+                    <div className="w-8 h-8 rounded-full bg-lips-gold/20 flex items-center justify-center shrink-0">
+                      <CheckCircle2 className="h-5 w-5 text-lips-gold" />
+                    </div>
                     {benefit}
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             </div>
@@ -159,28 +177,30 @@ export default function DevenirMembreSection() {
             transition={{ duration: 0.6, delay: 0.3 }}
             className="lg:col-span-7"
           >
-            <div className="bg-card rounded-[2.5rem] p-8 sm:p-12 border border-border/50 shadow-2xl shadow-lips-green/5 relative">
-              <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-lips-green via-lips-emerald to-lips-green rounded-t-[2.5rem]" />
+            <div className="bg-white rounded-[2.5rem] p-8 sm:p-12 border border-white shadow-2xl shadow-[#0A2E17]/5 relative z-20">
+              <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-lips-gold via-[#0A2E17] to-lips-emerald rounded-t-[2.5rem]" />
               
-              <h3 className="text-2xl font-bold text-foreground mb-2">{p.devenirMembre.formTitle}</h3>
-              <p className="text-sm text-muted-foreground mb-10">{p.devenirMembre.sectionDesc}</p>
+              <div className="mb-10 text-center">
+                <h3 className="text-3xl font-black text-[#0A2E17] mb-3">{p.devenirMembre.formTitle}</h3>
+                <p className="text-base text-muted-foreground font-medium">{p.devenirMembre.sectionDesc}</p>
+              </div>
 
               {submitted ? (
                 <div className="text-center py-16">
                   <motion.div 
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    transition={{ type: "spring" }}
-                    className="w-24 h-24 rounded-full bg-lips-emerald/10 border border-lips-emerald/20 flex items-center justify-center mx-auto mb-6"
+                    transition={{ type: "spring", bounce: 0.5 }}
+                    className="w-28 h-28 rounded-full bg-lips-emerald/10 border border-lips-emerald/20 flex items-center justify-center mx-auto mb-8 shadow-inner"
                   >
-                    <CheckCircle2 className="h-12 w-12 text-lips-emerald" />
+                    <CheckCircle2 className="h-14 w-14 text-lips-emerald" />
                   </motion.div>
-                  <h4 className="font-black text-2xl text-foreground mb-4">{p.devenirMembre.submitted}</h4>
-                  <p className="text-base text-muted-foreground max-w-md mx-auto leading-relaxed">
+                  <h4 className="font-black text-3xl text-[#0A2E17] mb-4">{p.devenirMembre.submitted}</h4>
+                  <p className="text-lg text-muted-foreground max-w-md mx-auto leading-relaxed">
                     {p.devenirMembre.conditions}
                   </p>
                   <Button
-                    className="mt-8 bg-lips-green hover:bg-lips-green-dark text-white rounded-full px-8 h-12 font-bold"
+                    className="mt-10 bg-[#0A2E17] hover:bg-lips-green text-white rounded-xl px-10 h-14 font-bold text-lg shadow-xl shadow-lips-green/20 transition-all hover:scale-105"
                     onClick={() => setSubmitted(false)}
                   >
                     {p.devenirMembre.newApplication}
@@ -192,76 +212,77 @@ export default function DevenirMembreSection() {
                     e.preventDefault();
                     setSubmitted(true);
                   }}
-                  className="space-y-6"
+                  className="space-y-7"
                 >
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <div className="space-y-2">
-                      <label className="text-sm font-bold text-foreground flex items-center gap-2">
-                        <User className="h-4 w-4 text-lips-green" /> {p.devenirMembre.firstName}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div className="space-y-2 group">
+                      <label className="text-sm font-bold text-[#0A2E17] flex items-center gap-2 transition-colors group-focus-within:text-lips-green">
+                        <User className="h-4 w-4" /> {p.devenirMembre.firstName}
                       </label>
-                      <Input placeholder="Mamadou" className="h-12 rounded-xl bg-muted/50 border-border/50 focus-visible:ring-lips-green/50" required />
+                      <Input placeholder="Mamadou" className="h-14 rounded-xl bg-[#F8F5EF] border-transparent focus:bg-white focus:border-lips-gold focus:ring-4 focus:ring-lips-gold/10 transition-all text-base" required />
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-bold text-foreground ml-6">{p.devenirMembre.lastName}</label>
-                      <Input placeholder="SY" className="h-12 rounded-xl bg-muted/50 border-border/50 focus-visible:ring-lips-green/50" required />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <div className="space-y-2">
-                      <label className="text-sm font-bold text-foreground flex items-center gap-2">
-                        <Mail className="h-4 w-4 text-lips-green" /> {p.devenirMembre.email}
-                      </label>
-                      <Input type="email" placeholder="mamadou.sy@exemple.sn" className="h-12 rounded-xl bg-muted/50 border-border/50 focus-visible:ring-lips-green/50" required />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-bold text-foreground flex items-center gap-2">
-                        <Phone className="h-4 w-4 text-lips-green" /> {p.devenirMembre.phone}
-                      </label>
-                      <Input type="tel" placeholder="+221 77 123 45 67" className="h-12 rounded-xl bg-muted/50 border-border/50 focus-visible:ring-lips-green/50" required />
+                    <div className="space-y-2 group">
+                      <label className="text-sm font-bold text-[#0A2E17] ml-6 transition-colors group-focus-within:text-lips-green">{p.devenirMembre.lastName}</label>
+                      <Input placeholder="SY" className="h-14 rounded-xl bg-[#F8F5EF] border-transparent focus:bg-white focus:border-lips-gold focus:ring-4 focus:ring-lips-gold/10 transition-all text-base" required />
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <div className="space-y-2">
-                      <label className="text-sm font-bold text-foreground flex items-center gap-2">
-                        <MapPin className="h-4 w-4 text-lips-green" /> {p.devenirMembre.region}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div className="space-y-2 group">
+                      <label className="text-sm font-bold text-[#0A2E17] flex items-center gap-2 transition-colors group-focus-within:text-lips-green">
+                        <Mail className="h-4 w-4" /> {p.devenirMembre.email}
                       </label>
-                      <select className="w-full h-12 rounded-xl border border-border/50 bg-muted/50 px-4 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lips-green/50" required>
+                      <Input type="email" placeholder="mamadou.sy@exemple.sn" className="h-14 rounded-xl bg-[#F8F5EF] border-transparent focus:bg-white focus:border-lips-gold focus:ring-4 focus:ring-lips-gold/10 transition-all text-base" required />
+                    </div>
+                    <div className="space-y-2 group">
+                      <label className="text-sm font-bold text-[#0A2E17] flex items-center gap-2 transition-colors group-focus-within:text-lips-green">
+                        <Phone className="h-4 w-4" /> {p.devenirMembre.phone}
+                      </label>
+                      <Input type="tel" placeholder="+221 77 123 45 67" className="h-14 rounded-xl bg-[#F8F5EF] border-transparent focus:bg-white focus:border-lips-gold focus:ring-4 focus:ring-lips-gold/10 transition-all text-base" required />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div className="space-y-2 group">
+                      <label className="text-sm font-bold text-[#0A2E17] flex items-center gap-2 transition-colors group-focus-within:text-lips-green">
+                        <MapPin className="h-4 w-4" /> {p.devenirMembre.region}
+                      </label>
+                      <select className="w-full h-14 rounded-xl border-transparent bg-[#F8F5EF] px-4 text-base font-medium focus:bg-white focus:border-lips-gold focus:ring-4 focus:ring-lips-gold/10 transition-all appearance-none cursor-pointer" required>
                         <option value="">{p.devenirMembre.selectPlaceholder}</option>
                         {REGIONS.map((r) => <option key={r} value={r}>{r}</option>)}
                       </select>
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-bold text-foreground flex items-center gap-2">
-                        <Building className="h-4 w-4 text-lips-green" /> {p.devenirMembre.role}
+                    <div className="space-y-2 group">
+                      <label className="text-sm font-bold text-[#0A2E17] flex items-center gap-2 transition-colors group-focus-within:text-lips-green">
+                        <Building className="h-4 w-4" /> {p.devenirMembre.role}
                       </label>
-                      <select className="w-full h-12 rounded-xl border border-border/50 bg-muted/50 px-4 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lips-green/50" required>
+                      <select className="w-full h-14 rounded-xl border-transparent bg-[#F8F5EF] px-4 text-base font-medium focus:bg-white focus:border-lips-gold focus:ring-4 focus:ring-lips-gold/10 transition-all appearance-none cursor-pointer" required>
                         <option value="">{p.devenirMembre.selectPlaceholder}</option>
                         {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
                       </select>
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-foreground flex items-center gap-2">
-                      <span className="w-4 h-4 rounded-full bg-lips-green/20 flex items-center justify-center shrink-0">
-                        <span className="w-1.5 h-1.5 rounded-full bg-lips-green" />
+                  <div className="space-y-2 group">
+                    <label className="text-sm font-bold text-[#0A2E17] flex items-center gap-2 transition-colors group-focus-within:text-lips-green">
+                      <span className="w-5 h-5 rounded-full bg-lips-green/10 flex items-center justify-center shrink-0">
+                        <span className="w-2 h-2 rounded-full bg-lips-green" />
                       </span>
                       {p.devenirMembre.mosque}
                     </label>
-                    <Input placeholder={p.devenirMembre.mosquePlaceholder} className="h-12 rounded-xl bg-muted/50 border-border/50 focus-visible:ring-lips-green/50" />
+                    <Input placeholder={p.devenirMembre.mosquePlaceholder} className="h-14 rounded-xl bg-[#F8F5EF] border-transparent focus:bg-white focus:border-lips-gold focus:ring-4 focus:ring-lips-gold/10 transition-all text-base" />
                   </div>
 
-                  <div className="pt-6">
-                    <Button type="submit" className="w-full bg-lips-green hover:bg-lips-green-dark text-white h-14 rounded-xl font-bold text-lg shadow-lg shadow-lips-green/20">
-                      <UserPlus className="h-5 w-5 mr-2" />
+                  <div className="pt-8">
+                    <Button type="submit" className="w-full bg-[#0A2E17] hover:bg-lips-green text-white h-16 rounded-xl font-black text-xl shadow-2xl shadow-[#0A2E17]/20 transition-all hover:scale-[1.02] flex items-center justify-center">
+                      <UserPlus className="h-6 w-6 mr-3" />
                       {p.devenirMembre.submit}
                     </Button>
                   </div>
 
-                  <div className="p-4 bg-muted/50 rounded-xl border border-border/50 mt-6">
-                    <p className="text-xs text-muted-foreground text-center leading-relaxed">
+                  <div className="p-5 bg-lips-cream/50 rounded-xl border border-lips-cream mt-8 flex items-start gap-4">
+                    <CheckCircle2 className="h-5 w-5 text-lips-green shrink-0 mt-0.5" />
+                    <p className="text-xs text-[#0A2E17]/60 leading-relaxed font-medium">
                       {p.devenirMembre.conditions}
                     </p>
                   </div>
