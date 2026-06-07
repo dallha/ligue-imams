@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { db } from '@/lib/db'
 import { compare } from 'bcryptjs'
 import { checkRateLimit, resetRateLimit, getClientIp } from '@/lib/rate-limit'
+import { syncSupabaseAdminAuthUser } from '@/lib/supabase/admin-auth-sync'
 
 const RATE_LIMIT_CONFIG = {
   maxAttempts: 5,
@@ -106,8 +107,9 @@ export async function POST(request: NextRequest) {
     const userRole = typeof user.role === 'string'
       ? user.role
       : (user.role as { name?: string } | null)?.name || ''
+    const normalizedRole = userRole || 'ADMIN'
 
-    if (!['ADMIN', 'PRESIDENT', 'RESPONSABLE_REGIONAL'].includes(userRole)) {
+    if (!['ADMIN', 'PRESIDENT', 'RESPONSABLE_REGIONAL'].includes(normalizedRole)) {
       await timingSafeDelay(startTime)
       return NextResponse.json(
         { error: 'Accès non autorisé', code: 'UNAUTHORIZED_ROLE' },
@@ -145,42 +147,28 @@ export async function POST(request: NextRequest) {
       password,
     })
 
-    // Si l'utilisateur n'existe pas dans Supabase Auth, on essaie de le créer
     if (signInError) {
       console.error('Supabase signIn error:', signInError.message)
 
-      // Essayer avec la service role key si disponible
-      const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-      if (serviceRoleKey) {
-        try {
-          const { createClient: createSC } = await import('@supabase/supabase-js')
-          const serviceClient = createSC(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            serviceRoleKey
-          )
+      try {
+        await syncSupabaseAdminAuthUser({
+          email: email.toLowerCase().trim(),
+          password,
+          userMetadata: {
+            role: normalizedRole,
+            nom: user.nom,
+            prenom: user.prenom,
+            source: 'lips-admin',
+          },
+        })
 
-          const { error: createError } = await serviceClient.auth.admin.createUser({
-            email: email.toLowerCase().trim(),
-            password,
-            email_confirm: true,
-          })
-
-          if (createError) {
-            console.error('Supabase createUser error:', createError.message)
-          } else {
-            // Réessayer la connexion
-            const { error: retryError } = await supabase.auth.signInWithPassword({
-              email: email.toLowerCase().trim(),
-              password,
-            })
-            if (retryError) {
-              console.error('Supabase retry error:', retryError.message)
-            }
-            signInError = retryError ?? null
-          }
-        } catch (serviceError) {
-          console.error('Service client error:', serviceError)
-        }
+        const { error: retryError } = await supabase.auth.signInWithPassword({
+          email: email.toLowerCase().trim(),
+          password,
+        })
+        signInError = retryError ?? null
+      } catch (syncError) {
+        console.error('Supabase sync error:', syncError)
       }
     }
 
@@ -197,10 +185,6 @@ export async function POST(request: NextRequest) {
 
     // ── 8. Success ────────────────────────────────────────────────
     resetRateLimit(rateLimitKey)
-
-    const normalizedRole = typeof user.role === 'string'
-      ? user.role
-      : (user.role as { name?: string } | null)?.name || 'ADMIN'
 
     return NextResponse.json({
       user: {
