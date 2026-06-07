@@ -107,8 +107,18 @@ export async function POST(request: NextRequest) {
     if (authError || !authData.user) {
       await timingSafeDelay(startTime)
 
-      // Distinguer les erreurs pour le logging mais pas pour le client
-      if (authError?.message?.includes('Email not confirmed')) {
+      // Log l'erreur exacte pour le débogage
+      console.error('Supabase auth error:', authError?.message, authError?.code, authError?.status)
+
+      // Vérifier si l'email n'est pas confirmé
+      const errorMessage = authError?.message?.toLowerCase() || ''
+      const errorCode = authError?.code || ''
+
+      if (
+        errorMessage.includes('email not confirmed') ||
+        errorMessage.includes('email not confirmed') ||
+        errorCode === 'email_not_confirmed'
+      ) {
         return NextResponse.json(
           { error: 'Email non confirmé. Veuillez vérifier votre boîte de réception.', code: 'EMAIL_NOT_CONFIRMED' },
           { status: 401 }
@@ -124,7 +134,7 @@ export async function POST(request: NextRequest) {
     // ── 4. Look up user in our database ───────────────────────────
     const user = await db.user.findUnique({
       where: { email: email.toLowerCase().trim() },
-      include: { region: true },
+      include: { region: true, role: true },
     })
 
     if (!user) {
