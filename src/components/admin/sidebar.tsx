@@ -12,7 +12,8 @@ import {
   LogOut,
   ShieldCheck,
   Image as ImageIcon,
-  BarChart3
+  BarChart3,
+  Database,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -25,6 +26,7 @@ const ADMIN_LINKS = [
   { name: 'Galerie', href: '/admin/galerie', icon: ImageIcon },
   { name: 'Chiffres Clés', href: '/admin/statistiques', icon: BarChart3 },
   { name: 'Rôles & Accès', href: '/admin/roles', icon: ShieldCheck },
+  { name: 'Sauvegarde', href: '/admin/sauvegarde', icon: Database },
   { name: 'Paramètres', href: '/admin/parametres', icon: Settings },
 ];
 
