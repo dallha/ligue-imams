@@ -24,42 +24,6 @@ import {
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
-// ─── Client-side lockout (complements server-side rate limiting) ───
-const MAX_ATTEMPTS = 5
-const LOCKOUT_MINUTES = 30
-
-function getLockoutInfo(): { locked: boolean; remaining: number } {
-  try {
-    const data = localStorage.getItem('lips-admin-lockout')
-    if (!data) return { locked: false, remaining: 0 }
-    const { attempts, lockedUntil } = JSON.parse(data)
-    if (lockedUntil && Date.now() < lockedUntil) {
-      return { locked: true, remaining: Math.ceil((lockedUntil - Date.now()) / 60000) }
-    }
-    if (attempts >= MAX_ATTEMPTS) {
-      const until = Date.now() + LOCKOUT_MINUTES * 60_000
-      localStorage.setItem('lips-admin-lockout', JSON.stringify({ attempts, lockedUntil: until }))
-      return { locked: true, remaining: LOCKOUT_MINUTES }
-    }
-    return { locked: false, remaining: 0 }
-  } catch {
-    return { locked: false, remaining: 0 }
-  }
-}
-
-function recordFailedAttempt() {
-  try {
-    const data = localStorage.getItem('lips-admin-lockout')
-    const current = data ? JSON.parse(data) : { attempts: 0, lockedUntil: null }
-    current.attempts = (current.attempts || 0) + 1
-    localStorage.setItem('lips-admin-lockout', JSON.stringify(current))
-  } catch {}
-}
-
-function resetAttempts() {
-  try { localStorage.removeItem('lips-admin-lockout') } catch {}
-}
-
 // ─── Password strength ─────────────────────────────────────────
 function getPasswordStrength(pw: string): { score: number; label: string; color: string; percent: number } {
   if (!pw) return { score: 0, label: '', color: '', percent: 0 }
@@ -100,44 +64,33 @@ function LoginForm() {
     locked: false,
     remaining: 0,
   })
-  const [attemptsLeft, setAttemptsLeft] = useState(MAX_ATTEMPTS)
   const [passwordFocused, setPasswordFocused] = useState(false)
   const [showSecurityInfo, setShowSecurityInfo] = useState(false)
 
   const redirect = searchParams.get('redirect') || '/admin'
   const strength = getPasswordStrength(password)
 
-  // Check lockout on mount
-  useEffect(() => {
-    const info = getLockoutInfo()
-    setLockout(info)
-    try {
-      const data = localStorage.getItem('lips-admin-lockout')
-      if (data) {
-        const { attempts } = JSON.parse(data)
-        setAttemptsLeft(Math.max(0, MAX_ATTEMPTS - (attempts || 0)))
-      }
-    } catch {}
-  }, [])
-
-  // Countdown timer for lockout
-  useEffect(() => {
-    if (!lockout.locked) return
-    const interval = setInterval(() => {
-      const info = getLockoutInfo()
-      setLockout(info)
-      if (!info.locked) {
-        resetAttempts()
-        setAttemptsLeft(MAX_ATTEMPTS)
-      }
-    }, 5000)
-    return () => clearInterval(interval)
-  }, [lockout.locked])
-
   const triggerErrorShake = useCallback(() => {
     setErrorShake(true)
     setTimeout(() => setErrorShake(false), 600)
   }, [])
+
+  useEffect(() => {
+    if (!lockout.locked) return
+
+    const interval = setInterval(() => {
+      setLockout((current) => {
+        if (!current.locked) return current
+        if (current.remaining <= 1) {
+          setError('')
+          return { locked: false, remaining: 0 }
+        }
+        return { ...current, remaining: current.remaining - 1 }
+      })
+    }, 60_000)
+
+    return () => clearInterval(interval)
+  }, [lockout.locked])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -155,25 +108,21 @@ function LoginForm() {
       const data = await res.json()
 
       if (!res.ok) {
-        recordFailedAttempt()
-        const info = getLockoutInfo()
-        setLockout(info)
-        setAttemptsLeft(Math.max(0, attemptsLeft - 1))
-
         if (res.status === 429) {
           setError('Trop de tentatives. Veuillez patienter avant de réessayer.')
           setLockout({
             locked: true,
-            remaining: data.lockoutRemaining || LOCKOUT_MINUTES,
+            remaining: data.lockoutRemaining || 30,
           })
         } else {
+          setLockout({ locked: false, remaining: 0 })
           setError(data.error || 'Erreur de connexion')
         }
         triggerErrorShake()
         return
       }
 
-      resetAttempts()
+      setLockout({ locked: false, remaining: 0 })
       router.push(redirect)
       router.refresh()
     } catch {
@@ -469,33 +418,6 @@ function LoginForm() {
                   </Button>
                 </motion.div>
 
-                {/* ── Attempts remaining ─────────────────────── */}
-                <AnimatePresence>
-                  {attemptsLeft < MAX_ATTEMPTS && !lockout.locked && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="flex items-center justify-center gap-2"
-                    >
-                      <div className="flex gap-1">
-                        {Array.from({ length: MAX_ATTEMPTS }).map((_, i) => (
-                          <div
-                            key={i}
-                            className={`w-2 h-2 rounded-full transition-colors duration-300 ${
-                              i < attemptsLeft
-                                ? 'bg-lips-gold/40'
-                                : 'bg-red-500/40'
-                            }`}
-                          />
-                        ))}
-                      </div>
-                      <span className="text-[10px] text-amber-400/40">
-                        {attemptsLeft} tentative{attemptsLeft !== 1 ? 's' : ''} restante{attemptsLeft !== 1 ? 's' : ''}
-                      </span>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
               </motion.form>
 
               {/* ─── Bottom section ──────────────────────────── */}
