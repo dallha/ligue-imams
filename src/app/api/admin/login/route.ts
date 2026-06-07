@@ -113,7 +113,13 @@ export async function POST(request: NextRequest) {
     }
 
     // ── 4. Check role ─────────────────────────────────────────────
-    if (!['ADMIN', 'PRESIDENT', 'RESPONSABLE_REGIONAL'].includes(user.role)) {
+    // Note: user.role peut être une chaîne (stockée directement) ou un objet Role (relation).
+    // On gère les deux cas pour la compatibilité.
+    const userRole = typeof user.role === 'string' 
+      ? user.role 
+      : (user.role as { name?: string } | null)?.name || '';
+
+    if (!['ADMIN', 'PRESIDENT', 'RESPONSABLE_REGIONAL'].includes(userRole)) {
       await timingSafeDelay(startTime)
       return NextResponse.json(
         { error: 'Identifiants invalides', code: 'INVALID_CREDENTIALS' },
@@ -138,12 +144,17 @@ export async function POST(request: NextRequest) {
     // ── 6. Success — create session ───────────────────────────────
     resetRateLimit(rateLimitKey)
 
+    // Normaliser le rôle : si c'est un objet Role, extraire le nom
+    const normalizedRole = typeof user.role === 'string' 
+      ? user.role 
+      : (user.role as { name?: string } | null)?.name || 'ADMIN';
+
     const token = await createAdminSession({
       id: user.id,
       email: user.email,
       nom: user.nom,
       prenom: user.prenom,
-      role: user.role,
+      role: normalizedRole,
     })
 
     await setAdminCookie(token)
@@ -154,7 +165,7 @@ export async function POST(request: NextRequest) {
         email: user.email,
         nom: user.nom,
         prenom: user.prenom,
-        role: user.role,
+        role: normalizedRole,
       },
     })
   } catch (error) {
