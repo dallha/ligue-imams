@@ -41,5 +41,17 @@ Ce projet est optimisé pour un déploiement "Standalone" sur **Vercel**, coupl�
    - Ajoutez les variables d'environnement (`DATABASE_URL`, `DIRECT_URL`, `JWT_SECRET`).
    - Le build s'occupera automatiquement du rendu statique (SSG) et de l'optimisation.
 
-## 📄 Licence
-Ce projet est développé pour le compte exclusif de la Ligue des Imams et Prédicateurs du Sénégal (LIPS).
+## 🎨 Conception & Développement
+
+Ce projet a été pensé, conçu et développé pour le compte exclusif de la **Ligue des Imams et Prédicateurs du Sénégal (LIPS)** par :
+
+**Graphiste de la Hadara (El Hadji Abdoulaye Niass)**
+*Design Graphique, Identité Visuelle & Développement Web*
+
+> « Je combine une approche esthétique moderne avec la richesse de notre héritage culturel pour créer des identités visuelles fortes et mémorables. »
+
+### 📞 Contact & Portfolio
+Pour toute demande de conception (Identité Visuelle, Logos, Communication Visuelle, Développement) :
+- **WhatsApp / Appel** : +221 77 623 27 41 | +221 76 375 63 63
+- **Portfolio Behance** : [Découvrir mes créations](https://www.behance.net/mrniasse)
+- **Localisation** : Dakar, Sénégal
