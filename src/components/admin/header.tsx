@@ -17,7 +17,28 @@ const ADMIN_LINKS = [
   { name: 'Paramètres', href: '/admin/parametres', icon: Settings },
 ];
 
-export default function AdminHeader() {
+interface AdminUser {
+  id: number;
+  email: string;
+  nom: string;
+  prenom: string;
+  role: string;
+}
+
+interface AdminHeaderProps {
+  user?: AdminUser | null;
+}
+
+function getRoleLabel(role: string): string {
+  const labels: Record<string, string> = {
+    ADMIN: 'Super Admin',
+    PRESIDENT: 'Président',
+    RESPONSABLE_REGIONAL: 'Responsable Régional',
+  };
+  return labels[role] || role;
+}
+
+export default function AdminHeader({ user }: AdminHeaderProps) {
   const pathname = usePathname();
 
   return (
@@ -93,8 +114,12 @@ export default function AdminHeader() {
         <div className="h-8 w-px bg-border/50 hidden sm:block" />
         <button className="flex items-center gap-3 pl-2">
           <div className="text-right hidden sm:block">
-            <div className="text-sm font-bold text-foreground">Imam Ousmane</div>
-            <div className="text-[10px] font-bold text-lips-gold uppercase tracking-wider">Super Admin</div>
+            <div className="text-sm font-bold text-foreground">
+              {user ? `${user.prenom} ${user.nom}` : 'Administrateur'}
+            </div>
+            <div className="text-[10px] font-bold text-lips-gold uppercase tracking-wider">
+              {user ? getRoleLabel(user.role) : 'Non connecté'}
+            </div>
           </div>
           <UserCircle className="h-8 w-8 md:h-9 md:w-9 text-lips-green" />
         </button>
