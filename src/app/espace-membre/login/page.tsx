@@ -1,6 +1,6 @@
 'use client'
 
-import { Suspense, useState, useCallback, useEffect } from 'react'
+import { Suspense, useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
@@ -13,42 +13,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Lock, Eye, EyeOff, AlertCircle, User, Shield, Fingerprint, KeyRound, BadgeCheck, Clock } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useLanguage } from '@/lib/lips/i18n/language-context'
-
-// ─── Brute-force protection ────────────────────────────────────
-const MAX_ATTEMPTS = 5
-const LOCKOUT_MINUTES = 5
-
-function getLockoutInfo(): { locked: boolean; remaining: number } {
-  try {
-    const data = localStorage.getItem('lips-member-lockout')
-    if (!data) return { locked: false, remaining: 0 }
-    const { attempts, lockedUntil } = JSON.parse(data)
-    if (lockedUntil && Date.now() < lockedUntil) {
-      return { locked: true, remaining: Math.ceil((lockedUntil - Date.now()) / 60000) }
-    }
-    if (attempts >= MAX_ATTEMPTS) {
-      const until = Date.now() + LOCKOUT_MINUTES * 60_000
-      localStorage.setItem('lips-member-lockout', JSON.stringify({ attempts, lockedUntil: until }))
-      return { locked: true, remaining: LOCKOUT_MINUTES }
-    }
-    return { locked: false, remaining: 0 }
-  } catch {
-    return { locked: false, remaining: 0 }
-  }
-}
-
-function recordFailedAttempt() {
-  try {
-    const data = localStorage.getItem('lips-member-lockout')
-    const current = data ? JSON.parse(data) : { attempts: 0, lockedUntil: null }
-    current.attempts = (current.attempts || 0) + 1
-    localStorage.setItem('lips-member-lockout', JSON.stringify(current))
-  } catch {}
-}
-
-function resetAttempts() {
-  try { localStorage.removeItem('lips-member-lockout') } catch {}
-}
 
 // ─── Password strength ─────────────────────────────────────────
 function getPasswordStrength(pw: string): { score: number; label: string; color: string } {
@@ -74,35 +38,24 @@ function MemberLoginForm() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [lockout, setLockout] = useState<{ locked: boolean; remaining: number }>({ locked: false, remaining: 0 })
-  const [attemptsLeft, setAttemptsLeft] = useState(MAX_ATTEMPTS)
   const [passwordFocused, setPasswordFocused] = useState(false)
 
   const redirect = searchParams.get('redirect') || '/espace-membre'
 
-  // Check lockout on mount
-  useEffect(() => {
-    const info = getLockoutInfo()
-    setLockout(info)
-    try {
-      const data = localStorage.getItem('lips-member-lockout')
-      if (data) {
-        const { attempts } = JSON.parse(data)
-        setAttemptsLeft(Math.max(0, MAX_ATTEMPTS - (attempts || 0)))
-      }
-    } catch {}
-  }, [])
-
-  // Countdown timer for lockout
   useEffect(() => {
     if (!lockout.locked) return
+
     const interval = setInterval(() => {
-      const info = getLockoutInfo()
-      setLockout(info)
-      if (!info.locked) {
-        resetAttempts()
-        setAttemptsLeft(MAX_ATTEMPTS)
-      }
-    }, 5000)
+      setLockout((current) => {
+        if (!current.locked) return current
+        if (current.remaining <= 1) {
+          setError('')
+          return { locked: false, remaining: 0 }
+        }
+        return { ...current, remaining: current.remaining - 1 }
+      })
+    }, 60_000)
+
     return () => clearInterval(interval)
   }, [lockout.locked])
 
@@ -141,15 +94,20 @@ function MemberLoginForm() {
       const resData = await res.json()
 
       if (!res.ok) {
-        recordFailedAttempt()
-        const info = getLockoutInfo()
-        setLockout(info)
-        setAttemptsLeft(Math.max(0, attemptsLeft - 1))
-        setError(resData.error || p.pages.memberLogin.loginError)
+        if (res.status === 429) {
+          setLockout({
+            locked: true,
+            remaining: resData.lockoutRemaining || 5,
+          })
+          setError('Trop de tentatives. Veuillez patienter avant de réessayer.')
+        } else {
+          setLockout({ locked: false, remaining: 0 })
+          setError(resData.error || p.pages.memberLogin.loginError)
+        }
         return
       }
 
-      resetAttempts()
+      setLockout({ locked: false, remaining: 0 })
       router.push(redirect)
       router.refresh()
     } catch {
@@ -366,24 +324,17 @@ function MemberLoginForm() {
                 <div className="flex items-center justify-center gap-4 pt-1">
                   <div className="flex items-center gap-1.5 text-[10px] text-white/30">
                     <Shield className="h-3 w-3" />
-                    <span>Chiffrement SSL</span>
+                    <span>SSL/TLS</span>
                   </div>
                   <div className="flex items-center gap-1.5 text-[10px] text-white/30">
                     <Fingerprint className="h-3 w-3" />
-                    <span>Auth JWT</span>
+                    <span>Supabase Auth</span>
                   </div>
                   <div className="flex items-center gap-1.5 text-[10px] text-white/30">
                     <BadgeCheck className="h-3 w-3" />
-                    <span>Session 24h</span>
+                    <span>Session sécurisée</span>
                   </div>
                 </div>
-
-                {/* Attempts remaining */}
-                {attemptsLeft < MAX_ATTEMPTS && !lockout.locked && (
-                  <p className="text-center text-[10px] text-amber-400/60">
-                    {attemptsLeft} tentative{attemptsLeft !== 1 ? 's' : ''} restante{attemptsLeft !== 1 ? 's' : ''}
-                  </p>
-                )}
               </form>
 
               {/* Divider + not a member */}

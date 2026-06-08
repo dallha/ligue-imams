@@ -1,19 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { compare } from 'bcryptjs'
-import { createMemberSession, setMemberCookie } from '@/lib/member-auth'
+import { createClient } from '@/lib/supabase/server'
 import { checkRateLimit, resetRateLimit, getClientIp } from '@/lib/rate-limit'
+import { syncSupabaseAuthUser } from '@/lib/supabase/admin-auth-sync'
 
 const MEMBER_ROLES = ['IMAM', 'PREDICATEUR', 'RESPONSABLE_REGIONAL', 'MEMBRE_CHOURA']
 
-// Rate limit config: 5 attempts per 15 minutes, then 15 min lockout
 const RATE_LIMIT_CONFIG = {
   maxAttempts: 5,
   windowMs: 15 * 60 * 1000,
   lockoutMs: 15 * 60 * 1000,
 }
 
-// Minimum time for a login response to prevent timing attacks (ms)
 const MIN_RESPONSE_TIME = 300
 
 async function timingSafeDelay(start: number): Promise<void> {
@@ -27,7 +26,6 @@ export async function POST(request: NextRequest) {
   const startTime = Date.now()
 
   try {
-    // ── 1. Rate limiting ──────────────────────────────────────────
     const clientIp = getClientIp(request)
     const rateLimitKey = `member-login:${clientIp}`
     const rateLimitResult = checkRateLimit(rateLimitKey, RATE_LIMIT_CONFIG)
@@ -53,11 +51,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // ── 2. Validate input ─────────────────────────────────────────
-    let email: string, password: string
+    let identifier: string, password: string
     try {
       const body = await request.json()
-      email = body.email
+      identifier = body.email
       password = body.password
     } catch {
       await timingSafeDelay(startTime)
@@ -67,7 +64,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (!email || !password) {
+    if (!identifier || !password) {
       await timingSafeDelay(startTime)
       return NextResponse.json(
         { error: 'Email/Matricule et mot de passe requis', code: 'MISSING_FIELDS' },
@@ -83,15 +80,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // ── 3. Find user by email or matricule ────────────────────────
     const user = await db.user.findFirst({
       where: {
         OR: [
-          { email: email.toLowerCase().trim() },
-          { matricule: email.trim() },
+          { email: identifier.toLowerCase().trim() },
+          { matricule: identifier.trim() },
         ],
       },
-      include: { region: true, mosque: true, carteMembre: true },
+      include: { region: true, mosque: true, carteMembre: true, role: true },
     })
 
     if (!user) {
@@ -102,8 +98,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // ── 4. Check role ─────────────────────────────────────────────
-    if (!MEMBER_ROLES.includes(user.role)) {
+    const userRole = typeof user.role === 'string'
+      ? user.role
+      : (user.role as { name?: string } | null)?.name || ''
+
+    if (!MEMBER_ROLES.includes(userRole)) {
       await timingSafeDelay(startTime)
       return NextResponse.json(
         { error: 'Identifiants invalides', code: 'INVALID_CREDENTIALS' },
@@ -111,7 +110,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // ── 5. Verify password ────────────────────────────────────────
+    if (user.status !== 'ACTIF') {
+      await timingSafeDelay(startTime)
+      return NextResponse.json(
+        { error: 'Compte désactivé. Contactez l\'administrateur.', code: 'ACCOUNT_DISABLED' },
+        { status: 403 }
+      )
+    }
+
     const passwordValid = await compare(password, user.password)
     if (!passwordValid) {
       await timingSafeDelay(startTime)
@@ -125,19 +131,50 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // ── 6. Success — create session ───────────────────────────────
-    resetRateLimit(rateLimitKey)
-
-    const token = await createMemberSession({
-      id: user.id,
-      email: user.email,
-      nom: user.nom,
-      prenom: user.prenom,
-      role: user.role,
-      matricule: user.matricule,
+    const supabase = await createClient()
+    let { error: signInError } = await supabase.auth.signInWithPassword({
+      email: user.email.toLowerCase().trim(),
+      password,
     })
 
-    await setMemberCookie(token)
+    if (signInError) {
+      console.error('Member Supabase signIn error:', signInError.message)
+
+      try {
+        await syncSupabaseAuthUser({
+          email: user.email.toLowerCase().trim(),
+          password,
+          userMetadata: {
+            role: userRole,
+            nom: user.nom,
+            prenom: user.prenom,
+            matricule: user.matricule,
+            source: 'lips-member',
+          },
+        })
+
+        const retry = await supabase.auth.signInWithPassword({
+          email: user.email.toLowerCase().trim(),
+          password,
+        })
+        signInError = retry.error ?? null
+      } catch (syncError) {
+        console.error('Member Supabase sync error:', syncError)
+      }
+    }
+
+    if (signInError) {
+      await timingSafeDelay(startTime)
+      return NextResponse.json(
+        {
+          error: 'Impossible de créer la session Supabase',
+          code: 'SUPABASE_SESSION_FAILED',
+        },
+        { status: 500 }
+      )
+    }
+
+    resetRateLimit(rateLimitKey)
 
     return NextResponse.json({
       user: {
@@ -145,7 +182,7 @@ export async function POST(request: NextRequest) {
         email: user.email,
         nom: user.nom,
         prenom: user.prenom,
-        role: user.role,
+        role: userRole,
         matricule: user.matricule,
         status: user.status,
         telephone: user.telephone,

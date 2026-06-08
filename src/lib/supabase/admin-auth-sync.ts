@@ -1,12 +1,12 @@
 import { createClient as createSupabaseClient, type SupabaseClient } from '@supabase/supabase-js'
 
-interface SyncAdminAuthInput {
+interface SyncAuthInput {
   email: string
   password: string
   userMetadata?: Record<string, unknown>
 }
 
-interface SyncAdminAuthResult {
+interface SyncAuthResult {
   action: 'created' | 'updated'
   userId: string
 }
@@ -58,11 +58,30 @@ async function findUserByEmail(client: SupabaseClient, email: string) {
   return null
 }
 
-export async function syncSupabaseAdminAuthUser(
-  input: SyncAdminAuthInput
-): Promise<SyncAdminAuthResult> {
+export async function syncSupabaseAuthUser(
+  input: SyncAuthInput
+): Promise<SyncAuthResult> {
   const client = createServiceClient()
   const normalizedEmail = input.email.toLowerCase().trim()
+
+  const existingUser = await findUserByEmail(client, normalizedEmail)
+
+  if (existingUser) {
+    const updateResult = await client.auth.admin.updateUserById(existingUser.id, {
+      password: input.password,
+      email_confirm: true,
+      user_metadata: input.userMetadata,
+    })
+
+    if (updateResult.error || !updateResult.data.user) {
+      throw updateResult.error ?? new Error('Supabase Auth user update failed')
+    }
+
+    return {
+      action: 'updated',
+      userId: updateResult.data.user.id,
+    }
+  }
 
   const createResult = await client.auth.admin.createUser({
     email: normalizedEmail,
@@ -78,23 +97,5 @@ export async function syncSupabaseAdminAuthUser(
     }
   }
 
-  const existingUser = await findUserByEmail(client, normalizedEmail)
-  if (!existingUser) {
-    throw createResult.error ?? new Error('Supabase Auth user not found')
-  }
-
-  const updateResult = await client.auth.admin.updateUserById(existingUser.id, {
-    password: input.password,
-    email_confirm: true,
-    user_metadata: input.userMetadata,
-  })
-
-  if (updateResult.error || !updateResult.data.user) {
-    throw updateResult.error ?? new Error('Supabase Auth user update failed')
-  }
-
-  return {
-    action: 'updated',
-    userId: updateResult.data.user.id,
-  }
+  throw createResult.error ?? new Error('Supabase Auth user creation failed')
 }

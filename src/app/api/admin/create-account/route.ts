@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { getAdminSession } from '@/lib/admin-auth'
-import { syncSupabaseAdminAuthUser } from '@/lib/supabase/admin-auth-sync'
+import { syncSupabaseAuthUser } from '@/lib/supabase/admin-auth-sync'
 import bcrypt from 'bcryptjs'
 
 // Generate next matricule in LIPS-XXXX format
@@ -136,33 +136,30 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    const shouldSyncSupabaseAuth = ['ADMIN', 'PRESIDENT', 'RESPONSABLE_REGIONAL'].includes(role)
-
-    if (shouldSyncSupabaseAuth) {
+    try {
+      await syncSupabaseAuthUser({
+        email: user.email,
+        password,
+        userMetadata: {
+          role,
+          nom: user.nom,
+          prenom: user.prenom,
+          matricule,
+          source: 'lips-admin',
+        },
+      })
+    } catch (syncError) {
+      console.error('Supabase auth sync error:', syncError)
       try {
-        await syncSupabaseAdminAuthUser({
-          email: user.email,
-          password,
-          userMetadata: {
-            role,
-            nom: user.nom,
-            prenom: user.prenom,
-            source: 'lips-admin',
-          },
-        })
-      } catch (syncError) {
-        console.error('Supabase admin sync error:', syncError)
-        try {
-          await db.user.delete({ where: { id: user.id } })
-        } catch (rollbackError) {
-          console.error('Rollback user delete error:', rollbackError)
-        }
-
-        return NextResponse.json(
-          { error: 'Compte créé en base locale, mais la synchronisation Supabase a échoué.' },
-          { status: 500 }
-        )
+        await db.user.delete({ where: { id: user.id } })
+      } catch (rollbackError) {
+        console.error('Rollback user delete error:', rollbackError)
       }
+
+      return NextResponse.json(
+        { error: 'Compte créé en base locale, mais la synchronisation Supabase a échoué.' },
+        { status: 500 }
+      )
     }
 
     // ─── Return safe user (no password) ───────────────────

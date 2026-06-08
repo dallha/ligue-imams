@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { db } from '@/lib/db'
 import { compare } from 'bcryptjs'
 import { checkRateLimit, resetRateLimit, getClientIp } from '@/lib/rate-limit'
-import { syncSupabaseAdminAuthUser } from '@/lib/supabase/admin-auth-sync'
+import { syncSupabaseAuthUser } from '@/lib/supabase/admin-auth-sync'
 
 const RATE_LIMIT_CONFIG = {
   maxAttempts: 5,
@@ -151,7 +151,7 @@ export async function POST(request: NextRequest) {
       console.error('Supabase signIn error:', signInError.message)
 
       try {
-        await syncSupabaseAdminAuthUser({
+        await syncSupabaseAuthUser({
           email: email.toLowerCase().trim(),
           password,
           userMetadata: {

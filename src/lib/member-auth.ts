@@ -1,12 +1,5 @@
-import { SignJWT, jwtVerify } from 'jose'
-import { cookies } from 'next/headers'
-
-if (!process.env.JWT_SECRET) {
-  throw new Error('JWT_SECRET environment variable is missing. This is required for security.');
-}
-const SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET);
-
-const COOKIE_NAME = 'lips-member-session'
+import { createClient } from '@/lib/supabase/server'
+import { db } from '@/lib/db'
 
 export interface MemberSession {
   id: number
@@ -17,45 +10,44 @@ export interface MemberSession {
   matricule: string
 }
 
-export async function createMemberSession(user: MemberSession): Promise<string> {
-  const token = await new SignJWT({ ...user })
-    .setProtectedHeader({ alg: 'HS256' })
-    .setIssuedAt()
-    .setExpirationTime('24h')
-    .sign(SECRET_KEY)
-  return token
-}
-
-export async function verifyMemberSession(token: string): Promise<MemberSession | null> {
-  try {
-    const { payload } = await jwtVerify(token, SECRET_KEY)
-    return payload as unknown as MemberSession
-  } catch {
-    return null
-  }
-}
-
 export async function getMemberSession(): Promise<MemberSession | null> {
-  const cookieStore = await cookies()
-  const token = cookieStore.get(COOKIE_NAME)?.value
-  if (!token) return null
-  return verifyMemberSession(token)
-}
+  try {
+    const supabase = await createClient()
+    const { data: { session } } = await supabase.auth.getSession()
 
-export async function setMemberCookie(token: string) {
-  const cookieStore = await cookies()
-  cookieStore.set(COOKIE_NAME, token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    maxAge: 60 * 60 * 24, // 24 hours
-    path: '/',
-  })
+    if (session?.user?.email) {
+      const user = await db.user.findUnique({
+        where: { email: session.user.email },
+        include: { role: true },
+      })
+
+      if (!user) return null
+
+      const userRole = typeof user.role === 'string'
+        ? user.role
+        : (user.role as { name?: string } | null)?.name || ''
+
+      return {
+        id: user.id,
+        email: user.email,
+        nom: user.nom,
+        prenom: user.prenom,
+        role: userRole || 'IMAM',
+        matricule: user.matricule,
+      }
+    }
+  } catch (error) {
+    console.error('Supabase member session lookup failed:', error)
+  }
+
+  return null
 }
 
 export async function clearMemberCookie() {
-  const cookieStore = await cookies()
-  cookieStore.delete(COOKIE_NAME)
+  try {
+    const supabase = await createClient()
+    await supabase.auth.signOut()
+  } catch (error) {
+    console.error('Supabase member signOut failed:', error)
+  }
 }
-
-export const MEMBER_COOKIE_NAME = COOKIE_NAME

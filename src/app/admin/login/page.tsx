@@ -380,7 +380,7 @@ function LoginForm() {
                       </p>
                       {[
                         { icon: Shield, label: 'Chiffrement SSL/TLS', desc: 'Données chiffrées en transit' },
-                        { icon: Fingerprint, label: 'Jetons JWT sécurisés', desc: 'Authentification par jeton signé' },
+                        { icon: Fingerprint, label: 'Supabase Auth', desc: 'Sessions gérées côté serveur' },
                         { icon: ShieldAlert, label: 'Protection anti-intrusion', desc: 'Verrouillage après 5 échecs' },
                         { icon: ScanFace, label: 'Audit de connexion', desc: 'Tentatives enregistrées' },
                       ].map((item, idx) => (
@@ -426,7 +426,7 @@ function LoginForm() {
                 <div className="flex items-center justify-center gap-4">
                   {[
                     { icon: Shield, label: 'SSL/TLS' },
-                    { icon: Fingerprint, label: 'JWT' },
+                    { icon: Fingerprint, label: 'Supabase' },
                     { icon: ShieldAlert, label: 'Anti-intrusion' },
                   ].map((badge, idx) => (
                     <div
