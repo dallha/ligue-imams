@@ -22,7 +22,7 @@ async function generateMatricule(): Promise<string> {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { email, password, nom, prenom, telephone, region, role, mosque } = body
+    const { email, password, nom, prenom, telephone } = body
 
     // ─── Validation ───────────────────────────────────────
     const errors: string[] = []
@@ -57,11 +57,6 @@ export async function POST(request: NextRequest) {
       errors.push('Téléphone requis')
     }
 
-    const validRoles = ['IMAM', 'PREDICATEUR', 'RESPONSABLE_REGIONAL', 'MEMBRE_CHOURA', 'AUTRE']
-    if (role && !validRoles.includes(role)) {
-      errors.push('Rôle invalide')
-    }
-
     if (errors.length > 0) {
       return NextResponse.json({ error: errors.join('. ') }, { status: 400 })
     }
@@ -83,12 +78,6 @@ export async function POST(request: NextRequest) {
     // ─── Hash password ────────────────────────────────────
     const hashedPassword = await bcrypt.hash(password, 12)
 
-    // ─── Build metadata JSON ──────────────────────────────
-    const metadata: Record<string, string> = {}
-    if (role) metadata.role = role
-    if (region) metadata.region = region.trim()
-    if (mosque) metadata.mosque = mosque.trim()
-
     // ─── Create user in DB ────────────────────────────────
     const user = await db.user.create({
       data: {
@@ -99,31 +88,8 @@ export async function POST(request: NextRequest) {
         prenom: prenom.trim(),
         telephone,
         status: 'EN_ATTENTE',
-        // Stocker les métadonnées dans le champ photo (JSON stringifié)
-        photo: Object.keys(metadata).length > 0 ? JSON.stringify(metadata) : null,
       } as any,
     })
-
-
-    // ─── Sync with Supabase Auth (non-bloquant) ───────────
-    try {
-      const { syncSupabaseAuthUser } = await import('@/lib/supabase/admin-auth-sync')
-      await syncSupabaseAuthUser({
-        email: user.email,
-        password,
-        userMetadata: {
-          role: role || '',
-          status: 'EN_ATTENTE',
-          nom: user.nom,
-          prenom: user.prenom,
-          matricule,
-          source: 'lips-adhesion',
-        },
-      })
-    } catch (syncError) {
-      // Non bloquant : l'utilisateur est déjà créé en DB
-      console.error('Supabase auth sync error (non-bloquant):', syncError)
-    }
 
     // ─── Return success ───────────────────────────────────
     return NextResponse.json({

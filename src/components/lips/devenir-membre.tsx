@@ -287,12 +287,10 @@ export default function DevenirMembreSection() {
                           prenom: formData.prenom,
                           email: formData.email,
                           telephone: formData.telephone,
-                          region: formData.region || undefined,
-                          role: formData.role || undefined,
-                          mosque: formData.mosque || undefined,
                           password: formData.password,
                         }),
                       });
+
 
                       const data = await res.json();
 
