@@ -102,7 +102,7 @@ function MemberLoginForm() {
       const role = typeof metadata.role === 'string' ? metadata.role : ''
       const status = typeof metadata.status === 'string' ? metadata.status : 'ACTIF'
 
-      if (!['IMAM', 'PREDICATEUR', 'RESPONSABLE_REGIONAL', 'MEMBRE_CHOURA'].includes(role)) {
+      if (!['IMAM', 'PREDICATEUR', 'RESPONSABLE_REGIONAL', 'MEMBRE_CHOURA', 'AUTRE'].includes(role)) {
         await supabase.auth.signOut()
         setError('Identifiants invalides')
         return
