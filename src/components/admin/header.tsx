@@ -58,14 +58,15 @@ export default function AdminHeader() {
 
   async function handleLogout() {
     try {
-      await fetch('/api/admin/logout', { method: 'POST' });
       const supabase = createClient();
-      await supabase.auth.signOut();
-      router.push('/admin/login');
-      router.refresh();
+      // Déconnexion globale (tous les appareils)
+      await supabase.auth.signOut({ scope: 'global' });
+      // Navigation complète côté serveur pour que le middleware s'exécute
+      // et détecte l'absence de session
+      window.location.href = '/admin/login';
     } catch {
       // Force redirect even if signOut fails
-      router.push('/admin/login');
+      window.location.href = '/admin/login';
     }
   }
 
