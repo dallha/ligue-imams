@@ -1,7 +1,8 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { ArrowDown, UserPlus, BookOpen, Users, Shield, Star } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { UserPlus, BookOpen, Users, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useLanguage } from '@/lib/lips/i18n/language-context';
@@ -9,6 +10,21 @@ import { cn } from '@/lib/utils';
 
 export default function HeroSection() {
   const { t, isRTL } = useLanguage();
+  const [heroStats, setHeroStats] = useState({ membres: 0, mosquees: 0 });
+
+  useEffect(() => {
+    fetch('/api/public/config')
+      .then(r => r.json())
+      .then(data => {
+        const cfg: Record<string, string> = {};
+        (data.config || []).forEach((c: { key: string; value: string }) => { cfg[c.key] = c.value; });
+        setHeroStats({
+          membres: parseInt(cfg['stat_members'] || '0'),
+          mosquees: parseInt(cfg['stat_mosques'] || '0'),
+        });
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <section
@@ -140,9 +156,9 @@ export default function HeroSection() {
         >
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-12 divide-y sm:divide-y-0 sm:divide-x divide-lips-green/10 dark:divide-white/10">
             {[
-              { icon: Users, value: (5000).toLocaleString(isRTL ? 'ar-SN' : 'en-US') + '+', label: t.hero.members },
+              { icon: Users, value: heroStats.membres > 0 ? heroStats.membres.toLocaleString(isRTL ? 'ar-SN' : 'fr-FR') : '—', label: t.hero.members },
               { icon: BookOpen, value: '14', label: t.hero.regions },
-              { icon: Shield, value: (15000).toLocaleString(isRTL ? 'ar-SN' : 'en-US') + '+', label: t.hero.mosques },
+              { icon: Shield, value: heroStats.mosquees > 0 ? heroStats.mosquees.toLocaleString(isRTL ? 'ar-SN' : 'fr-FR') : '—', label: t.hero.mosques },
             ].map((stat, idx) => (
               <div key={idx} className={cn("flex flex-col items-center sm:items-start pt-6 sm:pt-0", idx === 0 && "pt-0")}>
                 <div className="w-12 h-12 rounded-2xl bg-lips-green/10 dark:bg-lips-gold/10 flex items-center justify-center mb-4 transition-colors duration-500">
