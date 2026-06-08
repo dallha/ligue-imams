@@ -23,6 +23,7 @@ export async function POST(req: NextRequest) {
     const fileUrl = await uploadFileToS3(buffer, file.name, file.type);
 
     return NextResponse.json({ url: fileUrl });
+  } catch (error) {
     console.error('S3 Upload Error:', error);
     const errorMessage = error instanceof Error ? error.message : 'Erreur lors du téléchargement vers S3';
     return NextResponse.json(
