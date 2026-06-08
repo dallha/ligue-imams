@@ -5,16 +5,18 @@ import { motion } from 'framer-motion';
 interface PageBannerProps {
   label: string;
   title: string;
-  description: string;
+  description?: string;
+  gradient?: string;
 }
 
 export default function PageBanner({
   label,
   title,
-  description,
+  description = '',
+  gradient,
 }: PageBannerProps) {
   return (
-    <section className="relative py-16 sm:py-24 lg:py-32 bg-[#0A2E17] text-white overflow-hidden">
+    <section className={`relative py-16 sm:py-24 lg:py-32 text-white overflow-hidden ${gradient ? `bg-gradient-to-br ${gradient}` : 'bg-[#0A2E17]'}`}>
       {/* Immersive Background */}
       <div className="absolute inset-0 bg-[url('/noise.png')] opacity-20 mix-blend-overlay pointer-events-none" />
       <div className="absolute inset-0 islamic-pattern opacity-[0.03] pointer-events-none" />
@@ -57,9 +59,11 @@ export default function PageBanner({
             {title}
           </h1>
           
-          <p className="text-white/70 text-lg sm:text-xl leading-relaxed max-w-3xl font-medium">
-            {description}
-          </p>
+          {description && (
+            <p className="text-white/70 text-lg sm:text-xl leading-relaxed max-w-3xl font-medium">
+              {description}
+            </p>
+          )}
         </motion.div>
       </div>
     </section>

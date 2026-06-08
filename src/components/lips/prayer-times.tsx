@@ -319,7 +319,7 @@ export default function PrayerTimesWidget() {
       }
     } catch (err) {
       console.error('Failed to fetch prayer times:', err);
-      const regionLabel = SENEGAL_REGIONS.find(r => r.key === reg)?.label ?? 'Dakar';
+      const regionLabel = SENEGAL_REGIONS.find(r => r.key === reg)?.labelFr ?? 'Dakar';
       setPrayerData({
         date: new Date().toISOString().split('T')[0],
         region: reg,

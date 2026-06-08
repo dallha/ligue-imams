@@ -147,6 +147,8 @@ export async function POST(request: NextRequest) {
         roleId: dbRoleId,
         regionId: dbRegionId,
         mosqueId: dbMosqueId,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       } as any,
     })
 

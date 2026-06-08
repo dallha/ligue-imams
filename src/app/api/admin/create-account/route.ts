@@ -117,6 +117,20 @@ export async function POST(request: NextRequest) {
     // ─── Hash password ────────────────────────────────────
     const hashedPassword = await bcrypt.hash(password, 12)
 
+    // ─── Resolve Role ─────────────────────────────────────
+    let dbRoleId: number | null = null
+    if (role) {
+      const dbRole = await db.role.upsert({
+        where: { name: role.toUpperCase().trim() },
+        update: {},
+        create: {
+          name: role.toUpperCase().trim(),
+          description: `Rôle ${role}`,
+        },
+      })
+      dbRoleId = dbRole.id
+    }
+
     // ─── Create user ──────────────────────────────────────
     const user = await db.user.create({
       data: {
@@ -126,10 +140,12 @@ export async function POST(request: NextRequest) {
         nom: nom.trim().toUpperCase(),
         prenom: prenom.trim(),
         telephone,
-        role,
+        roleId: dbRoleId,
         status: 'EN_ATTENTE',
         regionId: parseInt(regionId),
         ...(mosqueId && { mosqueId: parseInt(mosqueId) }),
+        createdAt: new Date(),
+        updatedAt: new Date(),
       },
       include: {
         region: { select: { nom: true, code: true } },

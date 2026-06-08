@@ -26,12 +26,14 @@ export const enPages: PageTranslations = {
   mission: {
     sectionTag: 'Our Mission', sectionTitle: 'The Pillars of LIPS', sectionDesc: 'LIPS rests on solid foundations that guide its institutional action serving Islam and the Senegalese community.',
     pillars: {
-      unity: { title: 'Institutional Unity', desc: 'Federate all imams and preachers of Senegal in a single institutional framework, guaranteeing coherence and national representativeness.' },
-      formation: { title: 'Continuous Training', desc: 'Provide imams and preachers with ongoing training in Islamic sciences, communication, and community management.' },
-      peace: { title: 'Social Peace', desc: 'Promote interfaith dialogue and social cohesion through mediation and national concord initiatives.' },
-      representation: { title: 'National Representation', desc: 'Carry the voice of imams to public authorities and national and international institutions.' },
-      sovereignty: { title: 'Spiritual Sovereignty', desc: 'Preserve the independence and authenticity of religious practice in Senegal, rooted in the Maliki tradition.' },
-      solidarity: { title: 'Community Solidarity', desc: 'Strengthen solidarity ties between mosques, communities, and regions for an Islam of peace and progress.' },
+      defense: { title: 'Defense of Islam', desc: 'Defend Islam and the interests of the Muslim community at national, regional, and international levels.' },
+      unity: { title: 'Unity and Brotherhood', desc: 'Unite imams and preachers driven by the same hope, and create bonds of brotherhood, solidarity, and consultation.' },
+      initiative: { title: 'Spirit of Initiative', desc: 'Encourage and develop the spirit of initiative for better participation of imams in national life.' },
+      values: { title: 'Preservation of Values', desc: 'Organize activities aimed at preserving and promoting Islamic values in society.' },
+      promotion: { title: 'Social Promotion', desc: 'Contribute to the social, cultural, educational, and economic integration of all our members.' },
+      advocacy: { title: 'Advocacy', desc: 'Take steps with public and private authorities to defend the interests of Muslims.' },
+      openness: { title: 'Openness', desc: 'Develop cooperative relations with organizations sharing our principles and values.' },
+      cohesion: { title: 'National Cohesion', desc: 'Encourage a spirit of openness and dialogue to preserve and consolidate national cohesion.' },
     },
   },
   gouvernance: {

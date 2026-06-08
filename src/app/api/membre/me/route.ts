@@ -45,6 +45,7 @@ export async function GET() {
         region: true,
         mosque: true,
         carteMembre: true,
+        role: true,
         paiements: {
           orderBy: { datePaiement: 'desc' },
           take: 5,
@@ -96,7 +97,7 @@ export async function GET() {
         email: user.email,
         nom: user.nom,
         prenom: user.prenom,
-        role: user.role,
+        role: user.role?.name || '',
         matricule: user.matricule,
         status: user.status,
         telephone: user.telephone,

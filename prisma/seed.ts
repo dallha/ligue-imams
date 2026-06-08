@@ -33,6 +33,22 @@ async function main() {
   }
   console.log('✅ 14 regions seeded');
 
+  // --- Roles ---
+  const roles = ['ADMIN', 'IMAM', 'PREDICATEUR', 'RESPONSABLE_REGIONAL', 'PRESIDENT', 'MEMBRE_CHOURA'];
+  const roleMap: Record<string, number> = {};
+  for (const name of roles) {
+    const dbRole = await prisma.role.upsert({
+      where: { name },
+      update: {},
+      create: {
+        name,
+        description: `Rôle ${name}`,
+      },
+    });
+    roleMap[name] = dbRole.id;
+  }
+  console.log('✅ Roles seeded');
+
   // --- Admin User ---
   const adminPassword = await bcrypt.hash('Admin@2025', 10);
   const admin = await prisma.user.upsert({
@@ -45,7 +61,7 @@ async function main() {
       prenom: 'Amadou',
       telephone: '+221 77 000 00 00',
       matricule: 'LIPS-0001',
-      role: 'ADMIN',
+      roleId: roleMap['ADMIN'],
       status: 'ACTIF',
       regionId: 1,
     },
@@ -73,7 +89,7 @@ async function main() {
       prenom: 'Amadou',
       telephone: '+221 77 000 00 00',
       matricule: 'LIPS-0002',
-      role: 'IMAM',
+      roleId: roleMap['IMAM'],
       status: 'ACTIF',
       regionId: dkrRegion!.id,
       mosqueId: mosque.id,

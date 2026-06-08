@@ -51,7 +51,7 @@ export async function GET() {
       'Email': m.email,
       'Téléphone': m.telephone,
       'Statut': m.status,
-      'Région': m.region.nom,
+      'Région': m.region?.nom || '',
       'Mosquée': m.mosque?.nom || '',
       'Date Création': new Date(m.createdAt).toLocaleDateString('fr-FR'),
     }))

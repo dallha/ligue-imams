@@ -31,6 +31,7 @@ export async function GET(request: NextRequest) {
       include: {
         region: true,
         carteMembre: true,
+        role: true,
       },
     });
 
@@ -58,8 +59,8 @@ export async function GET(request: NextRequest) {
         message: 'Membre actif',
         data: {
           nom: `${user.prenom} ${user.nom}`,
-          region: user.region.nom,
-          role: user.role,
+          region: user.region?.nom || 'N/A',
+          role: user.role?.name || 'MEMBRE',
           validite: user.carteMembre?.dateExpiration
             ? new Date(user.carteMembre.dateExpiration).toLocaleDateString(
                 'fr-FR'
@@ -76,8 +77,8 @@ export async function GET(request: NextRequest) {
         message: 'Carte expirée',
         data: {
           nom: `${user.prenom} ${user.nom}`,
-          region: user.region.nom,
-          role: user.role,
+          region: user.region?.nom || 'N/A',
+          role: user.role?.name || 'MEMBRE',
           validite: user.carteMembre?.dateExpiration
             ? new Date(user.carteMembre.dateExpiration).toLocaleDateString(
                 'fr-FR'
@@ -93,8 +94,8 @@ export async function GET(request: NextRequest) {
       message: 'Carte en attente de validation',
       data: {
         nom: `${user.prenom} ${user.nom}`,
-        region: user.region.nom,
-        role: user.role,
+        region: user.region?.nom || 'N/A',
+        role: user.role?.name || 'MEMBRE',
         validite: 'En cours',
         matricule: user.matricule,
       },

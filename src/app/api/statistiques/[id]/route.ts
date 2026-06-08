@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
 import { db as prisma } from '@/lib/db';
 
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const id = parseInt(params.id);
+    const { id: rawId } = await params;
+    const id = parseInt(rawId);
     const body = await request.json();
     const { key, icon, value, suffix, label, labelAr, desc, descAr, ordre, published } = body;
 
@@ -30,9 +31,10 @@ export async function PUT(request: Request, { params }: { params: { id: string }
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const id = parseInt(params.id);
+    const { id: rawId } = await params;
+    const id = parseInt(rawId);
     await prisma.statistique.delete({ where: { id } });
     return NextResponse.json({ message: 'Statistique supprimée avec succès' });
   } catch (error) {

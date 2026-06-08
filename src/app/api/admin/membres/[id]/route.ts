@@ -46,6 +46,7 @@ export async function PUT(
         ...(nom !== undefined && { nom }),
         ...(prenom !== undefined && { prenom }),
         ...(telephone !== undefined && { telephone }),
+        updatedAt: new Date(),
       },
     })
 
