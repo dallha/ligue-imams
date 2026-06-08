@@ -115,6 +115,7 @@ export default function ActualitesSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
   const [dbArticles, setDbArticles] = useState<Article[]>([]);
+  const [loaded, setLoaded] = useState(false);
 
   // Fetch published content from DB
   useEffect(() => {
@@ -153,13 +154,14 @@ export default function ActualitesSection() {
           setDbArticles(articles);
         }
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setLoaded(true));
   }, []);
 
-  const ARTICLES = dbArticles.length > 0 ? dbArticles : HARDCODED_ARTICLES;
-
-  const featured = ARTICLES[0];
-  const rest = ARTICLES.slice(1);
+  const ARTICLES = dbArticles;
+  const hasArticles = ARTICLES.length > 0;
+  const featured = hasArticles ? ARTICLES[0] : null;
+  const rest = hasArticles ? ARTICLES.slice(1) : [];
 
   return (
     <section
@@ -194,99 +196,111 @@ export default function ActualitesSection() {
           </Button>
         </motion.div>
 
+        {/* Empty State */}
+        {!hasArticles && loaded && (
+          <div className="text-center py-16 text-muted-foreground border border-dashed border-lips-green/20 rounded-2xl bg-white/50 max-w-2xl mx-auto">
+            <FileText className="h-12 w-12 mx-auto mb-4 opacity-25 text-lips-green-dark" />
+            <p className="text-sm font-medium">Aucune publication ou actualité n'est disponible pour le moment.</p>
+          </div>
+        )}
+
         {/* Featured article */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="mb-8"
-        >
-          <Card className="border-lips-green/20 hover:shadow-xl hover:shadow-lips-green/5 transition-all duration-300 cursor-pointer group overflow-hidden">
-            <CardContent className="p-0">
-              <div className="grid grid-cols-1 lg:grid-cols-3">
-                {/* Left accent */}
-                <div className="bg-gradient-to-b from-lips-green to-lips-green-dark p-6 lg:p-8 flex flex-col justify-between text-white">
-                  <div>
-                    <Badge className={`${TYPE_COLORS[featured.type]} text-xs mb-3`}>
-                      {featured.categorie}
-                    </Badge>
-                    <h3 className="text-xl font-bold mb-2 group-hover:text-lips-gold transition-colors">
-                      {isRTL && featured.titreAr ? featured.titreAr : featured.titre}
-                    </h3>
+        {featured && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="mb-8"
+          >
+            <Card className="border-lips-green/20 hover:shadow-xl hover:shadow-lips-green/5 transition-all duration-300 cursor-pointer group overflow-hidden">
+              <CardContent className="p-0">
+                <div className="grid grid-cols-1 lg:grid-cols-3">
+                  {/* Left accent */}
+                  <div className="bg-gradient-to-b from-lips-green to-lips-green-dark p-6 lg:p-8 flex flex-col justify-between text-white">
+                    <div>
+                      <Badge className={`${TYPE_COLORS[featured.type]} text-xs mb-3`}>
+                        {featured.categorie}
+                      </Badge>
+                      <h3 className="text-xl font-bold mb-2 group-hover:text-lips-gold transition-colors">
+                        {isRTL && featured.titreAr ? featured.titreAr : featured.titre}
+                      </h3>
+                    </div>
+                    <p className="text-white/70 text-sm leading-relaxed">
+                      {featured.extrait}
+                    </p>
                   </div>
-                  <p className="text-white/70 text-sm leading-relaxed">
-                    {featured.extrait}
-                  </p>
+                  {/* Right info */}
+                  <div className="lg:col-span-2 p-6 lg:p-8 flex flex-col justify-between">
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                        <span className="flex items-center gap-1.5">
+                          <Calendar className="h-3.5 w-3.5" />
+                          {featured.date}
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <FileText className="h-3.5 w-3.5" />
+                          {featured.auteur}
+                        </span>
+                        {!featured.lu && (
+                          <Badge className="bg-red-500 text-white text-[10px]">{p.actualitesPage.newBadge}</Badge>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1.5 text-lips-green text-sm font-medium group-hover:gap-2.5 transition-all">
+                        {p.actualitesPage.readFull} <ArrowRight className="h-4 w-4" />
+                      </div>
+                    </div>
+                    <div className="mt-6 pt-4 border-t border-border/50">
+                      <div className="flex items-center gap-2">
+                        <Tag className="h-3.5 w-3.5 text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground line-clamp-2">dialogue interreligieux, paix sociale, communiqué officiel</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                {/* Right info */}
-                <div className="lg:col-span-2 p-6 lg:p-8 flex flex-col justify-between">
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1.5">
-                        <Calendar className="h-3.5 w-3.5" />
-                        {featured.date}
-                      </span>
-                      <span className="flex items-center gap-1.5">
-                        <FileText className="h-3.5 w-3.5" />
-                        {featured.auteur}
-                      </span>
-                      {!featured.lu && (
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+
+        {/* Articles grid */}
+        {rest.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {rest.map((article, index) => (
+              <motion.div
+                key={article.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.4, delay: 0.2 + index * 0.06 }}
+              >
+                <Card className="group hover:shadow-lg hover:shadow-lips-green/5 transition-all duration-300 hover:border-lips-green/20 cursor-pointer h-full border-border/50">
+                  <CardContent className="p-5 flex flex-col h-full">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Badge className={`${TYPE_COLORS[article.type]} text-[10px]`}>
+                        {article.categorie}
+                      </Badge>
+                      {!article.lu && (
                         <Badge className="bg-red-500 text-white text-[10px]">{p.actualitesPage.newBadge}</Badge>
                       )}
                     </div>
-                    <div className="flex items-center gap-1.5 text-lips-green text-sm font-medium group-hover:gap-2.5 transition-all">
-                      {p.actualitesPage.readFull} <ArrowRight className="h-4 w-4" />
+                    <h4 className="font-semibold text-lips-green-dark text-sm mb-1.5 group-hover:text-lips-green transition-colors leading-snug">
+                      {isRTL && article.titreAr ? article.titreAr : article.titre}
+                    </h4>
+                    <p className="text-xs text-muted-foreground leading-relaxed flex-1 mb-3">
+                      {article.extrait.substring(0, 120)}...
+                    </p>
+                    <div className="flex items-center justify-between mt-auto pt-3 border-t border-border/50">
+                      <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                        <Clock className="h-3 w-3" />
+                        {article.date}
+                      </div>
+                      <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/50 group-hover:text-lips-green group-hover:translate-x-0.5 transition-all" />
                     </div>
-                  </div>
-                  <div className="mt-6 pt-4 border-t border-border/50">
-                    <div className="flex items-center gap-2">
-                      <Tag className="h-3.5 w-3.5 text-muted-foreground" />
-                      <span className="text-xs text-muted-foreground line-clamp-2">dialogue interreligieux, paix sociale, communiqué officiel</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* Articles grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {rest.map((article, index) => (
-            <motion.div
-              key={article.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.4, delay: 0.2 + index * 0.06 }}
-            >
-              <Card className="group hover:shadow-lg hover:shadow-lips-green/5 transition-all duration-300 hover:border-lips-green/20 cursor-pointer h-full border-border/50">
-                <CardContent className="p-5 flex flex-col h-full">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Badge className={`${TYPE_COLORS[article.type]} text-[10px]`}>
-                      {article.categorie}
-                    </Badge>
-                    {!article.lu && (
-                      <Badge className="bg-red-500 text-white text-[10px]">{p.actualitesPage.newBadge}</Badge>
-                    )}
-                  </div>
-                  <h4 className="font-semibold text-lips-green-dark text-sm mb-1.5 group-hover:text-lips-green transition-colors leading-snug">
-                    {isRTL && article.titreAr ? article.titreAr : article.titre}
-                  </h4>
-                  <p className="text-xs text-muted-foreground leading-relaxed flex-1 mb-3">
-                    {article.extrait.substring(0, 120)}...
-                  </p>
-                  <div className="flex items-center justify-between mt-auto pt-3 border-t border-border/50">
-                    <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-                      <Clock className="h-3 w-3" />
-                      {article.date}
-                    </div>
-                    <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/50 group-hover:text-lips-green group-hover:translate-x-0.5 transition-all" />
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

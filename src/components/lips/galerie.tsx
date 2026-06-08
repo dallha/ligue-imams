@@ -17,62 +17,13 @@ interface GalerieItem {
   imageUrl?: string;
 }
 
-const FALLBACK_PHOTOS: GalerieItem[] = [
-  {
-    id: 1,
-    titre: 'Assemblée Générale 2025',
-    lieu: 'Grand Dakar',
-    date: 'Mars 2025',
-    count: 48,
-    gradient: 'from-lips-green-dark to-lips-green',
-  },
-  {
-    id: 2,
-    titre: 'Formation Régionale Thiès',
-    lieu: 'Thiès',
-    date: 'Janvier 2025',
-    count: 32,
-    gradient: 'from-lips-emerald to-lips-green',
-  },
-  {
-    id: 3,
-    titre: 'Colloque Islam & Paix',
-    lieu: 'UCAD, Dakar',
-    date: 'Novembre 2024',
-    count: 65,
-    gradient: 'from-lips-green to-lips-emerald',
-  },
-  {
-    id: 4,
-    titre: 'Séminaire National des Imams',
-    lieu: 'Dakar',
-    date: 'Juin 2024',
-    count: 89,
-    gradient: 'from-lips-green-dark to-lips-emerald',
-  },
-  {
-    id: 5,
-    titre: 'Journée Portes Ouvertes Kolda',
-    lieu: 'Kolda',
-    date: 'Avril 2024',
-    count: 27,
-    gradient: 'from-lips-emerald to-lips-green-dark',
-  },
-  {
-    id: 6,
-    titre: 'Remise Cartes Membres Diourbel',
-    lieu: 'Diourbel',
-    date: 'Février 2024',
-    count: 41,
-    gradient: 'from-lips-green to-lips-green-dark',
-  },
-];
 
 export default function GalerieSection() {
   const { p, isRTL } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
   const [dbPhotos, setDbPhotos] = useState<GalerieItem[]>([]);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     fetch('/api/public/galerie?limit=6')
@@ -82,10 +33,11 @@ export default function GalerieSection() {
           setDbPhotos(data.data);
         }
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setLoaded(true));
   }, []);
 
-  const PHOTOS = dbPhotos.length > 0 ? dbPhotos : FALLBACK_PHOTOS;
+  const PHOTOS = dbPhotos;
 
 
   return (
@@ -118,66 +70,66 @@ export default function GalerieSection() {
 
         {/* Gallery grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {PHOTOS.map((photo, index) => (
-            <motion.div
-              key={photo.id}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={isInView ? { opacity: 1, scale: 1 } : {}}
-              transition={{ duration: 0.4, delay: index * 0.06 }}
-              className="group cursor-pointer"
-            >
-              <div className="relative aspect-[4/3] rounded-xl overflow-hidden shadow-md group-hover:shadow-xl transition-all duration-300">
-                {/* Gradient background as placeholder */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${photo.gradient}`} />
-                <div className="absolute inset-0 islamic-pattern opacity-20" />
+          {PHOTOS.length === 0 && loaded ? (
+            <div className="col-span-3 text-center py-16 text-muted-foreground">
+              <Camera className="h-12 w-12 mx-auto mb-4 opacity-20" />
+              <p className="text-sm">La galerie photos sera disponible prochainement.</p>
+            </div>
+          ) : (
+            PHOTOS.map((photo, index) => (
+              <motion.div
+                key={photo.id}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={isInView ? { opacity: 1, scale: 1 } : {}}
+                transition={{ duration: 0.4, delay: index * 0.06 }}
+                className="group cursor-pointer"
+              >
+                <div className="relative aspect-[4/3] rounded-xl overflow-hidden shadow-md group-hover:shadow-xl transition-all duration-300">
+                  {/* Gradient background as placeholder */}
+                  <div className={`absolute inset-0 bg-gradient-to-br ${photo.gradient}`} />
+                  <div className="absolute inset-0 islamic-pattern opacity-20" />
 
-                {/* Hover overlay */}
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300" />
+                  {/* Hover overlay */}
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300" />
 
-                {/* Content */}
-                <div className="absolute inset-0 flex flex-col justify-between p-4">
-                  <div className="flex justify-between items-start">
-                    <Badge className="bg-white/20 backdrop-blur-sm text-white text-[10px] border-0">
-                      <Camera className="h-3 w-3 mr-1" />
-                      {photo.count} {p.galerie.photosCount}
-                    </Badge>
-                  </div>
+                  {/* Content */}
+                  <div className="absolute inset-0 flex flex-col justify-between p-4">
+                    <div className="flex justify-between items-start">
+                      <Badge className="bg-white/20 backdrop-blur-sm text-white text-[10px] border-0">
+                        <Camera className="h-3 w-3 mr-1" />
+                        {photo.count} {p.galerie.photosCount}
+                      </Badge>
+                    </div>
 
-                  <div className="text-white transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-                    <h4 className="font-bold text-sm leading-tight">
-                      {isRTL && photo.titreAr ? photo.titreAr : photo.titre}
-                    </h4>
-                    <div className="flex items-center gap-3 mt-1.5 text-[10px] text-white/70">
-                      {photo.lieu && (
-                        <span className="flex items-center gap-1">
-                          <MapPin className="h-3 w-3" />
-                          {photo.lieu}
-                        </span>
-                      )}
-                      {photo.date && (
-                        <span className="flex items-center gap-1">
-                          <Calendar className="h-3 w-3" />
-                          {photo.date}
-                        </span>
-                      )}
+                    <div className="text-white transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                      <h4 className="font-bold text-sm leading-tight">
+                        {isRTL && photo.titreAr ? photo.titreAr : photo.titre}
+                      </h4>
+                      <div className="flex items-center gap-3 mt-1.5 text-[10px] text-white/70">
+                        {photo.lieu && (
+                          <span className="flex items-center gap-1">
+                            <MapPin className="h-3 w-3" />
+                            {photo.lieu}
+                          </span>
+                        )}
+                        {photo.date && (
+                          <span className="flex items-center gap-1">
+                            <Calendar className="h-3 w-3" />
+                            {photo.date}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Corner decoration */}
-                <div className="absolute top-0 right-0 w-16 h-16">
-                  <div className="absolute top-0 right-0 w-24 h-24 -translate-y-12 translate-x-12 rotate-45 bg-white/5" />
+                  {/* Corner decoration */}
+                  <div className="absolute top-0 right-0 w-16 h-16">
+                    <div className="absolute top-0 right-0 w-24 h-24 -translate-y-12 translate-x-12 rotate-45 bg-white/5" />
+                  </div>
                 </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Total count */}
-        <div className="text-center mt-8">
-          <p className="text-sm text-muted-foreground">
-            <strong className="text-lips-green-dark">302 {p.galerie.totalPhotos}</strong>
-          </p>
+              </motion.div>
+            ))
+          )}
         </div>
       </div>
     </section>

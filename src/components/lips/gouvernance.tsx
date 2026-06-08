@@ -51,21 +51,8 @@ export default function GouvernanceSection() {
     }).catch(() => setLoaded(true));
   }, []);
 
-  const displayLeaders = leaders.length > 0 ? leaders : [
-    { id: 1, nom: 'TRAORÉ', prenom: 'Amadou', role: p.gouvernance.bureau.president.role, roleAr: 'الرئيس الوطني', region: 'Dakar', bio: p.gouvernance.bureau.president.bio, initiales: 'AT', photo: null },
-    { id: 2, nom: 'BALDE', prenom: 'Mouhammadou', role: p.gouvernance.bureau.vicePresident.role, roleAr: 'نائب الرئيس', region: 'Tambacounda', bio: p.gouvernance.bureau.vicePresident.bio, initiales: 'MB', photo: null },
-    { id: 3, nom: 'SOW', prenom: 'Ibrahima', role: p.gouvernance.bureau.secretary.role, roleAr: 'الأمين العام', region: 'Saint-Louis', bio: p.gouvernance.bureau.secretary.bio, initiales: 'IS', photo: null },
-    { id: 4, nom: 'DIAKHATE', prenom: 'Ousmane', role: p.gouvernance.bureau.treasurer.role, roleAr: 'أمين الصندوق', region: 'Thiès', bio: p.gouvernance.bureau.treasurer.bio, initiales: 'OD', photo: null },
-    { id: 5, nom: 'MBACKÉ', prenom: 'Serigne', role: p.gouvernance.bureau.spiritualAdvisor.role, roleAr: 'المستشار الروحي', region: 'Diourbel', bio: p.gouvernance.bureau.spiritualAdvisor.bio, initiales: 'SM', photo: null },
-    { id: 6, nom: 'FAYE', prenom: 'Mamadou', role: p.gouvernance.bureau.trainingHead.role, roleAr: 'مسؤول التكوين', region: 'Kaolack', bio: p.gouvernance.bureau.trainingHead.bio, initiales: 'MF', photo: null },
-  ];
-
-  const displayCommissions = commissions.length > 0 ? commissions : [
-    { id: 1, nom: p.gouvernance.commissions.fatwa.name, nomAr: 'لجنة الفتوى', members: 12, desc: p.gouvernance.commissions.fatwa.desc, icon: 'Award' },
-    { id: 2, nom: p.gouvernance.commissions.formation.name, nomAr: 'لجنة التكوين', members: 7, desc: p.gouvernance.commissions.formation.desc, icon: 'Users' },
-    { id: 3, nom: p.gouvernance.commissions.communication.name, nomAr: 'لجنة التواصل', members: 5, desc: p.gouvernance.commissions.communication.desc, icon: 'Building' },
-    { id: 4, nom: p.gouvernance.commissions.social.name, nomAr: 'لجنة الشؤون الاجتماعية', members: 9, desc: p.gouvernance.commissions.social.desc, icon: 'Crown' },
-  ];
+  const displayLeaders = leaders;
+  const displayCommissions = commissions;
 
   return (
     <section
@@ -106,7 +93,12 @@ export default function GouvernanceSection() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {displayLeaders.map((leader, index) => {
+            {displayLeaders.length === 0 && loaded ? (
+              <div className="col-span-3 text-center py-16 text-muted-foreground">
+                <Crown className="h-12 w-12 mx-auto mb-4 opacity-20" />
+                <p className="text-sm">Les membres du Bureau National seront affichés ici.</p>
+              </div>
+            ) : displayLeaders.map((leader, index) => {
               const initials = leader.initiales || `${leader.prenom[0]}${leader.nom[0]}`;
               return (
                 <motion.div
@@ -163,7 +155,12 @@ export default function GouvernanceSection() {
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {displayCommissions.map((commission, index) => {
+            {displayCommissions.length === 0 && loaded ? (
+              <div className="col-span-4 text-center py-10 text-muted-foreground">
+                <Building className="h-10 w-10 mx-auto mb-3 opacity-20" />
+                <p className="text-sm">Les commissions seront affichées ici.</p>
+              </div>
+            ) : displayCommissions.map((commission, index) => {
               const IconComp = ICON_MAP[commission.icon || ''] || Award;
               return (
                 <motion.div

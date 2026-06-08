@@ -324,7 +324,7 @@ export default function DevenirMembreSection() {
                         <User className="h-4 w-4" /> {p.devenirMembre.firstName}
                       </label>
                       <Input 
-                        placeholder="Mamadou" 
+                        placeholder="Ex: Amadou" 
                         value={formData.prenom}
                         onChange={(e) => setFormData({ ...formData, prenom: e.target.value })}
                         className="h-14 rounded-xl bg-[#F8F5EF] border-transparent focus:bg-white focus:border-lips-gold focus:ring-4 focus:ring-lips-gold/10 transition-all text-base" 
@@ -334,7 +334,7 @@ export default function DevenirMembreSection() {
                     <div className="space-y-2 group">
                       <label className="text-sm font-bold text-[#0A2E17] ml-6 transition-colors group-focus-within:text-lips-green">{p.devenirMembre.lastName}</label>
                       <Input 
-                        placeholder="SY" 
+                        placeholder="Ex: Diop" 
                         value={formData.nom}
                         onChange={(e) => setFormData({ ...formData, nom: e.target.value })}
                         className="h-14 rounded-xl bg-[#F8F5EF] border-transparent focus:bg-white focus:border-lips-gold focus:ring-4 focus:ring-lips-gold/10 transition-all text-base" 
@@ -350,7 +350,7 @@ export default function DevenirMembreSection() {
                       </label>
                       <Input 
                         type="email" 
-                        placeholder="mamadou.sy@exemple.sn" 
+                        placeholder="adresse@exemple.sn" 
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         className="h-14 rounded-xl bg-[#F8F5EF] border-transparent focus:bg-white focus:border-lips-gold focus:ring-4 focus:ring-lips-gold/10 transition-all text-base" 
@@ -363,7 +363,7 @@ export default function DevenirMembreSection() {
                       </label>
                       <Input 
                         type="tel" 
-                        placeholder="+221 77 123 45 67" 
+                        placeholder="+221 77 000 00 00" 
                         value={formData.telephone}
                         onChange={(e) => setFormData({ ...formData, telephone: e.target.value })}
                         className="h-14 rounded-xl bg-[#F8F5EF] border-transparent focus:bg-white focus:border-lips-gold focus:ring-4 focus:ring-lips-gold/10 transition-all text-base" 

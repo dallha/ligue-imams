@@ -38,8 +38,8 @@ export default function HomeRegions() {
     : REGIONS_DATA.slice(0, 6);
 
   const totalRegions = dbRegions.length > 0 ? dbRegions.length : 14;
-  const totalMosques = dbRegions.length > 0 ? dbRegions.reduce((acc, r) => acc + (r._count?.mosques || r.mosqueCount || 0), 0) : 15000;
-  const totalMembers = dbRegions.length > 0 ? dbRegions.reduce((acc, r) => acc + (r._count?.members || 0), 0) : 5000;
+  const totalMosques = dbRegions.reduce((acc, r) => acc + (r._count?.mosques || r.mosqueCount || 0), 0);
+  const totalMembers = dbRegions.reduce((acc, r) => acc + (r._count?.members || 0), 0);
 
   return (
     <section
@@ -165,12 +165,12 @@ export default function HomeRegions() {
             </div>
             <div className="hidden sm:block w-px h-16 bg-border" />
             <div className="text-center flex flex-col items-center">
-              <div className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-lips-gold to-[#C9962A]">{totalMosques > 1000 ? (Math.floor(totalMosques/1000)*1000).toLocaleString(locale === 'ar' ? 'ar-SN' : locale === 'en' ? 'en-SN' : 'fr-FR') + '+' : totalMosques}</div>
+              <div className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-lips-gold to-[#C9962A]">{totalMosques > 0 ? totalMosques.toLocaleString(locale === 'ar' ? 'ar-SN' : locale === 'en' ? 'en-SN' : 'fr-FR') : '—'}</div>
               <div className="text-sm font-bold text-muted-foreground uppercase tracking-wider mt-1">{t.regions.mosquesLabel}</div>
             </div>
             <div className="hidden sm:block w-px h-16 bg-border" />
             <div className="text-center flex flex-col items-center">
-              <div className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-lips-green to-[#1B6B3A]">{totalMembers > 1000 ? (Math.floor(totalMembers/1000)*1000).toLocaleString(locale === 'ar' ? 'ar-SN' : locale === 'en' ? 'en-SN' : 'fr-FR') + '+' : totalMembers}</div>
+              <div className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-lips-green to-[#1B6B3A]">{totalMembers > 0 ? totalMembers.toLocaleString(locale === 'ar' ? 'ar-SN' : locale === 'en' ? 'en-SN' : 'fr-FR') : '—'}</div>
               <div className="text-sm font-bold text-muted-foreground uppercase tracking-wider mt-1">{t.regions.membersLabel}</div>
             </div>
           </div>
