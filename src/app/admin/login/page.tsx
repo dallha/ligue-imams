@@ -23,6 +23,7 @@ import {
   Info,
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { createClient } from '@/lib/supabase/client'
 
 // ─── Password strength ─────────────────────────────────────────
 function getPasswordStrength(pw: string): { score: number; label: string; color: string; percent: number } {
@@ -99,25 +100,33 @@ function LoginForm() {
     setLoading(true)
 
     try {
-      const res = await fetch('/api/admin/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.toLowerCase().trim(), password }),
+      const supabase = createClient()
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email: email.toLowerCase().trim(),
+        password,
       })
 
-      const data = await res.json()
+      if (signInError || !data.user) {
+        setLockout({ locked: false, remaining: 0 })
+        setError(signInError?.message || 'Identifiants invalides')
+        triggerErrorShake()
+        return
+      }
 
-      if (!res.ok) {
-        if (res.status === 429) {
-          setError('Trop de tentatives. Veuillez patienter avant de réessayer.')
-          setLockout({
-            locked: true,
-            remaining: data.lockoutRemaining || 30,
-          })
-        } else {
-          setLockout({ locked: false, remaining: 0 })
-          setError(data.error || 'Erreur de connexion')
-        }
+      const metadata = (data.user.user_metadata ?? {}) as Record<string, unknown>
+      const role = typeof metadata.role === 'string' ? metadata.role : ''
+      const status = typeof metadata.status === 'string' ? metadata.status : 'ACTIF'
+
+      if (!['ADMIN', 'PRESIDENT', 'RESPONSABLE_REGIONAL'].includes(role)) {
+        await supabase.auth.signOut()
+        setError('Accès non autorisé')
+        triggerErrorShake()
+        return
+      }
+
+      if (status !== 'ACTIF') {
+        await supabase.auth.signOut()
+        setError('Compte désactivé. Contactez l\'administrateur.')
         triggerErrorShake()
         return
       }

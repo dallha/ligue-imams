@@ -22,6 +22,12 @@ async function timingSafeDelay(start: number): Promise<void> {
   }
 }
 
+function getMetadataString(metadata: unknown, key: string): string {
+  if (!metadata || typeof metadata !== 'object') return ''
+  const value = (metadata as Record<string, unknown>)[key]
+  return typeof value === 'string' ? value : ''
+}
+
 export async function POST(request: NextRequest) {
   const startTime = Date.now()
 
@@ -80,21 +86,62 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const user = await db.user.findFirst({
-      where: {
-        OR: [
-          { email: identifier.toLowerCase().trim() },
-          { matricule: identifier.trim() },
-        ],
-      },
-      include: { region: true, mosque: true, carteMembre: true, role: true },
+    const supabase = await createClient()
+    const normalizedIdentifier = identifier.trim()
+    const normalizedEmail = identifier.toLowerCase().trim()
+    const authResult = await supabase.auth.signInWithPassword({
+      email: normalizedEmail,
+      password,
     })
+
+    const authUser = authResult.data.user
+    const authRole = getMetadataString(authUser?.user_metadata, 'role')
+    const authStatus = getMetadataString(authUser?.user_metadata, 'status')
+
+    if (authUser && MEMBER_ROLES.includes(authRole) && (!authStatus || authStatus === 'ACTIF')) {
+      resetRateLimit(rateLimitKey)
+
+      return NextResponse.json({
+        user: {
+          id: 0,
+          email: authUser.email ?? normalizedEmail,
+          nom: getMetadataString(authUser.user_metadata, 'nom') || '',
+          prenom: getMetadataString(authUser.user_metadata, 'prenom') || '',
+          role: authRole || 'IMAM',
+          matricule: getMetadataString(authUser.user_metadata, 'matricule') || normalizedIdentifier,
+          status: authStatus || 'ACTIF',
+          telephone: null,
+          photo: null,
+          region: null,
+          mosque: null,
+          carteMembre: null,
+        },
+      })
+    }
+
+    let user: any = null
+    try {
+      user = await db.user.findFirst({
+        where: {
+          OR: [
+            { email: normalizedEmail },
+            { matricule: normalizedIdentifier },
+          ],
+        },
+        include: { region: true, mosque: true, carteMembre: true, role: true },
+      })
+    } catch (dbError) {
+      console.warn('Member login DB lookup failed:', dbError)
+    }
 
     if (!user) {
       await timingSafeDelay(startTime)
       return NextResponse.json(
-        { error: 'Identifiants invalides', code: 'INVALID_CREDENTIALS' },
-        { status: 401 }
+        {
+          error: authResult.error ? 'Identifiants invalides' : 'Accès non autorisé',
+          code: authResult.error ? 'INVALID_CREDENTIALS' : 'UNAUTHORIZED_ROLE',
+        },
+        { status: authResult.error ? 401 : 403 }
       )
     }
 
@@ -131,21 +178,16 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const supabase = await createClient()
-    let { error: signInError } = await supabase.auth.signInWithPassword({
-      email: user.email.toLowerCase().trim(),
-      password,
-    })
+    let signInError = authResult.error
 
     if (signInError) {
-      console.error('Member Supabase signIn error:', signInError.message)
-
       try {
         await syncSupabaseAuthUser({
           email: user.email.toLowerCase().trim(),
           password,
           userMetadata: {
             role: userRole,
+            status: user.status,
             nom: user.nom,
             prenom: user.prenom,
             matricule: user.matricule,

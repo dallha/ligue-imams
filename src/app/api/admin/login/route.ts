@@ -20,6 +20,12 @@ async function timingSafeDelay(start: number): Promise<void> {
   }
 }
 
+function getMetadataString(metadata: unknown, key: string): string {
+  if (!metadata || typeof metadata !== 'object') return ''
+  const value = (metadata as Record<string, unknown>)[key]
+  return typeof value === 'string' ? value : ''
+}
+
 export async function POST(request: NextRequest) {
   const startTime = Date.now()
 
@@ -89,21 +95,56 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // ── 3. Look up user in our database ───────────────────────────
-    const user = await db.user.findUnique({
-      where: { email: email.toLowerCase().trim() },
-      include: { region: true, role: true },
+    const supabase = await createClient()
+    const normalizedEmail = email.toLowerCase().trim()
+    const authResult = await supabase.auth.signInWithPassword({
+      email: normalizedEmail,
+      password,
     })
+
+    const authUser = authResult.data.user
+    const authRole = getMetadataString(authUser?.user_metadata, 'role')
+    const authStatus = getMetadataString(authUser?.user_metadata, 'status')
+
+    if (
+      authUser &&
+      ['ADMIN', 'PRESIDENT', 'RESPONSABLE_REGIONAL'].includes(authRole) &&
+      (!authStatus || authStatus === 'ACTIF')
+    ) {
+      resetRateLimit(rateLimitKey)
+
+      return NextResponse.json({
+        user: {
+          id: 0,
+          email: authUser.email ?? normalizedEmail,
+          nom: getMetadataString(authUser.user_metadata, 'nom') || '',
+          prenom: getMetadataString(authUser.user_metadata, 'prenom') || '',
+          role: authRole,
+        },
+      })
+    }
+
+    let user: any = null
+    try {
+      user = await db.user.findUnique({
+        where: { email: normalizedEmail },
+        include: { region: true, role: true },
+      })
+    } catch (dbError) {
+      console.warn('Admin login DB lookup failed:', dbError)
+    }
 
     if (!user) {
       await timingSafeDelay(startTime)
       return NextResponse.json(
-        { error: 'Identifiants invalides', code: 'INVALID_CREDENTIALS' },
-        { status: 401 }
+        {
+          error: authResult.error ? 'Identifiants invalides' : 'Accès non autorisé',
+          code: authResult.error ? 'INVALID_CREDENTIALS' : 'UNAUTHORIZED_ROLE',
+        },
+        { status: authResult.error ? 401 : 403 }
       )
     }
 
-    // ── 4. Check role ─────────────────────────────────────────────
     const userRole = typeof user.role === 'string'
       ? user.role
       : (user.role as { name?: string } | null)?.name || ''
@@ -117,7 +158,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // ── 5. Check status ───────────────────────────────────────────
     if (user.status !== 'ACTIF') {
       await timingSafeDelay(startTime)
       return NextResponse.json(
@@ -126,7 +166,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // ── 6. Verify password (bcrypt) ───────────────────────────────
     const passwordValid = await compare(password, user.password)
     if (!passwordValid) {
       await timingSafeDelay(startTime)
@@ -140,33 +179,27 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // ── 7. Create Supabase Auth session ───────────────────────────
-    const supabase = await createClient()
-    let { error: signInError } = await supabase.auth.signInWithPassword({
-      email: email.toLowerCase().trim(),
-      password,
-    })
+    let signInError = authResult.error
 
     if (signInError) {
-      console.error('Supabase signIn error:', signInError.message)
-
       try {
         await syncSupabaseAuthUser({
-          email: email.toLowerCase().trim(),
+          email: normalizedEmail,
           password,
           userMetadata: {
             role: normalizedRole,
+            status: user.status,
             nom: user.nom,
             prenom: user.prenom,
             source: 'lips-admin',
           },
         })
 
-        const { error: retryError } = await supabase.auth.signInWithPassword({
-          email: email.toLowerCase().trim(),
+        const retry = await supabase.auth.signInWithPassword({
+          email: normalizedEmail,
           password,
         })
-        signInError = retryError ?? null
+        signInError = retry.error ?? null
       } catch (syncError) {
         console.error('Supabase sync error:', syncError)
       }
@@ -183,7 +216,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // ── 8. Success ────────────────────────────────────────────────
     resetRateLimit(rateLimitKey)
 
     return NextResponse.json({

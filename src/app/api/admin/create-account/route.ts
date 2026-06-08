@@ -142,6 +142,7 @@ export async function POST(request: NextRequest) {
         password,
         userMetadata: {
           role,
+          status: 'EN_ATTENTE',
           nom: user.nom,
           prenom: user.prenom,
           matricule,

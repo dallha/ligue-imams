@@ -13,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Lock, Eye, EyeOff, AlertCircle, User, Shield, Fingerprint, KeyRound, BadgeCheck, Clock } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useLanguage } from '@/lib/lips/i18n/language-context'
+import { createClient } from '@/lib/supabase/client'
 
 // ─── Password strength ─────────────────────────────────────────
 function getPasswordStrength(pw: string): { score: number; label: string; color: string } {
@@ -85,25 +86,31 @@ function MemberLoginForm() {
     setLoading(true)
 
     try {
-      const res = await fetch('/api/membre/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: data.email, password: data.password }),
+      const supabase = createClient()
+      const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
+        email: data.email.toLowerCase().trim(),
+        password: data.password,
       })
 
-      const resData = await res.json()
+      if (signInError || !authData.user) {
+        setLockout({ locked: false, remaining: 0 })
+        setError(signInError?.message || p.pages.memberLogin.loginError)
+        return
+      }
 
-      if (!res.ok) {
-        if (res.status === 429) {
-          setLockout({
-            locked: true,
-            remaining: resData.lockoutRemaining || 5,
-          })
-          setError('Trop de tentatives. Veuillez patienter avant de réessayer.')
-        } else {
-          setLockout({ locked: false, remaining: 0 })
-          setError(resData.error || p.pages.memberLogin.loginError)
-        }
+      const metadata = (authData.user.user_metadata ?? {}) as Record<string, unknown>
+      const role = typeof metadata.role === 'string' ? metadata.role : ''
+      const status = typeof metadata.status === 'string' ? metadata.status : 'ACTIF'
+
+      if (!['IMAM', 'PREDICATEUR', 'RESPONSABLE_REGIONAL', 'MEMBRE_CHOURA'].includes(role)) {
+        await supabase.auth.signOut()
+        setError('Identifiants invalides')
+        return
+      }
+
+      if (status !== 'ACTIF') {
+        await supabase.auth.signOut()
+        setError('Compte désactivé. Contactez l\'administrateur.')
         return
       }
 
