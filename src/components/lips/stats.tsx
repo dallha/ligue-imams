@@ -102,12 +102,12 @@ export default function StatsSection() {
   ];
 
   const FALLBACK_STATS: DbStatItem[] = [
-    { id: 1, key: 'membres', icon: 'Users', value: 5000, suffix: '+', label: t.stats.items.members.label, labelAr: '', desc: t.stats.items.members.desc, descAr: '' },
+    { id: 1, key: 'membres', icon: 'Users', value: 0, suffix: '', label: t.stats.items.members.label, labelAr: '', desc: t.stats.items.members.desc, descAr: '' },
     { id: 2, key: 'regions', icon: 'MapPin', value: 14, suffix: '', label: t.stats.items.regions.label, labelAr: '', desc: t.stats.items.regions.desc, descAr: '' },
-    { id: 3, key: 'mosquees', icon: 'Building', value: 15000, suffix: '+', label: t.stats.items.mosques.label, labelAr: '', desc: t.stats.items.mosques.desc, descAr: '' },
-    { id: 4, key: 'formations', icon: 'BookOpen', value: 200, suffix: '+', label: t.stats.items.trainings.label, labelAr: '', desc: t.stats.items.trainings.desc, descAr: '' },
+    { id: 3, key: 'mosquees', icon: 'Building', value: 0, suffix: '', label: t.stats.items.mosques.label, labelAr: '', desc: t.stats.items.mosques.desc, descAr: '' },
+    { id: 4, key: 'formations', icon: 'BookOpen', value: 0, suffix: '', label: t.stats.items.trainings.label, labelAr: '', desc: t.stats.items.trainings.desc, descAr: '' },
     { id: 5, key: 'annees', icon: 'Award', value: 18, suffix: '', label: t.stats.items.years.label, labelAr: '', desc: t.stats.items.years.desc, descAr: '' },
-    { id: 6, key: 'renouvellement', icon: 'TrendingUp', value: 98, suffix: '%', label: t.stats.items.renewal.label, labelAr: '', desc: t.stats.items.renewal.desc, descAr: '' },
+    { id: 6, key: 'renouvellement', icon: 'TrendingUp', value: 0, suffix: '%', label: t.stats.items.renewal.label, labelAr: '', desc: t.stats.items.renewal.desc, descAr: '' },
   ];
 
   const STATS = dbStats.length > 0 ? dbStats : FALLBACK_STATS;

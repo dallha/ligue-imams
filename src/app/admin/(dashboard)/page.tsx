@@ -1,39 +1,76 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Users,
   BadgeDollarSign,
-  TrendingUp,
   Building2,
   Clock,
   CheckCircle2,
+  MapPin,
+  TrendingUp,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-const DONATION_DATA = [
-  { month: 'Jan', total: 450000 },
-  { month: 'Fév', total: 600000 },
-  { month: 'Mar', total: 1200000 },
-  { month: 'Avr', total: 950000 },
-  { month: 'Mai', total: 1500000 },
-  { month: 'Juin', total: 2100000 },
-];
-
-const REGION_DATA = [
-  { region: 'Dakar', membres: 1200 },
-  { region: 'Thiès', membres: 850 },
-  { region: 'Saint-Louis', membres: 600 },
-  { region: 'Kaolack', membres: 450 },
-  { region: 'Ziguinchor', membres: 300 },
-];
+interface DashboardStats {
+  totalMembres: number;
+  membresEnAttente: number;
+  totalRegions: number;
+  commissionsActives: number;
+  recentMembers: { nom: string; prenom: string; region: { nom: string }; status: string; createdAt: string }[];
+}
 
 export default function AdminDashboardPage() {
+  const [stats, setStats] = useState<DashboardStats>({
+    totalMembres: 0,
+    membresEnAttente: 0,
+    totalRegions: 14,
+    commissionsActives: 0,
+    recentMembers: [],
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadStats() {
+      try {
+        const [membresRes, commissionsRes, recentRes] = await Promise.all([
+          fetch('/api/admin/membres?limit=1'),
+          fetch('/api/admin/commissions'),
+          fetch('/api/admin/membres?limit=5&sort=recent'),
+        ]);
+
+        const membresData = await membresRes.json();
+        const commissionsData = await commissionsRes.json();
+        const recentData = await recentRes.json();
+
+        const membres = membresData.data || [];
+        const allMembres = membresData.total ?? membres.length;
+        const enAttente = membresData.enAttente ?? 0;
+        const commissions = commissionsData.data || [];
+        const recent = recentData.data || [];
+
+        setStats({
+          totalMembres: allMembres,
+          membresEnAttente: enAttente,
+          totalRegions: 14,
+          commissionsActives: commissions.filter((c: { published: boolean }) => c.published).length,
+          recentMembers: recent,
+        });
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadStats();
+  }, []);
+
   const KPIs = [
-    { title: 'Total Membres', value: '5,240', change: '+12%', icon: Users, color: 'text-blue-500', bg: 'bg-blue-500/10' },
-    { title: 'Dons (Ce mois)', value: '2.1M FCFA', change: '+24%', icon: BadgeDollarSign, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
-    { title: 'Adhésions en attente', value: '45', change: '-5', icon: Clock, color: 'text-orange-500', bg: 'bg-orange-500/10' },
-    { title: 'Commissions Actives', value: '8', change: 'Stable', icon: Building2, color: 'text-purple-500', bg: 'bg-purple-500/10' },
+    { title: 'Total Membres', value: loading ? '…' : stats.totalMembres.toLocaleString('fr-FR'), icon: Users, color: 'text-blue-500', bg: 'bg-blue-500/10' },
+    { title: 'Adhésions en attente', value: loading ? '…' : stats.membresEnAttente.toLocaleString('fr-FR'), icon: Clock, color: 'text-orange-500', bg: 'bg-orange-500/10' },
+    { title: 'Régions couvertes', value: '14', icon: MapPin, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+    { title: 'Commissions Actives', value: loading ? '…' : stats.commissionsActives.toString(), icon: Building2, color: 'text-purple-500', bg: 'bg-purple-500/10' },
   ];
 
   return (
@@ -63,9 +100,9 @@ export default function AdminDashboardPage() {
                     <kpi.icon className={`h-5 w-5 ${kpi.color}`} />
                   </div>
                 </div>
-                <div className="mt-4 flex items-center text-xs font-medium text-emerald-500">
+                <div className="mt-4 flex items-center text-xs font-medium text-muted-foreground">
                   <TrendingUp className="h-3 w-3 mr-1" />
-                  {kpi.change} depuis le mois dernier
+                  Données en temps réel
                 </div>
               </CardContent>
             </Card>
@@ -73,91 +110,70 @@ export default function AdminDashboardPage() {
         ))}
       </div>
 
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-2 border-border/50 shadow-sm">
-          <CardHeader>
-            <CardTitle className="text-base font-bold">Évolution des Dons (2025)</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[300px] w-full flex items-end justify-between gap-3 pt-12 pb-2">
-              {DONATION_DATA.map((data, i) => {
-                const max = Math.max(...DONATION_DATA.map(d => d.total));
-                const height = `${(data.total / max) * 100}%`;
-                return (
-                  <div key={i} className="flex flex-col items-center gap-2 flex-1 group h-full">
-                    <div className="relative w-full h-full flex flex-col justify-end items-center rounded-t-lg bg-muted/10 hover:bg-muted/30 transition-colors">
-                      <div 
-                        className="w-full bg-gradient-to-t from-lips-gold/20 to-lips-gold rounded-t-md transition-all duration-700 ease-out group-hover:brightness-110"
-                        style={{ height }}
-                      />
-                      <div className="absolute -top-10 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-bold text-foreground bg-background shadow-lg border border-border px-2 py-1 rounded z-10 pointer-events-none">
-                        {(data.total / 1000).toLocaleString('fr-FR')}k
-                      </div>
-                    </div>
-                    <span className="text-xs font-medium text-muted-foreground">{data.month}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-border/50 shadow-sm">
-          <CardHeader>
-            <CardTitle className="text-base font-bold">Membres par Région (Top 5)</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[300px] w-full flex flex-col justify-between py-4">
-              {REGION_DATA.map((data, i) => {
-                const max = Math.max(...REGION_DATA.map(d => d.membres));
-                const width = `${(data.membres / max) * 100}%`;
-                return (
-                  <div key={i} className="flex items-center gap-3 group">
-                    <div className="w-24 text-xs font-semibold text-muted-foreground truncate">{data.region}</div>
-                    <div className="flex-1 h-8 bg-muted/10 rounded-r-md relative flex items-center group-hover:bg-muted/20 transition-colors">
-                      <div 
-                        className="h-full bg-[#0A2E17] rounded-r-md transition-all duration-700 ease-out group-hover:brightness-110"
-                        style={{ width }}
-                      />
-                      <span className="ml-3 text-xs font-bold text-foreground">{data.membres.toLocaleString('fr-FR')}</span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Recent Activity */}
+      {/* Recent Members */}
       <Card className="border-border/50 shadow-sm">
         <CardHeader>
-          <CardTitle className="text-base font-bold">Dernières Inscriptions Validées</CardTitle>
+          <CardTitle className="text-base font-bold flex items-center gap-2">
+            <Users className="h-4 w-4 text-lips-green" />
+            Derniers Membres Inscrits
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {[
-              { name: 'Oustaz Mamadou Sy', region: 'Dakar', role: 'Imam', time: 'Il y a 2 heures' },
-              { name: 'Cheikh Ahmadou Bamba', region: 'Thiès', role: 'Prédicateur', time: 'Il y a 5 heures' },
-              { name: 'Imam Alioune Badara', region: 'Saint-Louis', role: 'Membre', time: 'Il y a 1 jour' },
-            ].map((activity, i) => (
-              <div key={i} className="flex items-center justify-between p-4 bg-muted/50 rounded-xl border border-border/50">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-full bg-lips-green/10 flex items-center justify-center">
-                    <CheckCircle2 className="h-5 w-5 text-lips-green" />
+          {loading ? (
+            <div className="space-y-3">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="h-16 bg-muted/40 rounded-xl animate-pulse" />
+              ))}
+            </div>
+          ) : stats.recentMembers.length === 0 ? (
+            <div className="text-center py-10 text-muted-foreground">
+              <Users className="h-10 w-10 mx-auto mb-3 opacity-30" />
+              <p className="text-sm">Aucun membre pour le moment</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {stats.recentMembers.map((m, i) => (
+                <div key={i} className="flex items-center justify-between p-4 bg-muted/50 rounded-xl border border-border/50">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full bg-lips-green/10 flex items-center justify-center font-bold text-lips-green text-sm">
+                      {m.prenom?.[0]}{m.nom?.[0]}
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-foreground">{m.prenom} {m.nom}</h4>
+                      <p className="text-xs text-muted-foreground">{m.region?.nom}</p>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="text-sm font-bold text-foreground">{activity.name}</h4>
-                    <p className="text-xs text-muted-foreground">{activity.role} • {activity.region}</p>
+                  <div className={`text-xs font-semibold px-2 py-1 rounded-full ${
+                    m.status === 'ACTIF' ? 'bg-green-100 text-green-700' :
+                    m.status === 'EN_ATTENTE' ? 'bg-orange-100 text-orange-700' :
+                    'bg-muted text-muted-foreground'
+                  }`}>
+                    {m.status === 'ACTIF' ? 'Actif' : m.status === 'EN_ATTENTE' ? 'En attente' : m.status}
                   </div>
                 </div>
-                <div className="text-xs font-medium text-muted-foreground">{activity.time}</div>
-              </div>
-            ))}
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Info card */}
+      <Card className="border-lips-green/20 bg-lips-green/5">
+        <CardContent className="p-6 flex items-center gap-4">
+          <CheckCircle2 className="h-8 w-8 text-lips-green shrink-0" />
+          <div>
+            <p className="font-bold text-foreground">Base de données Supabase connectée</p>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              Toutes les données sont en temps réel. Les statistiques se mettent à jour automatiquement.
+            </p>
           </div>
         </CardContent>
       </Card>
     </div>
   );
 }
+
+
+import { motion } from 'framer-motion';
+import {
+  Users,
