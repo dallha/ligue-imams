@@ -300,13 +300,35 @@ function MemberLoginForm() {
 
                 {/* Forgot password */}
                 <div className="flex justify-end">
-                  <Link
-                    href="#"
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      const email = watch('email');
+                      if (!email) {
+                        setError('Veuillez d\'abord saisir votre email');
+                        return;
+                      }
+                      try {
+                        const supabase = createClient();
+                        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                          redirectTo: `${window.location.origin}/espace-membre/login`,
+                        });
+                        if (error) {
+                          setError(error.message);
+                        } else {
+                          setError('');
+                          alert('Un email de réinitialisation vous a été envoyé. Vérifiez votre boîte de réception.');
+                        }
+                      } catch {
+                        setError('Erreur de connexion au serveur');
+                      }
+                    }}
                     className="text-xs text-lips-gold/70 hover:text-lips-gold transition-colors"
                   >
                     {p.pages.memberLogin.forgotPassword}
-                  </Link>
+                  </button>
                 </div>
+
 
                 {/* Submit button */}
                 <Button

@@ -29,7 +29,14 @@ import {
   FileText,
   Pencil,
   ChevronRight,
+  Lock,
+  Eye,
+  EyeOff,
+  CheckCircle2,
+  AlertCircle,
+  Loader2,
 } from 'lucide-react'
+
 import { useLanguage } from '@/lib/lips/i18n/language-context'
 
 // Nouveaux imports extraits (Refactoring)
@@ -56,6 +63,13 @@ export default function EspaceMembreDashboard() {
   const [member, setMember] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [editOpen, setEditOpen] = useState(false)
+  const [passwordOpen, setPasswordOpen] = useState(false)
+  const [passwordData, setPasswordData] = useState({ current: '', newPassword: '', confirm: '' })
+  const [showPasswordFields, setShowPasswordFields] = useState({ current: false, new: false, confirm: false })
+  const [passwordLoading, setPasswordLoading] = useState(false)
+  const [passwordError, setPasswordError] = useState('')
+  const [passwordSuccess, setPasswordSuccess] = useState('')
+
 
   useEffect(() => {
     fetch('/api/membre/me')
@@ -173,45 +187,186 @@ export default function EspaceMembreDashboard() {
                   </CardTitle>
                   <CardDescription>{p.espaceMembre.profileDesc}</CardDescription>
                 </div>
-                <Dialog open={editOpen} onOpenChange={setEditOpen}>
-                  <DialogTrigger asChild>
-                    <Button variant="ghost" size="sm" className="text-lips-green hover:text-lips-green-dark hover:bg-lips-green/5">
-                      <Pencil className="h-4 w-4 mr-1.5" />
-                      {p.espaceMembre.editBtn}
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-md">
-                    <DialogHeader>
-                      <DialogTitle>{p.espaceMembre.editProfile}</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4 py-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="edit-prenom">{p.espaceMembre.firstName}</Label>
-                          <Input id="edit-prenom" defaultValue={member.prenom} />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="edit-nom">{p.espaceMembre.lastName}</Label>
-                          <Input id="edit-nom" defaultValue={member.nom} />
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="edit-email">{p.espaceMembre.email}</Label>
-                        <Input id="edit-email" type="email" defaultValue={member.email} />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="edit-tel">{p.espaceMembre.phone}</Label>
-                        <Input id="edit-tel" defaultValue={member.telephone} />
-                      </div>
-                      <Button
-                        className="w-full bg-lips-green hover:bg-lips-green-dark text-white"
-                        onClick={() => setEditOpen(false)}
-                      >
-                        {p.espaceMembre.saveChanges}
+                <div className="flex items-center gap-2">
+                  <Dialog open={passwordOpen} onOpenChange={setPasswordOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="ghost" size="sm" className="text-lips-green hover:text-lips-green-dark hover:bg-lips-green/5">
+                        <Lock className="h-4 w-4 mr-1.5" />
+                        Mot de passe
                       </Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-md">
+                      <DialogHeader>
+                        <DialogTitle>Changer le mot de passe</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4 py-4">
+                        {passwordError && (
+                          <div className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
+                            <AlertCircle className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
+                            <p className="text-sm text-red-700">{passwordError}</p>
+                          </div>
+                        )}
+                        {passwordSuccess && (
+                          <div className="p-3 bg-green-50 border border-green-200 rounded-lg flex items-start gap-2">
+                            <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0 mt-0.5" />
+                            <p className="text-sm text-green-700">{passwordSuccess}</p>
+                          </div>
+                        )}
+                        <div className="space-y-2">
+                          <Label htmlFor="current-password">Mot de passe actuel</Label>
+                          <div className="relative">
+                            <Input
+                              id="current-password"
+                              type={showPasswordFields.current ? 'text' : 'password'}
+                              value={passwordData.current}
+                              onChange={(e) => setPasswordData({ ...passwordData, current: e.target.value })}
+                              placeholder="Votre mot de passe actuel"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowPasswordFields({ ...showPasswordFields, current: !showPasswordFields.current })}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                            >
+                              {showPasswordFields.current ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                            </button>
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="new-password">Nouveau mot de passe</Label>
+                          <div className="relative">
+                            <Input
+                              id="new-password"
+                              type={showPasswordFields.new ? 'text' : 'password'}
+                              value={passwordData.newPassword}
+                              onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                              placeholder="Au moins 8 caractères"
+                              minLength={8}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowPasswordFields({ ...showPasswordFields, new: !showPasswordFields.new })}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                            >
+                              {showPasswordFields.new ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                            </button>
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="confirm-password">Confirmer le nouveau mot de passe</Label>
+                          <div className="relative">
+                            <Input
+                              id="confirm-password"
+                              type={showPasswordFields.confirm ? 'text' : 'password'}
+                              value={passwordData.confirm}
+                              onChange={(e) => setPasswordData({ ...passwordData, confirm: e.target.value })}
+                              placeholder="Répétez le nouveau mot de passe"
+                              minLength={8}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowPasswordFields({ ...showPasswordFields, confirm: !showPasswordFields.confirm })}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                            >
+                              {showPasswordFields.confirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                            </button>
+                          </div>
+                        </div>
+                        <Button
+                          className="w-full bg-lips-green hover:bg-lips-green-dark text-white"
+                          disabled={passwordLoading}
+                          onClick={async () => {
+                            setPasswordError('');
+                            setPasswordSuccess('');
+
+                            if (!passwordData.current || !passwordData.newPassword || !passwordData.confirm) {
+                              setPasswordError('Tous les champs sont requis');
+                              return;
+                            }
+
+                            if (passwordData.newPassword.length < 8) {
+                              setPasswordError('Le nouveau mot de passe doit contenir au moins 8 caractères');
+                              return;
+                            }
+
+                            if (passwordData.newPassword !== passwordData.confirm) {
+                              setPasswordError('Les nouveaux mots de passe ne correspondent pas');
+                              return;
+                            }
+
+                            setPasswordLoading(true);
+                            try {
+                              const { createClient } = await import('@/lib/supabase/client');
+                              const supabase = createClient();
+                              const { error } = await supabase.auth.updateUser({ password: passwordData.newPassword });
+
+                              if (error) {
+                                setPasswordError(error.message);
+                              } else {
+                                setPasswordSuccess('Mot de passe modifié avec succès !');
+                                setPasswordData({ current: '', newPassword: '', confirm: '' });
+                                setTimeout(() => setPasswordOpen(false), 1500);
+                              }
+                            } catch {
+                              setPasswordError('Erreur de connexion au serveur');
+                            } finally {
+                              setPasswordLoading(false);
+                            }
+                          }}
+                        >
+                          {passwordLoading ? (
+                            <>
+                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                              Modification...
+                            </>
+                          ) : (
+                            'Modifier le mot de passe'
+                          )}
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+
+                  <Dialog open={editOpen} onOpenChange={setEditOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="ghost" size="sm" className="text-lips-green hover:text-lips-green-dark hover:bg-lips-green/5">
+                        <Pencil className="h-4 w-4 mr-1.5" />
+                        {p.espaceMembre.editBtn}
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-md">
+                      <DialogHeader>
+                        <DialogTitle>{p.espaceMembre.editProfile}</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4 py-4">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="edit-prenom">{p.espaceMembre.firstName}</Label>
+                            <Input id="edit-prenom" defaultValue={member.prenom} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="edit-nom">{p.espaceMembre.lastName}</Label>
+                            <Input id="edit-nom" defaultValue={member.nom} />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="edit-email">{p.espaceMembre.email}</Label>
+                          <Input id="edit-email" type="email" defaultValue={member.email} />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="edit-tel">{p.espaceMembre.phone}</Label>
+                          <Input id="edit-tel" defaultValue={member.telephone} />
+                        </div>
+                        <Button
+                          className="w-full bg-lips-green hover:bg-lips-green-dark text-white"
+                          onClick={() => setEditOpen(false)}
+                        >
+                          {p.espaceMembre.saveChanges}
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+
               </div>
             </CardHeader>
             <CardContent className="space-y-4">

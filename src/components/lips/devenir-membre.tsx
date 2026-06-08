@@ -13,6 +13,11 @@ import {
   User,
   MapPin,
   Building,
+  Lock,
+  Eye,
+  EyeOff,
+  AlertCircle,
+  Loader2,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -24,12 +29,44 @@ const REGIONS = [
   'Ziguinchor', 'Sédhiou', 'Diourbel', 'Kaffrine',
 ];
 
+function getPasswordStrength(pw: string): { score: number; label: string; color: string } {
+  if (!pw) return { score: 0, label: '', color: '' }
+  let score = 0
+  if (pw.length >= 6) score++
+  if (pw.length >= 8) score++
+  if (/[A-Z]/.test(pw)) score++
+  if (/[0-9]/.test(pw)) score++
+  if (/[^A-Za-z0-9]/.test(pw)) score++
+
+  if (score <= 1) return { score: 1, label: 'Faible', color: 'bg-red-500' }
+  if (score <= 2) return { score: 2, label: 'Moyen', color: 'bg-amber-500' }
+  if (score <= 3) return { score: 3, label: 'Bon', color: 'bg-lips-green' }
+  return { score: 4, label: 'Fort', color: 'bg-emerald-500' }
+}
+
 export default function DevenirMembreSection() {
   const { p } = useLanguage();
   const ROLES = [p.devenirMembre.roleImam, p.devenirMembre.rolePreacher, p.devenirMembre.roleRegionalHead, p.devenirMembre.roleShura, p.devenirMembre.roleOther];
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-50px' });
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [successMatricule, setSuccessMatricule] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [formData, setFormData] = useState({
+    nom: '',
+    prenom: '',
+    email: '',
+    telephone: '',
+    region: '',
+    role: '',
+    mosque: '',
+    password: '',
+    confirmPassword: '',
+  });
+
 
   const STEPS = [
     {
@@ -185,7 +222,7 @@ export default function DevenirMembreSection() {
                 <p className="text-base text-muted-foreground font-medium">{p.devenirMembre.sectionDesc}</p>
               </div>
 
-              {submitted ? (
+              {submitted && !error ? (
                 <div className="text-center py-16">
                   <motion.div 
                     initial={{ scale: 0 }}
@@ -197,33 +234,112 @@ export default function DevenirMembreSection() {
                   </motion.div>
                   <h4 className="font-black text-3xl text-[#0A2E17] mb-4">{p.devenirMembre.submitted}</h4>
                   <p className="text-lg text-muted-foreground max-w-md mx-auto leading-relaxed">
-                    {p.devenirMembre.conditions}
+                    Votre demande d'adhésion a été soumise avec succès.
+                  </p>
+                  {successMatricule && (
+                    <div className="mt-6 inline-block bg-lips-green/5 border border-lips-green/20 rounded-xl px-8 py-4">
+                      <p className="text-sm text-muted-foreground">Votre matricule</p>
+                      <p className="text-2xl font-mono font-bold text-lips-green">{successMatricule}</p>
+                    </div>
+                  )}
+                  <p className="text-sm text-muted-foreground max-w-md mx-auto mt-4 leading-relaxed">
+                    Un administrateur validera votre compte sous peu. Vous recevrez une notification par email.
                   </p>
                   <Button
                     className="mt-10 bg-[#0A2E17] hover:bg-lips-green text-white rounded-xl px-10 h-14 font-bold text-lg shadow-xl shadow-lips-green/20 transition-all hover:scale-105"
-                    onClick={() => setSubmitted(false)}
+                    onClick={() => {
+                      setSubmitted(false);
+                      setError('');
+                      setSuccessMatricule('');
+                      setFormData({ nom: '', prenom: '', email: '', telephone: '', region: '', role: '', mosque: '', password: '', confirmPassword: '' });
+                    }}
                   >
                     {p.devenirMembre.newApplication}
                   </Button>
                 </div>
               ) : (
                 <form
-                  onSubmit={(e) => {
+                  onSubmit={async (e) => {
                     e.preventDefault();
-                    setSubmitted(true);
+                    setError('');
+                    setLoading(true);
+
+                    // Validation côté client
+                    if (formData.password !== formData.confirmPassword) {
+                      setError('Les mots de passe ne correspondent pas');
+                      setLoading(false);
+                      return;
+                    }
+
+                    if (formData.password.length < 8) {
+                      setError('Le mot de passe doit contenir au moins 8 caractères');
+                      setLoading(false);
+                      return;
+                    }
+
+                    try {
+                      const res = await fetch('/api/public/adherer', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          nom: formData.nom,
+                          prenom: formData.prenom,
+                          email: formData.email,
+                          telephone: formData.telephone,
+                          regionId: formData.region,
+                          role: formData.role,
+                          mosque: formData.mosque || undefined,
+                          password: formData.password,
+                        }),
+                      });
+
+                      const data = await res.json();
+
+                      if (!res.ok) {
+                        setError(data.error || 'Une erreur est survenue');
+                        setLoading(false);
+                        return;
+                      }
+
+                      setSuccessMatricule(data.matricule);
+                      setSubmitted(true);
+                    } catch {
+                      setError('Erreur de connexion au serveur. Veuillez réessayer.');
+                    } finally {
+                      setLoading(false);
+                    }
                   }}
                   className="space-y-7"
                 >
+                  {error && (
+                    <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
+                      <AlertCircle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
+                      <p className="text-sm text-red-700 font-medium">{error}</p>
+                    </div>
+                  )}
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div className="space-y-2 group">
                       <label className="text-sm font-bold text-[#0A2E17] flex items-center gap-2 transition-colors group-focus-within:text-lips-green">
                         <User className="h-4 w-4" /> {p.devenirMembre.firstName}
                       </label>
-                      <Input placeholder="Mamadou" className="h-14 rounded-xl bg-[#F8F5EF] border-transparent focus:bg-white focus:border-lips-gold focus:ring-4 focus:ring-lips-gold/10 transition-all text-base" required />
+                      <Input 
+                        placeholder="Mamadou" 
+                        value={formData.prenom}
+                        onChange={(e) => setFormData({ ...formData, prenom: e.target.value })}
+                        className="h-14 rounded-xl bg-[#F8F5EF] border-transparent focus:bg-white focus:border-lips-gold focus:ring-4 focus:ring-lips-gold/10 transition-all text-base" 
+                        required 
+                      />
                     </div>
                     <div className="space-y-2 group">
                       <label className="text-sm font-bold text-[#0A2E17] ml-6 transition-colors group-focus-within:text-lips-green">{p.devenirMembre.lastName}</label>
-                      <Input placeholder="SY" className="h-14 rounded-xl bg-[#F8F5EF] border-transparent focus:bg-white focus:border-lips-gold focus:ring-4 focus:ring-lips-gold/10 transition-all text-base" required />
+                      <Input 
+                        placeholder="SY" 
+                        value={formData.nom}
+                        onChange={(e) => setFormData({ ...formData, nom: e.target.value })}
+                        className="h-14 rounded-xl bg-[#F8F5EF] border-transparent focus:bg-white focus:border-lips-gold focus:ring-4 focus:ring-lips-gold/10 transition-all text-base" 
+                        required 
+                      />
                     </div>
                   </div>
 
@@ -232,13 +348,27 @@ export default function DevenirMembreSection() {
                       <label className="text-sm font-bold text-[#0A2E17] flex items-center gap-2 transition-colors group-focus-within:text-lips-green">
                         <Mail className="h-4 w-4" /> {p.devenirMembre.email}
                       </label>
-                      <Input type="email" placeholder="mamadou.sy@exemple.sn" className="h-14 rounded-xl bg-[#F8F5EF] border-transparent focus:bg-white focus:border-lips-gold focus:ring-4 focus:ring-lips-gold/10 transition-all text-base" required />
+                      <Input 
+                        type="email" 
+                        placeholder="mamadou.sy@exemple.sn" 
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        className="h-14 rounded-xl bg-[#F8F5EF] border-transparent focus:bg-white focus:border-lips-gold focus:ring-4 focus:ring-lips-gold/10 transition-all text-base" 
+                        required 
+                      />
                     </div>
                     <div className="space-y-2 group">
                       <label className="text-sm font-bold text-[#0A2E17] flex items-center gap-2 transition-colors group-focus-within:text-lips-green">
                         <Phone className="h-4 w-4" /> {p.devenirMembre.phone}
                       </label>
-                      <Input type="tel" placeholder="+221 77 123 45 67" className="h-14 rounded-xl bg-[#F8F5EF] border-transparent focus:bg-white focus:border-lips-gold focus:ring-4 focus:ring-lips-gold/10 transition-all text-base" required />
+                      <Input 
+                        type="tel" 
+                        placeholder="+221 77 123 45 67" 
+                        value={formData.telephone}
+                        onChange={(e) => setFormData({ ...formData, telephone: e.target.value })}
+                        className="h-14 rounded-xl bg-[#F8F5EF] border-transparent focus:bg-white focus:border-lips-gold focus:ring-4 focus:ring-lips-gold/10 transition-all text-base" 
+                        required 
+                      />
                     </div>
                   </div>
 
@@ -247,7 +377,12 @@ export default function DevenirMembreSection() {
                       <label className="text-sm font-bold text-[#0A2E17] flex items-center gap-2 transition-colors group-focus-within:text-lips-green">
                         <MapPin className="h-4 w-4" /> {p.devenirMembre.region}
                       </label>
-                      <select className="w-full h-14 rounded-xl border-transparent bg-[#F8F5EF] px-4 text-base font-medium focus:bg-white focus:border-lips-gold focus:ring-4 focus:ring-lips-gold/10 transition-all appearance-none cursor-pointer" required>
+                      <select 
+                        value={formData.region}
+                        onChange={(e) => setFormData({ ...formData, region: e.target.value })}
+                        className="w-full h-14 rounded-xl border-transparent bg-[#F8F5EF] px-4 text-base font-medium focus:bg-white focus:border-lips-gold focus:ring-4 focus:ring-lips-gold/10 transition-all appearance-none cursor-pointer" 
+                        required
+                      >
                         <option value="">{p.devenirMembre.selectPlaceholder}</option>
                         {REGIONS.map((r) => <option key={r} value={r}>{r}</option>)}
                       </select>
@@ -256,7 +391,12 @@ export default function DevenirMembreSection() {
                       <label className="text-sm font-bold text-[#0A2E17] flex items-center gap-2 transition-colors group-focus-within:text-lips-green">
                         <Building className="h-4 w-4" /> {p.devenirMembre.role}
                       </label>
-                      <select className="w-full h-14 rounded-xl border-transparent bg-[#F8F5EF] px-4 text-base font-medium focus:bg-white focus:border-lips-gold focus:ring-4 focus:ring-lips-gold/10 transition-all appearance-none cursor-pointer" required>
+                      <select 
+                        value={formData.role}
+                        onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                        className="w-full h-14 rounded-xl border-transparent bg-[#F8F5EF] px-4 text-base font-medium focus:bg-white focus:border-lips-gold focus:ring-4 focus:ring-lips-gold/10 transition-all appearance-none cursor-pointer" 
+                        required
+                      >
                         <option value="">{p.devenirMembre.selectPlaceholder}</option>
                         {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
                       </select>
@@ -270,13 +410,114 @@ export default function DevenirMembreSection() {
                       </span>
                       {p.devenirMembre.mosque}
                     </label>
-                    <Input placeholder={p.devenirMembre.mosquePlaceholder} className="h-14 rounded-xl bg-[#F8F5EF] border-transparent focus:bg-white focus:border-lips-gold focus:ring-4 focus:ring-lips-gold/10 transition-all text-base" />
+                    <Input 
+                      placeholder={p.devenirMembre.mosquePlaceholder} 
+                      value={formData.mosque}
+                      onChange={(e) => setFormData({ ...formData, mosque: e.target.value })}
+                      className="h-14 rounded-xl bg-[#F8F5EF] border-transparent focus:bg-white focus:border-lips-gold focus:ring-4 focus:ring-lips-gold/10 transition-all text-base" 
+                    />
+                  </div>
+
+                  {/* Password fields */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div className="space-y-2 group">
+                      <label className="text-sm font-bold text-[#0A2E17] flex items-center gap-2 transition-colors group-focus-within:text-lips-green">
+                        <Lock className="h-4 w-4" /> Mot de passe
+                      </label>
+                      <div className="relative">
+                        <Input 
+                          type={showPassword ? 'text' : 'password'}
+                          placeholder="Au moins 8 caractères"
+                          value={formData.password}
+                          onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                          className="h-14 rounded-xl bg-[#F8F5EF] border-transparent focus:bg-white focus:border-lips-gold focus:ring-4 focus:ring-lips-gold/10 transition-all text-base pr-12"
+                          required
+                          minLength={8}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </button>
+                      </div>
+                      {formData.password && (
+                        <div className="mt-2">
+                          <div className="flex gap-1 mb-1">
+                            {[1, 2, 3, 4].map((level) => (
+                              <div
+                                key={level}
+                                className={`h-1 flex-1 rounded-full transition-colors ${
+                                  level <= getPasswordStrength(formData.password).score
+                                    ? getPasswordStrength(formData.password).color
+                                    : 'bg-gray-200'
+                                }`}
+                              />
+                            ))}
+                          </div>
+                          <p className={`text-xs font-medium ${
+                            getPasswordStrength(formData.password).score <= 1
+                              ? 'text-red-500'
+                              : getPasswordStrength(formData.password).score <= 2
+                              ? 'text-amber-500'
+                              : 'text-lips-green'
+                          }`}>
+                            {getPasswordStrength(formData.password).label}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                    <div className="space-y-2 group">
+                      <label className="text-sm font-bold text-[#0A2E17] flex items-center gap-2 transition-colors group-focus-within:text-lips-green">
+                        <Lock className="h-4 w-4" /> Confirmer le mot de passe
+                      </label>
+                      <div className="relative">
+                        <Input 
+                          type={showConfirmPassword ? 'text' : 'password'}
+                          placeholder="Répétez le mot de passe"
+                          value={formData.confirmPassword}
+                          onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                          className="h-14 rounded-xl bg-[#F8F5EF] border-transparent focus:bg-white focus:border-lips-gold focus:ring-4 focus:ring-lips-gold/10 transition-all text-base pr-12"
+                          required
+                          minLength={8}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                          {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </button>
+                      </div>
+                      {formData.confirmPassword && formData.password !== formData.confirmPassword && (
+                        <p className="text-xs text-red-500 mt-1">Les mots de passe ne correspondent pas</p>
+                      )}
+                      {formData.confirmPassword && formData.password === formData.confirmPassword && (
+                        <p className="text-xs text-lips-green mt-1 flex items-center gap-1">
+                          <CheckCircle2 className="h-3 w-3" /> Mots de passe identiques
+                        </p>
+                      )}
+                    </div>
                   </div>
 
                   <div className="pt-8">
-                    <Button type="submit" className="w-full bg-[#0A2E17] hover:bg-lips-green text-white h-16 rounded-xl font-black text-xl shadow-2xl shadow-[#0A2E17]/20 transition-all hover:scale-[1.02] flex items-center justify-center">
-                      <UserPlus className="h-6 w-6 mr-3" />
-                      {p.devenirMembre.submit}
+                    <Button 
+                      type="submit" 
+                      disabled={loading}
+                      className="w-full bg-[#0A2E17] hover:bg-lips-green text-white h-16 rounded-xl font-black text-xl shadow-2xl shadow-[#0A2E17]/20 transition-all hover:scale-[1.02] flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {loading ? (
+                        <>
+                          <Loader2 className="h-6 w-6 mr-3 animate-spin" />
+                          Création du compte...
+                        </>
+                      ) : (
+                        <>
+                          <UserPlus className="h-6 w-6 mr-3" />
+                          {p.devenirMembre.submit}
+                        </>
+                      )}
                     </Button>
                   </div>
 
@@ -288,6 +529,7 @@ export default function DevenirMembreSection() {
                   </div>
                 </form>
               )}
+
             </div>
           </motion.div>
         </div>
