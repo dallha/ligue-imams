@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { syncSupabaseAuthUser } from '@/lib/supabase/admin-auth-sync'
 import bcrypt from 'bcryptjs'
 
 // Generate next matricule in LIPS-XXXX format
@@ -84,27 +83,31 @@ export async function POST(request: NextRequest) {
     // ─── Hash password ────────────────────────────────────
     const hashedPassword = await bcrypt.hash(password, 12)
 
+    // ─── Build metadata JSON ──────────────────────────────
+    const metadata: Record<string, string> = {}
+    if (role) metadata.role = role
+    if (region) metadata.region = region.trim()
+    if (mosque) metadata.mosque = mosque.trim()
+
     // ─── Create user in DB ────────────────────────────────
-    const userData: any = {
-      matricule,
-      email: email.toLowerCase().trim(),
-      password: hashedPassword,
-      nom: nom.trim().toUpperCase(),
-      prenom: prenom.trim(),
-      telephone,
-      status: 'EN_ATTENTE',
-    }
-
-    if (role) userData.roleLabel = role
-    if (region) userData.regionLabel = region.trim()
-    if (mosque) userData.mosque = mosque.trim()
-
     const user = await db.user.create({
-      data: userData,
+      data: {
+        matricule,
+        email: email.toLowerCase().trim(),
+        password: hashedPassword,
+        nom: nom.trim().toUpperCase(),
+        prenom: prenom.trim(),
+        telephone,
+        status: 'EN_ATTENTE',
+        // Stocker les métadonnées dans le champ photo (JSON stringifié)
+        photo: Object.keys(metadata).length > 0 ? JSON.stringify(metadata) : null,
+      } as any,
     })
+
 
     // ─── Sync with Supabase Auth (non-bloquant) ───────────
     try {
+      const { syncSupabaseAuthUser } = await import('@/lib/supabase/admin-auth-sync')
       await syncSupabaseAuthUser({
         email: user.email,
         password,
@@ -119,7 +122,6 @@ export async function POST(request: NextRequest) {
       })
     } catch (syncError) {
       // Non bloquant : l'utilisateur est déjà créé en DB
-      // L'admin pourra créer le compte Supabase manuellement
       console.error('Supabase auth sync error (non-bloquant):', syncError)
     }
 

@@ -42,12 +42,11 @@ model User {
   photo     String?
   roleId    Int?
   role      Role?     @relation(fields: [roleId], references: [id])
-  roleLabel String?   // Libellé du rôle (IMAM, PREDICATEUR, AUTRE...)
   status    String    @default("EN_ATTENTE") // ACTIF, EXPIRE, EN_ATTENTE
 
   regionId  Int?
   region    Region?   @relation(fields: [regionId], references: [id])
-  regionLabel String? // Région en texte libre (pour les adhésions publiques)
+
 
 
   mosqueId  Int?
