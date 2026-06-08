@@ -22,7 +22,7 @@ async function generateMatricule(): Promise<string> {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { email, password, nom, prenom, telephone } = body
+    const { email, password, nom, prenom, telephone, role, region, mosque } = body
 
     // ─── Validation ───────────────────────────────────────
     const errors: string[] = []
@@ -78,6 +78,62 @@ export async function POST(request: NextRequest) {
     // ─── Hash password ────────────────────────────────────
     const hashedPassword = await bcrypt.hash(password, 12)
 
+    // ─── Resolve Role ─────────────────────────────────────
+    let dbRoleId: number | null = null
+    if (role) {
+      const dbRole = await db.role.upsert({
+        where: { name: role.toUpperCase().trim() },
+        update: {},
+        create: {
+          name: role.toUpperCase().trim(),
+          description: `Rôle ${role}`,
+        },
+      })
+      dbRoleId = dbRole.id
+    }
+
+    // ─── Resolve Region ───────────────────────────────────
+    let dbRegionId: number | null = null
+    if (region) {
+      const dbRegion = await db.region.findFirst({
+        where: {
+          nom: {
+            equals: region.trim(),
+            mode: 'insensitive',
+          },
+        },
+      })
+      if (dbRegion) {
+        dbRegionId = dbRegion.id
+      }
+    }
+
+    // ─── Resolve Mosque ───────────────────────────────────
+    let dbMosqueId: number | null = null
+    if (mosque && dbRegionId) {
+      const dbMosque = await db.mosque.findFirst({
+        where: {
+          nom: {
+            equals: mosque.trim(),
+            mode: 'insensitive',
+          },
+          regionId: dbRegionId,
+        },
+      })
+      if (dbMosque) {
+        dbMosqueId = dbMosque.id
+      } else {
+        const newMosque = await db.mosque.create({
+          data: {
+            nom: mosque.trim(),
+            adresse: mosque.trim(),
+            regionId: dbRegionId,
+          },
+        })
+        dbMosqueId = newMosque.id
+      }
+    }
+
     // ─── Create user in DB ────────────────────────────────
     const user = await db.user.create({
       data: {
@@ -88,6 +144,9 @@ export async function POST(request: NextRequest) {
         prenom: prenom.trim(),
         telephone,
         status: 'EN_ATTENTE',
+        roleId: dbRoleId,
+        regionId: dbRegionId,
+        mosqueId: dbMosqueId,
       } as any,
     })
 

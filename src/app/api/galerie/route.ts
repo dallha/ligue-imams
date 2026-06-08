@@ -21,13 +21,15 @@ export async function POST(request: Request) {
     const newGalerie = await prisma.galerie.create({
       data: {
         titre,
-        titreAr,
-        lieu,
-        date,
-        count: parseInt(count) || 0,
-        imageUrl,
+        titreAr: titreAr || null,
+        lieu: lieu || null,
+        date: date || null,
+        count: count !== undefined ? (Number(count) || 0) : 0,
+        imageUrl: imageUrl || null,
         published: published ?? true,
         gradient: gradient || "from-lips-green-dark to-lips-green",
+        createdAt: new Date(),
+        updatedAt: new Date(),
       },
     });
 

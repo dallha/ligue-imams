@@ -288,6 +288,9 @@ export default function DevenirMembreSection() {
                           email: formData.email,
                           telephone: formData.telephone,
                           password: formData.password,
+                          role: formData.role,
+                          region: formData.region,
+                          mosque: formData.mosque,
                         }),
                       });
 

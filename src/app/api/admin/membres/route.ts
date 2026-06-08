@@ -17,23 +17,26 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '20')
 
-    const where: Record<string, unknown> = {}
-    if (role) where.role = role
+    const where: Record<string, any> = {}
+    if (role) where.role = { name: role.toUpperCase() }
     if (status) where.status = status
     if (regionId) where.regionId = parseInt(regionId)
     if (search) {
       where.OR = [
-        { nom: { contains: search } },
-        { prenom: { contains: search } },
-        { matricule: { contains: search } },
-        { email: { contains: search } },
+        { nom: { contains: search, mode: 'insensitive' } },
+        { prenom: { contains: search, mode: 'insensitive' } },
+        { matricule: { contains: search, mode: 'insensitive' } },
+        { email: { contains: search, mode: 'insensitive' } },
       ]
     }
 
     const [members, total] = await Promise.all([
       db.user.findMany({
         where,
-        include: { region: { select: { nom: true, code: true } } },
+        include: { 
+          region: { select: { nom: true, code: true } },
+          role: { select: { name: true } }
+        },
         orderBy: { createdAt: 'desc' },
         skip: (page - 1) * limit,
         take: limit,
@@ -41,7 +44,10 @@ export async function GET(request: NextRequest) {
       db.user.count({ where }),
     ])
 
-    const safeMembers = members.map(({ password: _, ...rest }) => rest)
+    const safeMembers = members.map(({ password: _, role: roleObj, ...rest }) => ({
+      ...rest,
+      role: roleObj?.name || '',
+    }))
 
     return NextResponse.json({ data: safeMembers, total, page, limit })
   } catch (error) {

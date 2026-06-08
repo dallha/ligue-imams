@@ -21,11 +21,28 @@ export async function PUT(
       return NextResponse.json({ error: 'Membre non trouvé' }, { status: 404 })
     }
 
+    let roleIdUpdate = {}
+    if (role !== undefined) {
+      if (role) {
+        const dbRole = await db.role.upsert({
+          where: { name: role.toUpperCase().trim() },
+          update: {},
+          create: {
+            name: role.toUpperCase().trim(),
+            description: `Rôle ${role}`,
+          },
+        })
+        roleIdUpdate = { roleId: dbRole.id }
+      } else {
+        roleIdUpdate = { roleId: null }
+      }
+    }
+
     const user = await db.user.update({
       where: { id: parseInt(id) },
       data: {
         ...(status !== undefined && { status }),
-        ...(role !== undefined && { role }),
+        ...roleIdUpdate,
         ...(nom !== undefined && { nom }),
         ...(prenom !== undefined && { prenom }),
         ...(telephone !== undefined && { telephone }),
