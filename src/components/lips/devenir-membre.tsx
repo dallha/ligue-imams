@@ -32,6 +32,23 @@ const ROLE_OPTIONS = [
   { value: 'AUTRE', label: 'Autre' },
 ]
 
+const REGION_OPTIONS = [
+  'Dakar',
+  'Diourbel',
+  'Fatick',
+  'Kaffrine',
+  'Kaolack',
+  'Kédougou',
+  'Kolda',
+  'Louga',
+  'Matam',
+  'Saint-Louis',
+  'Sédhiou',
+  'Tambacounda',
+  'Thiès',
+  'Ziguinchor'
+]
+
 function getPasswordStrength(pw: string): { score: number; label: string; color: string } {
   if (!pw) return { score: 0, label: '', color: '' }
   let score = 0
@@ -380,12 +397,19 @@ export default function DevenirMembreSection() {
                       <label className="text-sm font-bold text-[#0A2E17] flex items-center gap-2 transition-colors group-focus-within:text-lips-green">
                         <MapPin className="h-4 w-4" /> {p.devenirMembre.region}
                       </label>
-                      <Input 
-                        placeholder="Dakar, Saint-Louis..." 
+                      <select 
                         value={formData.region}
                         onChange={(e) => setFormData({ ...formData, region: e.target.value })}
-                        className="h-14 rounded-xl bg-[#F8F5EF] border-transparent focus:bg-white focus:border-lips-gold focus:ring-4 focus:ring-lips-gold/10 transition-all text-base" 
-                      />
+                        className="w-full h-14 rounded-xl border-transparent bg-[#F8F5EF] px-4 text-base font-medium focus:bg-white focus:border-lips-gold focus:ring-4 focus:ring-lips-gold/10 transition-all appearance-none cursor-pointer"
+                        required
+                      >
+                        <option value="">{p.devenirMembre.selectPlaceholder}</option>
+                        {REGION_OPTIONS.map((reg) => (
+                          <option key={reg} value={reg}>
+                            {reg}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                     <div className="space-y-2 group">
                       <label className="text-sm font-bold text-[#0A2E17] flex items-center gap-2 transition-colors group-focus-within:text-lips-green">
@@ -395,6 +419,7 @@ export default function DevenirMembreSection() {
                         value={formData.role}
                         onChange={(e) => setFormData({ ...formData, role: e.target.value })}
                         className="w-full h-14 rounded-xl border-transparent bg-[#F8F5EF] px-4 text-base font-medium focus:bg-white focus:border-lips-gold focus:ring-4 focus:ring-lips-gold/10 transition-all appearance-none cursor-pointer" 
+                        required
                       >
                         <option value="">{p.devenirMembre.selectPlaceholder}</option>
                         {ROLE_OPTIONS.map((r) => (

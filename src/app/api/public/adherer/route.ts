@@ -108,6 +108,10 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    if (!dbRegionId) {
+      return NextResponse.json({ error: 'Région requise ou invalide. Veuillez sélectionner une région valide parmi les 14 régions du Sénégal.' }, { status: 400 })
+    }
+
     // ─── Resolve Mosque ───────────────────────────────────
     let dbMosqueId: number | null = null
     if (mosque && dbRegionId) {
