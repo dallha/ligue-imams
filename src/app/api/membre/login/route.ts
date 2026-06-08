@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 import { checkRateLimit, resetRateLimit, getClientIp } from '@/lib/rate-limit'
 import { syncSupabaseAuthUser } from '@/lib/supabase/admin-auth-sync'
 
-const MEMBER_ROLES = ['IMAM', 'PREDICATEUR', 'RESPONSABLE_REGIONAL', 'MEMBRE_CHOURA']
+const MEMBER_ROLES = ['IMAM', 'PREDICATEUR', 'RESPONSABLE_REGIONAL', 'MEMBRE_CHOURA', 'AUTRE']
 
 const RATE_LIMIT_CONFIG = {
   maxAttempts: 5,
