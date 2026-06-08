@@ -58,14 +58,15 @@ export async function POST(request: NextRequest) {
       errors.push('Téléphone requis')
     }
 
-    const validRoles = ['IMAM', 'PREDICATEUR', 'RESPONSABLE_REGIONAL', 'MEMBRE_CHOURA']
-    if (!role || !validRoles.includes(role)) {
+    const validRoles = ['IMAM', 'PREDICATEUR', 'RESPONSABLE_REGIONAL', 'MEMBRE_CHOURA', 'AUTRE']
+    if (role && !validRoles.includes(role)) {
       errors.push('Rôle invalide')
     }
 
-    if (!regionId || isNaN(parseInt(regionId))) {
-      errors.push('Région requise')
+    if (regionId && isNaN(parseInt(regionId))) {
+      errors.push('Région invalide')
     }
+
 
     if (errors.length > 0) {
       return NextResponse.json({ error: errors.join('. ') }, { status: 400 })
@@ -82,11 +83,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Un compte avec ce numéro de téléphone existe déjà' }, { status: 409 })
     }
 
-    // ─── Verify region exists ─────────────────────────────
-    const region = await db.region.findUnique({ where: { id: parseInt(regionId) } })
-    if (!region) {
-      return NextResponse.json({ error: 'Région non trouvée' }, { status: 400 })
+    // ─── Verify region exists (if provided) ───────────────
+    if (regionId) {
+      const region = await db.region.findUnique({ where: { id: parseInt(regionId) } })
+      if (!region) {
+        return NextResponse.json({ error: 'Région non trouvée' }, { status: 400 })
+      }
     }
+
 
     // ─── Generate matricule ───────────────────────────────
     const matricule = await generateMatricule()
@@ -95,22 +99,26 @@ export async function POST(request: NextRequest) {
     const hashedPassword = await bcrypt.hash(password, 12)
 
     // ─── Create user in DB ────────────────────────────────
+    const userData: any = {
+      matricule,
+      email: email.toLowerCase().trim(),
+      password: hashedPassword,
+      nom: nom.trim().toUpperCase(),
+      prenom: prenom.trim(),
+      telephone,
+      status: 'EN_ATTENTE',
+    }
+
+    if (role) userData.role = role
+    if (regionId) userData.regionId = parseInt(regionId)
+
     const user = await db.user.create({
-      data: {
-        matricule,
-        email: email.toLowerCase().trim(),
-        password: hashedPassword,
-        nom: nom.trim().toUpperCase(),
-        prenom: prenom.trim(),
-        telephone,
-        role,
-        status: 'EN_ATTENTE',
-        regionId: parseInt(regionId),
-      },
+      data: userData,
       include: {
         region: { select: { nom: true, code: true } },
       },
     })
+
 
     // ─── Sync with Supabase Auth ──────────────────────────
     try {

@@ -44,8 +44,9 @@ model User {
   role      Role?     @relation(fields: [roleId], references: [id])
   status    String    @default("EN_ATTENTE") // ACTIF, EXPIRE, EN_ATTENTE
 
-  regionId  Int
-  region    Region    @relation(fields: [regionId], references: [id])
+  regionId  Int?
+  region    Region?   @relation(fields: [regionId], references: [id])
+
   mosqueId  Int?
   mosque    Mosque?   @relation(fields: [mosqueId], references: [id])
   commissions Commission[] @relation("UserCommissions")

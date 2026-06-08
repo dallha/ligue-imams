@@ -29,7 +29,9 @@ const ROLE_OPTIONS = [
   { value: 'PREDICATEUR', label: 'Prédicateur' },
   { value: 'RESPONSABLE_REGIONAL', label: 'Responsable Régional' },
   { value: 'MEMBRE_CHOURA', label: 'Membre Choura' },
+  { value: 'AUTRE', label: 'Autre' },
 ]
+
 
 function getPasswordStrength(pw: string): { score: number; label: string; color: string } {
   if (!pw) return { score: 0, label: '', color: '' }
@@ -398,18 +400,15 @@ export default function DevenirMembreSection() {
                         value={formData.region}
                         onChange={(e) => setFormData({ ...formData, region: e.target.value })}
                         className="w-full h-14 rounded-xl border-transparent bg-[#F8F5EF] px-4 text-base font-medium focus:bg-white focus:border-lips-gold focus:ring-4 focus:ring-lips-gold/10 transition-all appearance-none cursor-pointer" 
-                        required
-                        disabled={regionsLoading}
                       >
-                        <option value="">
-                          {regionsLoading ? 'Chargement...' : p.devenirMembre.selectPlaceholder}
-                        </option>
+                        <option value="">{p.devenirMembre.selectPlaceholder}</option>
                         {regions.map((r) => (
                           <option key={r.id} value={r.id}>
                             {r.nom}
                           </option>
                         ))}
                       </select>
+
 
                     </div>
                     <div className="space-y-2 group">
@@ -420,8 +419,8 @@ export default function DevenirMembreSection() {
                         value={formData.role}
                         onChange={(e) => setFormData({ ...formData, role: e.target.value })}
                         className="w-full h-14 rounded-xl border-transparent bg-[#F8F5EF] px-4 text-base font-medium focus:bg-white focus:border-lips-gold focus:ring-4 focus:ring-lips-gold/10 transition-all appearance-none cursor-pointer" 
-                        required
                       >
+
                         <option value="">{p.devenirMembre.selectPlaceholder}</option>
                         {ROLE_OPTIONS.map((r) => (
                           <option key={r.value} value={r.value}>
