@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { motion, useInView } from 'framer-motion';
 import {
   UserPlus,
@@ -23,11 +23,13 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/lib/lips/i18n/language-context';
 
-const REGIONS = [
-  'Dakar', 'Saint-Louis', 'Louga', 'Fatick', 'Thiès',
-  'Kédougou', 'Kolda', 'Matam', 'Kaolack', 'Tambacounda',
-  'Ziguinchor', 'Sédhiou', 'Diourbel', 'Kaffrine',
-];
+// Rôles en anglais (valeurs attendues par l'API)
+const ROLE_OPTIONS = [
+  { value: 'IMAM', label: 'Imam' },
+  { value: 'PREDICATEUR', label: 'Prédicateur' },
+  { value: 'RESPONSABLE_REGIONAL', label: 'Responsable Régional' },
+  { value: 'MEMBRE_CHOURA', label: 'Membre Choura' },
+]
 
 function getPasswordStrength(pw: string): { score: number; label: string; color: string } {
   if (!pw) return { score: 0, label: '', color: '' }
@@ -46,7 +48,6 @@ function getPasswordStrength(pw: string): { score: number; label: string; color:
 
 export default function DevenirMembreSection() {
   const { p } = useLanguage();
-  const ROLES = [p.devenirMembre.roleImam, p.devenirMembre.rolePreacher, p.devenirMembre.roleRegionalHead, p.devenirMembre.roleShura, p.devenirMembre.roleOther];
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-50px' });
   const [submitted, setSubmitted] = useState(false);
@@ -55,6 +56,8 @@ export default function DevenirMembreSection() {
   const [successMatricule, setSuccessMatricule] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [regions, setRegions] = useState<{ id: number; nom: string }[]>([])
+  const [regionsLoading, setRegionsLoading] = useState(true)
   const [formData, setFormData] = useState({
     nom: '',
     prenom: '',
@@ -66,6 +69,20 @@ export default function DevenirMembreSection() {
     password: '',
     confirmPassword: '',
   });
+
+  // Charger les régions depuis l'API
+  useEffect(() => {
+    fetch('/api/public/regions')
+      .then(res => res.json())
+      .then(data => {
+        if (data?.data) {
+          setRegions(data.data)
+        }
+      })
+      .catch(err => console.error('Erreur chargement régions:', err))
+      .finally(() => setRegionsLoading(false))
+  }, [])
+
 
 
   const STEPS = [
@@ -382,10 +399,18 @@ export default function DevenirMembreSection() {
                         onChange={(e) => setFormData({ ...formData, region: e.target.value })}
                         className="w-full h-14 rounded-xl border-transparent bg-[#F8F5EF] px-4 text-base font-medium focus:bg-white focus:border-lips-gold focus:ring-4 focus:ring-lips-gold/10 transition-all appearance-none cursor-pointer" 
                         required
+                        disabled={regionsLoading}
                       >
-                        <option value="">{p.devenirMembre.selectPlaceholder}</option>
-                        {REGIONS.map((r) => <option key={r} value={r}>{r}</option>)}
+                        <option value="">
+                          {regionsLoading ? 'Chargement...' : p.devenirMembre.selectPlaceholder}
+                        </option>
+                        {regions.map((r) => (
+                          <option key={r.id} value={r.id}>
+                            {r.nom}
+                          </option>
+                        ))}
                       </select>
+
                     </div>
                     <div className="space-y-2 group">
                       <label className="text-sm font-bold text-[#0A2E17] flex items-center gap-2 transition-colors group-focus-within:text-lips-green">
@@ -398,8 +423,13 @@ export default function DevenirMembreSection() {
                         required
                       >
                         <option value="">{p.devenirMembre.selectPlaceholder}</option>
-                        {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
+                        {ROLE_OPTIONS.map((r) => (
+                          <option key={r.value} value={r.value}>
+                            {r.label}
+                          </option>
+                        ))}
                       </select>
+
                     </div>
                   </div>
 
