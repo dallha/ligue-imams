@@ -1,6 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { db } from '@/lib/db'
 
+const MEMBER_ROLES = ['IMAM', 'PREDICATEUR', 'RESPONSABLE_REGIONAL', 'MEMBRE_CHOURA'] as const
+
 export interface MemberSession {
   id: number
   email: string
@@ -26,6 +28,14 @@ export async function getMemberSession(): Promise<MemberSession | null> {
       const userRole = typeof user.role === 'string'
         ? user.role
         : (user.role as { name?: string } | null)?.name || ''
+
+      if (!MEMBER_ROLES.includes(userRole as typeof MEMBER_ROLES[number])) {
+        return null
+      }
+
+      if (user.status !== 'ACTIF') {
+        return null
+      }
 
       return {
         id: user.id,

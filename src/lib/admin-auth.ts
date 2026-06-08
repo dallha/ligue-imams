@@ -1,6 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { db } from '@/lib/db'
 
+const ADMIN_ROLES = ['ADMIN', 'PRESIDENT', 'RESPONSABLE_REGIONAL'] as const
+
 export interface AdminSession {
   id: number
   email: string
@@ -25,6 +27,14 @@ export async function getAdminSession(): Promise<AdminSession | null> {
       const userRole = typeof user.role === 'string'
         ? user.role
         : (user.role as { name?: string } | null)?.name || ''
+
+      if (!ADMIN_ROLES.includes(userRole as typeof ADMIN_ROLES[number])) {
+        return null
+      }
+
+      if (user.status !== 'ACTIF') {
+        return null
+      }
 
       return {
         id: user.id,
