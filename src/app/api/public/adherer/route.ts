@@ -23,7 +23,7 @@ async function generateMatricule(): Promise<string> {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { email, password, nom, prenom, telephone, regionId, mosque, role } = body
+    const { email, password, nom, prenom, telephone, region, role, mosque } = body
 
     // ─── Validation ───────────────────────────────────────
     const errors: string[] = []
@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     if (!email || typeof email !== 'string') {
       errors.push('Email requis')
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      errors.push('Format d\'email invalide')
+      errors.push("Format d'email invalide")
     }
 
     if (!password || typeof password !== 'string') {
@@ -63,11 +63,6 @@ export async function POST(request: NextRequest) {
       errors.push('Rôle invalide')
     }
 
-    if (regionId && isNaN(parseInt(regionId))) {
-      errors.push('Région invalide')
-    }
-
-
     if (errors.length > 0) {
       return NextResponse.json({ error: errors.join('. ') }, { status: 400 })
     }
@@ -82,15 +77,6 @@ export async function POST(request: NextRequest) {
     if (existingPhone) {
       return NextResponse.json({ error: 'Un compte avec ce numéro de téléphone existe déjà' }, { status: 409 })
     }
-
-    // ─── Verify region exists (if provided) ───────────────
-    if (regionId) {
-      const region = await db.region.findUnique({ where: { id: parseInt(regionId) } })
-      if (!region) {
-        return NextResponse.json({ error: 'Région non trouvée' }, { status: 400 })
-      }
-    }
-
 
     // ─── Generate matricule ───────────────────────────────
     const matricule = await generateMatricule()
@@ -109,24 +95,21 @@ export async function POST(request: NextRequest) {
       status: 'EN_ATTENTE',
     }
 
-    if (role) userData.role = role
-    if (regionId) userData.regionId = parseInt(regionId)
+    if (role) userData.roleLabel = role
+    if (region) userData.regionLabel = region.trim()
+    if (mosque) userData.mosque = mosque.trim()
 
     const user = await db.user.create({
       data: userData,
-      include: {
-        region: { select: { nom: true, code: true } },
-      },
     })
 
-
-    // ─── Sync with Supabase Auth ──────────────────────────
+    // ─── Sync with Supabase Auth (non-bloquant) ───────────
     try {
       await syncSupabaseAuthUser({
         email: user.email,
         password,
         userMetadata: {
-          role,
+          role: role || '',
           status: 'EN_ATTENTE',
           nom: user.nom,
           prenom: user.prenom,
@@ -135,18 +118,9 @@ export async function POST(request: NextRequest) {
         },
       })
     } catch (syncError) {
-      console.error('Supabase auth sync error:', syncError)
-      // Rollback user creation
-      try {
-        await db.user.delete({ where: { id: user.id } })
-      } catch (rollbackError) {
-        console.error('Rollback user delete error:', rollbackError)
-      }
-
-      return NextResponse.json(
-        { error: 'Erreur lors de la création du compte. Veuillez réessayer.' },
-        { status: 500 }
-      )
+      // Non bloquant : l'utilisateur est déjà créé en DB
+      // L'admin pourra créer le compte Supabase manuellement
+      console.error('Supabase auth sync error (non-bloquant):', syncError)
     }
 
     // ─── Return success ───────────────────────────────────
@@ -158,6 +132,6 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Adhesion error:', error)
-    return NextResponse.json({ error: 'Erreur serveur lors de l\'inscription' }, { status: 500 })
+    return NextResponse.json({ error: "Erreur serveur lors de l'inscription" }, { status: 500 })
   }
 }

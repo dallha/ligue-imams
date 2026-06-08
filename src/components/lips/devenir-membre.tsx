@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState } from 'react';
 import { motion, useInView } from 'framer-motion';
 import {
   UserPlus,
@@ -32,7 +32,6 @@ const ROLE_OPTIONS = [
   { value: 'AUTRE', label: 'Autre' },
 ]
 
-
 function getPasswordStrength(pw: string): { score: number; label: string; color: string } {
   if (!pw) return { score: 0, label: '', color: '' }
   let score = 0
@@ -58,8 +57,6 @@ export default function DevenirMembreSection() {
   const [successMatricule, setSuccessMatricule] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [regions, setRegions] = useState<{ id: number; nom: string }[]>([])
-  const [regionsLoading, setRegionsLoading] = useState(true)
   const [formData, setFormData] = useState({
     nom: '',
     prenom: '',
@@ -71,21 +68,6 @@ export default function DevenirMembreSection() {
     password: '',
     confirmPassword: '',
   });
-
-  // Charger les régions depuis l'API
-  useEffect(() => {
-    fetch('/api/public/regions')
-      .then(res => res.json())
-      .then(data => {
-        if (data?.data) {
-          setRegions(data.data)
-        }
-      })
-      .catch(err => console.error('Erreur chargement régions:', err))
-      .finally(() => setRegionsLoading(false))
-  }, [])
-
-
 
   const STEPS = [
     {
@@ -305,8 +287,8 @@ export default function DevenirMembreSection() {
                           prenom: formData.prenom,
                           email: formData.email,
                           telephone: formData.telephone,
-                          regionId: formData.region,
-                          role: formData.role,
+                          region: formData.region || undefined,
+                          role: formData.role || undefined,
                           mosque: formData.mosque || undefined,
                           password: formData.password,
                         }),
@@ -322,7 +304,8 @@ export default function DevenirMembreSection() {
 
                       setSuccessMatricule(data.matricule);
                       setSubmitted(true);
-                    } catch {
+                    } catch (err) {
+                      console.error('Erreur adhésion:', err);
                       setError('Erreur de connexion au serveur. Veuillez réessayer.');
                     } finally {
                       setLoading(false);
@@ -396,20 +379,12 @@ export default function DevenirMembreSection() {
                       <label className="text-sm font-bold text-[#0A2E17] flex items-center gap-2 transition-colors group-focus-within:text-lips-green">
                         <MapPin className="h-4 w-4" /> {p.devenirMembre.region}
                       </label>
-                      <select 
+                      <Input 
+                        placeholder="Dakar, Saint-Louis..." 
                         value={formData.region}
                         onChange={(e) => setFormData({ ...formData, region: e.target.value })}
-                        className="w-full h-14 rounded-xl border-transparent bg-[#F8F5EF] px-4 text-base font-medium focus:bg-white focus:border-lips-gold focus:ring-4 focus:ring-lips-gold/10 transition-all appearance-none cursor-pointer" 
-                      >
-                        <option value="">{p.devenirMembre.selectPlaceholder}</option>
-                        {regions.map((r) => (
-                          <option key={r.id} value={r.id}>
-                            {r.nom}
-                          </option>
-                        ))}
-                      </select>
-
-
+                        className="h-14 rounded-xl bg-[#F8F5EF] border-transparent focus:bg-white focus:border-lips-gold focus:ring-4 focus:ring-lips-gold/10 transition-all text-base" 
+                      />
                     </div>
                     <div className="space-y-2 group">
                       <label className="text-sm font-bold text-[#0A2E17] flex items-center gap-2 transition-colors group-focus-within:text-lips-green">
@@ -420,7 +395,6 @@ export default function DevenirMembreSection() {
                         onChange={(e) => setFormData({ ...formData, role: e.target.value })}
                         className="w-full h-14 rounded-xl border-transparent bg-[#F8F5EF] px-4 text-base font-medium focus:bg-white focus:border-lips-gold focus:ring-4 focus:ring-lips-gold/10 transition-all appearance-none cursor-pointer" 
                       >
-
                         <option value="">{p.devenirMembre.selectPlaceholder}</option>
                         {ROLE_OPTIONS.map((r) => (
                           <option key={r.value} value={r.value}>
@@ -428,7 +402,6 @@ export default function DevenirMembreSection() {
                           </option>
                         ))}
                       </select>
-
                     </div>
                   </div>
 
