@@ -69,6 +69,7 @@ export default function GaleriePage() {
   const [saving, setSaving] = useState(false)
   const [deleteId, setDeleteId] = useState<number | null>(null)
   const [deleting, setDeleting] = useState(false)
+  const [uploading, setUploading] = useState(false)
 
   const fetchItems = useCallback(async () => {
     setLoading(true)
@@ -158,6 +159,37 @@ export default function GaleriePage() {
       toast.error('Erreur lors de la suppression')
     } finally {
       setDeleting(false)
+    }
+  }
+
+  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploading(true)
+    const formData = new FormData()
+    formData.append('file', file)
+
+    try {
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      })
+      if (!res.ok) {
+        throw new Error('Erreur lors du téléchargement')
+      }
+      const data = await res.json()
+      if (data.url) {
+        setForm(prev => ({ ...prev, imageUrl: data.url }))
+        toast.success('Image téléchargée avec succès')
+      } else {
+        throw new Error()
+      }
+    } catch (err) {
+      console.error(err)
+      toast.error('Erreur lors du chargement de l\'image')
+    } finally {
+      setUploading(false)
     }
   }
 
@@ -339,7 +371,53 @@ export default function GaleriePage() {
             </div>
 
             <div className="space-y-2">
-              <Label>Dégradé (Tailwind classes)</Label>
+              <Label>Image de Couverture</Label>
+              {form.imageUrl ? (
+                <div className="relative aspect-[4/3] rounded-xl overflow-hidden border border-border group bg-muted">
+                  <img src={form.imageUrl} alt="Aperçu" className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => setForm(prev => ({ ...prev, imageUrl: '' }))}
+                    >
+                      Supprimer l'image
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="border-2 border-dashed border-border rounded-xl p-6 text-center hover:bg-muted/30 transition-colors relative">
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    disabled={uploading}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                  <div className="flex flex-col items-center gap-1.5 text-muted-foreground">
+                    <ImageIcon className="h-8 w-8 opacity-55" />
+                    <span className="text-sm font-semibold">
+                      {uploading ? 'Téléchargement...' : 'Sélectionner une photo'}
+                    </span>
+                    <span className="text-xs">PNG, JPG ou WEBP</span>
+                  </div>
+                </div>
+              )}
+              {form.imageUrl && (
+                <div className="space-y-1">
+                  <Label className="text-xs">URL de l'image</Label>
+                  <Input
+                    value={form.imageUrl}
+                    onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
+                    className="text-xs font-mono h-8"
+                  />
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label>Dégradé (Alternative si pas d'image)</Label>
               <Input
                 value={form.gradient}
                 onChange={(e) => setForm({ ...form, gradient: e.target.value })}

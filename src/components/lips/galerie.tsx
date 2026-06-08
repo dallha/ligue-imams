@@ -85,9 +85,19 @@ export default function GalerieSection() {
                 className="group cursor-pointer"
               >
                 <div className="relative aspect-[4/3] rounded-xl overflow-hidden shadow-md group-hover:shadow-xl transition-all duration-300">
-                  {/* Gradient background as placeholder */}
-                  <div className={`absolute inset-0 bg-gradient-to-br ${photo.gradient}`} />
-                  <div className="absolute inset-0 islamic-pattern opacity-20" />
+                  {/* Image or gradient background placeholder */}
+                  {photo.imageUrl ? (
+                    <img 
+                      src={photo.imageUrl} 
+                      alt={photo.titre} 
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  ) : (
+                    <>
+                      <div className={`absolute inset-0 bg-gradient-to-br ${photo.gradient}`} />
+                      <div className="absolute inset-0 islamic-pattern opacity-20" />
+                    </>
+                  )}
 
                   {/* Hover overlay */}
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300" />

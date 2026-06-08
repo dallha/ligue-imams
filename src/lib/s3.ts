@@ -1,44 +1,44 @@
-import { S3Client, PutObjectCommand, ObjectCannedACL } from '@aws-sdk/client-s3';
-
-const s3Client = new S3Client({
-  region: process.env.S3_REGION || 'auto',
-  endpoint: process.env.S3_ENDPOINT, // e.g. https://<project-ref>.supabase.co/storage/v1/s3
-  credentials: {
-    accessKeyId: process.env.S3_ACCESS_KEY || '',
-    secretAccessKey: process.env.S3_SECRET_KEY || '',
-  },
-  forcePathStyle: true, // Required for some S3 compatible services like Supabase
-});
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 
 export async function uploadFileToS3(
   buffer: Buffer,
   filename: string,
   mimetype: string
 ): Promise<string> {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const bucket = process.env.S3_BUCKET_NAME || 'public';
-  const key = `${Date.now()}-${filename}`;
+  
+  // Clean filename to prevent weird character bugs
+  const cleanFilename = filename.replace(/[^a-zA-Z0-9.-]/g, '_');
+  const key = `${Date.now()}-${cleanFilename}`;
 
-  const command = new PutObjectCommand({
-    Bucket: bucket,
-    Key: key,
-    Body: buffer,
-    ContentType: mimetype,
-    ACL: 'public-read' as ObjectCannedACL,
+  if (!url || !serviceRoleKey) {
+    throw new Error('Les variables d\'environnement Supabase (NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY) sont manquantes.');
+  }
+
+  const supabase = createSupabaseClient(url, serviceRoleKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+    },
   });
 
-  await s3Client.send(command);
+  const { data, error } = await supabase.storage
+    .from(bucket)
+    .upload(key, buffer, {
+      contentType: mimetype,
+      duplex: 'half',
+    });
 
-  // Return the public URL
-  // If using Supabase Storage, the public URL is usually predictable.
-  // We can construct it based on the endpoint, bucket, and key.
-  const endpointUrl = new URL(process.env.S3_ENDPOINT || '');
-  // For supabase: https://<project-ref>.supabase.co/storage/v1/object/public/<bucket>/<key>
-  if (endpointUrl.hostname.includes('supabase')) {
-    return `${endpointUrl.origin}/storage/v1/object/public/${bucket}/${key}`;
+  if (error) {
+    throw error;
   }
-  
-  // Standard S3 compatible URL (path style)
-  return `${process.env.S3_ENDPOINT}/${bucket}/${key}`;
+
+  const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(key);
+  return publicUrl;
 }
 
-export default s3Client;
+// Dummy default export to avoid breaking any other file
+const dummyS3 = {};
+export default dummyS3;
