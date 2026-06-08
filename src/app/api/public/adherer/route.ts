@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import bcrypt from 'bcryptjs'
+import { syncSupabaseAuthUser } from '@/lib/supabase/admin-auth-sync'
 
 // Generate next matricule in LIPS-XXXX format
 async function generateMatricule(): Promise<string> {
@@ -155,6 +156,25 @@ export async function POST(request: NextRequest) {
         updatedAt: new Date(),
       } as any,
     })
+
+    // ─── Synchroniser dans Supabase Auth ──────────────────
+    try {
+      await syncSupabaseAuthUser({
+        email: user.email.toLowerCase().trim(),
+        password,
+        userMetadata: {
+          role: role?.toUpperCase().trim() || '',
+          status: 'EN_ATTENTE',
+          nom: user.nom,
+          prenom: user.prenom,
+          matricule,
+          source: 'lips-public',
+        },
+      })
+    } catch (syncError) {
+      console.warn('Supabase Auth sync warning (non-bloquant):', syncError)
+      // Non bloquant — la synchro se fera à la première connexion via /api/membre/login
+    }
 
     // ─── Return success ───────────────────────────────────
     return NextResponse.json({

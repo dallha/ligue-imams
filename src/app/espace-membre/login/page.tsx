@@ -86,31 +86,42 @@ function MemberLoginForm() {
     setLoading(true)
 
     try {
+      // Appel à l'API route qui gère la synchronisation Supabase Auth + PostgreSQL
+      const response = await fetch('/api/membre/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: data.email.toLowerCase().trim(),
+          password: data.password,
+        }),
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        setLockout({ locked: false, remaining: 0 })
+
+        if (response.status === 429) {
+          // Rate limiting
+          setLockout({ locked: true, remaining: result.lockoutRemaining || 15 })
+          setError(result.error || 'Trop de tentatives. Réessayez plus tard.')
+        } else if (response.status === 403 && result.code === 'ACCOUNT_DISABLED') {
+          setError(result.error || 'Compte désactivé. Contactez l\'administrateur.')
+        } else {
+          setError(result.error || p.pages.memberLogin.loginError)
+        }
+        return
+      }
+
+      // Connexion réussie — créer la session Supabase côté client
       const supabase = createClient()
-      const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
+      const { error: signInError } = await supabase.auth.signInWithPassword({
         email: data.email.toLowerCase().trim(),
         password: data.password,
       })
 
-      if (signInError || !authData.user) {
-        setLockout({ locked: false, remaining: 0 })
-        setError(signInError?.message || p.pages.memberLogin.loginError)
-        return
-      }
-
-      const metadata = (authData.user.user_metadata ?? {}) as Record<string, unknown>
-      const role = typeof metadata.role === 'string' ? metadata.role : ''
-      const status = typeof metadata.status === 'string' ? metadata.status : 'ACTIF'
-
-      if (!['IMAM', 'PREDICATEUR', 'RESPONSABLE_REGIONAL', 'MEMBRE_CHOURA', 'AUTRE'].includes(role)) {
-        await supabase.auth.signOut()
-        setError('Identifiants invalides')
-        return
-      }
-
-      if (status !== 'ACTIF') {
-        await supabase.auth.signOut()
-        setError('Compte désactivé. Contactez l\'administrateur.')
+      if (signInError) {
+        setError('Erreur de session. Veuillez réessayer.')
         return
       }
 

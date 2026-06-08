@@ -67,11 +67,16 @@ export async function syncSupabaseAuthUser(
   const existingUser = await findUserByEmail(client, normalizedEmail)
 
   if (existingUser) {
-    const updateResult = await client.auth.admin.updateUserById(existingUser.id, {
-      password: input.password,
+    // Ne mettre à jour le mot de passe que s'il est fourni (non vide)
+    const updatePayload: Record<string, unknown> = {
       email_confirm: true,
       user_metadata: input.userMetadata,
-    })
+    }
+    if (input.password && input.password.length > 0) {
+      updatePayload.password = input.password
+    }
+
+    const updateResult = await client.auth.admin.updateUserById(existingUser.id, updatePayload)
 
     if (updateResult.error || !updateResult.data.user) {
       throw updateResult.error ?? new Error('Supabase Auth user update failed')
@@ -81,6 +86,10 @@ export async function syncSupabaseAuthUser(
       action: 'updated',
       userId: updateResult.data.user.id,
     }
+  }
+
+  if (!input.password || input.password.length === 0) {
+    throw new Error('Password is required to create a new Supabase Auth user')
   }
 
   const createResult = await client.auth.admin.createUser({

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { getAdminSession } from '@/lib/admin-auth'
+import { syncSupabaseAuthUser } from '@/lib/supabase/admin-auth-sync'
 
 export async function PUT(
   request: NextRequest,
@@ -22,6 +23,7 @@ export async function PUT(
     }
 
     let roleIdUpdate = {}
+    let resolvedRole = role
     if (role !== undefined) {
       if (role) {
         const dbRole = await db.role.upsert({
@@ -33,8 +35,10 @@ export async function PUT(
           },
         })
         roleIdUpdate = { roleId: dbRole.id }
+        resolvedRole = role.toUpperCase().trim()
       } else {
         roleIdUpdate = { roleId: null }
+        resolvedRole = ''
       }
     }
 
@@ -49,6 +53,25 @@ export async function PUT(
         updatedAt: new Date(),
       },
     })
+
+    // Synchroniser les modifications dans Supabase Auth
+    try {
+      await syncSupabaseAuthUser({
+        email: user.email.toLowerCase().trim(),
+        password: '', // Ne pas changer le mot de passe
+        userMetadata: {
+          role: resolvedRole || (existing.roleId ? (await db.role.findUnique({ where: { id: existing.roleId } }))?.name : '') || '',
+          status: status || existing.status,
+          nom: user.nom,
+          prenom: user.prenom,
+          matricule: user.matricule,
+          source: 'lips-admin',
+        },
+      })
+    } catch (syncError) {
+      console.warn('Supabase Auth sync warning (non-bloquant):', syncError)
+      // Non bloquant — la synchro se fera à la prochaine connexion
+    }
 
     const { password: _, ...safeUser } = user
     return NextResponse.json({ data: safeUser })
