@@ -176,9 +176,10 @@ export default function GaleriePage() {
         body: formData,
       })
       if (!res.ok) {
-        throw new Error('Erreur lors du téléchargement')
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || 'Erreur lors du téléchargement');
       }
-      const data = await res.json()
+      const data = await res.json();
       if (data.url) {
         setForm(prev => ({ ...prev, imageUrl: data.url }))
         toast.success('Image téléchargée avec succès')
