@@ -1,18 +1,18 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { Shield, CheckCircle2, Printer, Download, RotateCw } from 'lucide-react';
+import { Shield, CheckCircle2, Printer, Download, RotateCw, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useLanguage } from '@/lib/lips/i18n/language-context';
 
-// --- QR Code SVG Generator (simple matrix pattern) ---
-function QrCodeSvg({ size = 80 }: { size?: number }) {
+// ─── QR Code SVG Generator ────────────────────────────────────────
+function QrCodeSvg({ size = 80, seed = 42 }: { size?: number; seed?: number }) {
   const modules = 21;
   const cellSize = size / modules;
   const pattern: boolean[][] = [];
-  
+
   for (let r = 0; r < modules; r++) {
     pattern[r] = [];
     for (let c = 0; c < modules; c++) {
@@ -31,7 +31,7 @@ function QrCodeSvg({ size = 80 }: { size?: number }) {
           pattern[r][c] = false;
         }
       } else {
-        pattern[r][c] = ((r * 13 + c * 7 + r * c) % 3) === 0;
+        pattern[r][c] = ((r * seed + c * 7 + r * c) % 3) === 0;
       }
     }
   }
@@ -57,9 +57,93 @@ function QrCodeSvg({ size = 80 }: { size?: number }) {
   );
 }
 
-// --- Membership Card Component ---
+// ─── Shine overlay ────────────────────────────────────────────────
+function ShineOverlay() {
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none z-30">
+      <div className="absolute inset-0 bg-gradient-to-br from-white/0 via-white/5 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+      <div className="absolute -inset-full top-0 left-0 w-[200%] h-full bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12 animate-shine pointer-events-none" />
+    </div>
+  );
+}
+
+// ─── Watermark overlay ────────────────────────────────────────────
+function WatermarkOverlay() {
+  return (
+    <div className="absolute inset-0 pointer-events-none z-20 overflow-hidden">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white/5 text-[120px] font-black tracking-[0.3em] rotate-[-30deg] select-none">
+        LIPS
+      </div>
+      <div className="absolute top-[10%] right-[5%] text-white/3 text-[60px] font-black tracking-[0.3em] rotate-[-30deg] select-none">
+        LIPS
+      </div>
+      <div className="absolute bottom-[10%] left-[5%] text-white/3 text-[60px] font-black tracking-[0.3em] rotate-[-30deg] select-none">
+        LIPS
+      </div>
+    </div>
+  );
+}
+
+// ─── Gold strip ───────────────────────────────────────────────────
+function GoldStrip() {
+  return (
+    <div className="h-[3px] bg-gradient-to-r from-lips-gold/40 via-[#FFF2D8] to-lips-gold/40 shadow-[0_2px_15px_rgba(201,150,42,0.4)] relative z-10" />
+  );
+}
+
+// ─── 3D Tilt Card Wrapper ─────────────────────────────────────────
+function TiltCard({ children }: { children: React.ReactNode }) {
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const rotateX = ((y - centerY) / centerY) * -8;
+    const rotateY = ((x - centerX) / centerX) * 8;
+    cardRef.current.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    if (!cardRef.current) return;
+    cardRef.current.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+  }, []);
+
+  return (
+    <div
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className="transition-transform duration-200 ease-out"
+      style={{ transformStyle: 'preserve-3d' }}
+    >
+      {children}
+    </div>
+  );
+}
+
+// ─── Membership Card Component ────────────────────────────────────
 function MembershipCard({ flipped, onFlip }: { flipped: boolean; onFlip: () => void }) {
   const { p } = useLanguage();
+
+  // Données d'aperçu réalistes mais clairement identifiées comme démo
+  const previewMember = {
+    prenom: 'Mamadou',
+    nom: 'Sy',
+    role: 'Imam',
+    region: { nom: 'Dakar' },
+    matricule: 'LIPS-0042',
+    photo: null,
+    carteMembre: {
+      dateEmission: '2025-03-15',
+      dateExpiration: '2026-03-14',
+    },
+  };
+
+  const verifyUrl = `https://lips.sn/verifier/${previewMember.matricule}`;
 
   return (
     <div className="perspective-[1500px] w-full max-w-[500px] mx-auto px-2 sm:px-0">
@@ -71,147 +155,202 @@ function MembershipCard({ flipped, onFlip }: { flipped: boolean; onFlip: () => v
       >
         {/* ===== FRONT FACE ===== */}
         <div
-          className="w-full aspect-[1.586/1] rounded-3xl overflow-hidden shadow-2xl shadow-[#0A2E17]/40 ring-1 ring-white/10"
+          className="w-full aspect-[1.586/1] rounded-2xl overflow-hidden shadow-2xl shadow-[#0A2E17]/40 ring-1 ring-white/10 group"
           style={{ backfaceVisibility: 'hidden' }}
         >
-          <div className="relative w-full h-full bg-[#0D3B1F] flex flex-col overflow-hidden">
-            {/* Background elements */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-lips-gold/20 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2" />
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-lips-emerald/20 rounded-full blur-[80px] translate-y-1/2 -translate-x-1/2" />
-            <div className="absolute inset-0 islamic-pattern opacity-[0.05]" />
-            <div className="absolute inset-0 bg-[url('/noise.png')] opacity-20 mix-blend-overlay" />
+          <div className="relative w-full h-full bg-gradient-to-br from-[#0A2E17] via-[#0D3B1F] to-[#061e0e]">
+            {/* Decorative orbs */}
+            <div className="absolute -top-20 -right-20 w-72 h-72 bg-lips-gold/15 rounded-full blur-[100px]" />
+            <div className="absolute -bottom-20 -left-20 w-72 h-72 bg-emerald-500/10 rounded-full blur-[100px]" />
+            <div className="absolute top-1/3 right-1/4 w-32 h-32 bg-lips-gold/10 rounded-full blur-[60px]" />
 
-            {/* Top decorative strip */}
-            <div className="h-1.5 bg-gradient-to-r from-lips-gold via-[#FFF2D8] to-lips-gold shadow-[0_2px_10px_rgba(201,150,42,0.5)] z-10" />
+            {/* Islamic pattern */}
+            <div className="absolute inset-0 islamic-pattern opacity-[0.08] z-[1]" />
+            <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.08] mix-blend-overlay z-[1]" />
+
+            {/* Watermark */}
+            <WatermarkOverlay />
+
+            {/* Shine effect */}
+            <ShineOverlay />
+
+            {/* Top gold strip */}
+            <GoldStrip />
 
             {/* Card header */}
-            <div className="flex items-center justify-between px-6 pt-5 pb-3 relative z-10">
+            <div className="flex items-center justify-between px-5 pt-4 pb-2 relative z-10">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 shadow-inner p-1">
+                <div className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 shadow-inner p-1">
                   <img src="/logo.png" alt="LIPS" className="w-full h-full object-contain" />
                 </div>
                 <div>
-                  <div className="text-white font-bold text-[11px] sm:text-[13px] leading-tight tracking-wide drop-shadow-md">
+                  <div className="text-white font-bold text-[11px] leading-tight tracking-wide drop-shadow-md">
                     {p.carteMembre.orgNameLine1}
                   </div>
-                  <div className="text-lips-gold text-[9px] sm:text-[10px] leading-tight font-bold uppercase tracking-widest mt-0.5">
+                  <div className="text-lips-gold text-[9px] leading-tight font-bold uppercase tracking-widest mt-0.5">
                     {p.carteMembre.orgNameLine2}
                   </div>
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-white text-[10px] sm:text-[12px] font-black tracking-widest uppercase">
+                <div className="text-white text-[11px] font-black tracking-[0.15em] uppercase">
                   {p.carteMembre.cardTitle}
                 </div>
-                <div className="text-white/50 text-[8px] sm:text-[9px] uppercase tracking-wider font-semibold">
+                <div className="text-white/40 text-[8px] uppercase tracking-wider font-semibold">
                   {p.carteMembre.nationalLabel}
                 </div>
               </div>
             </div>
 
-            {/* Main content area */}
-            <div className="flex-1 flex items-center px-6 relative z-10">
-              <div className="flex items-center gap-4 sm:gap-6 w-full bg-black/10 rounded-2xl p-3 border border-white/5 backdrop-blur-sm">
+            {/* Main content */}
+            <div className="flex-1 flex items-center px-5 relative z-10">
+              <div className="flex items-center gap-5 w-full bg-black/20 rounded-xl p-3 border border-white/10 backdrop-blur-sm shadow-inner">
                 {/* Photo */}
-                <div className="w-20 h-24 sm:w-24 sm:h-28 rounded-xl bg-white/5 border border-white/20 flex flex-col items-center justify-center shrink-0 shadow-inner overflow-hidden relative">
-                  <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/40 z-10" />
-                  <div className="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center relative z-20 mb-1">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1" opacity="0.6">
-                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                      <circle cx="12" cy="7" r="4" />
-                    </svg>
+                <div className="w-[76px] h-[92px] rounded-xl overflow-hidden shrink-0 border-2 border-lips-gold/30 shadow-lg shadow-black/30 relative">
+                  <div className="w-full h-full bg-gradient-to-b from-white/10 to-black/40 flex flex-col items-center justify-center">
+                    <div className="w-12 h-12 rounded-full bg-lips-gold/20 flex items-center justify-center border-2 border-white/20">
+                      <span className="text-lips-gold text-lg font-bold">
+                        {previewMember.prenom[0]}{previewMember.nom[0]}
+                      </span>
+                    </div>
                   </div>
-                  <div className="text-white/50 text-[9px] font-medium relative z-20 uppercase tracking-widest">{p.carteMembre.photo}</div>
+                  <div className="absolute inset-0 ring-1 ring-inset ring-white/10 rounded-xl pointer-events-none" />
                 </div>
 
-                {/* Member info */}
-                <div className="flex-1 space-y-3">
+                {/* Info */}
+                <div className="flex-1 space-y-2.5">
                   <div>
-                    <div className="text-lips-gold/70 text-[9px] sm:text-[10px] uppercase tracking-widest font-bold mb-0.5">{p.carteMembre.nameLabel}</div>
-                    <div className="text-white font-black text-lg sm:text-xl leading-none">Mamadou SY</div>
-                  </div>
-                  <div className="flex gap-6">
-                    <div>
-                      <div className="text-lips-gold/70 text-[9px] sm:text-[10px] uppercase tracking-widest font-bold mb-0.5">{p.carteMembre.roleLabel}</div>
-                      <div className="text-white font-bold text-xs sm:text-sm leading-none bg-white/10 px-2 py-1 rounded-md inline-block">IMAM</div>
-                    </div>
-                    <div>
-                      <div className="text-lips-gold/70 text-[9px] sm:text-[10px] uppercase tracking-widest font-bold mb-0.5">{p.carteMembre.regionLabel}</div>
-                      <div className="text-white font-bold text-xs sm:text-sm leading-none pt-1">Dakar</div>
+                    <div className="text-lips-gold/60 text-[8px] uppercase tracking-[0.15em] font-bold mb-0.5">{p.carteMembre.nameLabel}</div>
+                    <div className="text-white font-black text-base leading-none truncate drop-shadow-sm">
+                      {previewMember.prenom} {previewMember.nom}
                     </div>
                   </div>
+                  <div className="flex gap-4">
+                    <div>
+                      <div className="text-lips-gold/60 text-[8px] uppercase tracking-[0.15em] font-bold mb-0.5">{p.carteMembre.roleLabel}</div>
+                      <div className="text-white font-bold text-[11px] leading-none bg-white/10 px-2 py-1 rounded-md inline-block border border-white/5">
+                        {previewMember.role}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-lips-gold/60 text-[8px] uppercase tracking-[0.15em] font-bold mb-0.5">{p.carteMembre.regionLabel}</div>
+                      <div className="text-white font-bold text-[11px] leading-none pt-1">
+                        {previewMember.region.nom}
+                      </div>
+                    </div>
+                  </div>
                   <div>
-                    <div className="text-lips-gold/70 text-[9px] sm:text-[10px] uppercase tracking-widest font-bold mb-0.5">{p.carteMembre.matriculeLabel}</div>
-                    <div className="text-lips-gold font-mono font-black text-sm sm:text-base tracking-widest drop-shadow-[0_0_8px_rgba(201,150,42,0.5)]">
-                      LIPS-0001
+                    <div className="text-lips-gold/60 text-[8px] uppercase tracking-[0.15em] font-bold mb-0.5">{p.carteMembre.matriculeLabel}</div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-lips-gold font-mono font-black text-sm tracking-[0.15em] drop-shadow-[0_0_10px_rgba(201,150,42,0.4)]">
+                        {previewMember.matricule}
+                      </span>
+                      <Sparkles className="h-3 w-3 text-lips-gold/60" />
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Bottom strip */}
-            <div className="px-6 pb-4 pt-2 flex items-end justify-between relative z-10">
-              <div className="flex items-center gap-6">
+            {/* Bottom section */}
+            <div className="px-5 pb-3 pt-1.5 flex items-end justify-between relative z-10">
+              <div className="flex items-center gap-5">
                 <div>
-                  <div className="text-white/40 text-[9px] uppercase font-bold tracking-wider mb-0.5">{p.carteMembre.issuedLabel}</div>
-                  <div className="text-white/90 text-[11px] font-mono font-bold">01/01/2025</div>
+                  <div className="text-white/30 text-[8px] uppercase font-bold tracking-wider mb-0.5">{p.carteMembre.issuedLabel}</div>
+                  <div className="text-white/80 text-[10px] font-mono font-bold">15/03/2025</div>
                 </div>
                 <div>
-                  <div className="text-white/40 text-[9px] uppercase font-bold tracking-wider mb-0.5">{p.carteMembre.expiresLabel}</div>
-                  <div className="text-white text-[11px] font-mono font-bold">31/12/2026</div>
+                  <div className="text-white/30 text-[8px] uppercase font-bold tracking-wider mb-0.5">{p.carteMembre.expiresLabel}</div>
+                  <div className="text-white text-[10px] font-mono font-bold">14/03/2026</div>
                 </div>
               </div>
 
               {/* QR Code */}
-              <div className="bg-white p-1.5 rounded-lg shadow-lg rotate-3 hover:rotate-0 transition-transform">
-                <QrCodeSvg size={48} />
+              <div className="bg-white p-1 rounded-lg shadow-lg shadow-black/30 rotate-2 hover:rotate-0 transition-transform duration-300">
+                <QrCodeSvg size={44} seed={42} />
               </div>
             </div>
 
-            {/* Holographic strip overlay */}
-            <div className="absolute top-0 bottom-0 right-10 w-2 bg-gradient-to-b from-transparent via-white/10 to-transparent mix-blend-overlay z-20" />
+            {/* Bottom gold strip */}
+            <GoldStrip />
+
+            {/* Preview badge */}
+            <div className="absolute top-3 right-3 z-40">
+              <Badge className="bg-lips-gold/80 text-[#0A2E17] text-[9px] font-bold px-2 py-0.5 rounded-full border border-lips-gold/50 shadow-lg backdrop-blur-sm">
+                APERÇU
+              </Badge>
+            </div>
           </div>
         </div>
 
         {/* ===== BACK FACE ===== */}
         <div
-          className="absolute inset-0 w-full aspect-[1.586/1] rounded-3xl overflow-hidden shadow-2xl shadow-[#0A2E17]/40 ring-1 ring-white/10"
+          className="absolute inset-0 w-full aspect-[1.586/1] rounded-2xl overflow-hidden shadow-2xl shadow-[#0A2E17]/40 ring-1 ring-white/10 group"
           style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
         >
-          <div className="relative w-full h-full bg-[#05180C] flex flex-col items-center justify-center p-8">
-            <div className="absolute inset-0 bg-[url('/noise.png')] opacity-20 mix-blend-overlay" />
-            <div className="absolute inset-0 islamic-pattern opacity-[0.03]" />
+          <div className="relative w-full h-full bg-gradient-to-br from-[#061e0e] via-[#0A2E17] to-[#05180C]">
+            <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.06] mix-blend-overlay" />
+            <div className="absolute inset-0 islamic-pattern opacity-[0.05]" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-lips-gold/8 rounded-full blur-[100px]" />
 
-            <div className="relative z-10 flex flex-col items-center w-full h-full justify-between">
-              <p className="font-arabic text-lips-gold text-2xl drop-shadow-md">
-                بِالصَّبْرِ وَالْيَقِينِ
-              </p>
+            {/* Watermark */}
+            <WatermarkOverlay />
 
-              <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-4" />
+            {/* Shine */}
+            <ShineOverlay />
 
-              <div className="w-full bg-white/5 backdrop-blur-md rounded-xl p-4 border border-white/10 text-center">
-                <div className="text-[11px] text-white/50 uppercase tracking-widest font-bold mb-2">
-                  {p.carteMembre.verifyText}
+            {/* Top gold strip */}
+            <GoldStrip />
+
+            <div className="relative z-10 flex flex-col items-center justify-center px-6 h-full">
+              <div className="flex-1 flex flex-col justify-center items-center w-full gap-2">
+                {/* Arabic calligraphy */}
+                <div className="text-center">
+                  <p className="font-arabic text-lips-gold text-2xl drop-shadow-md leading-relaxed">
+                    بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
+                  </p>
+                  <p className="font-arabic text-lips-gold/70 text-lg mt-1 drop-shadow-md">
+                    بِالصَّبْرِ وَالْيَقِينِ
+                  </p>
                 </div>
-                <div className="text-white font-mono font-bold text-xs bg-black/30 py-2 px-3 rounded-lg border border-white/5 inline-block">
-                  https://lips.sn/verifier/LIPS-0001
+
+                <div className="w-3/4 h-px bg-gradient-to-r from-transparent via-lips-gold/30 to-transparent my-1" />
+
+                {/* Verification section */}
+                <div className="w-full bg-white/5 backdrop-blur-md rounded-xl p-3 border border-white/10 text-center">
+                  <div className="text-[10px] text-white/50 uppercase tracking-[0.15em] font-bold mb-1.5">
+                    {p.carteMembre.verifyText}
+                  </div>
+                  <div className="text-white font-mono font-bold text-[10px] bg-black/40 py-1.5 px-3 rounded-lg border border-white/5 inline-block break-all">
+                    {verifyUrl}
+                  </div>
+                </div>
+
+                <div className="w-3/4 h-px bg-gradient-to-r from-transparent via-lips-gold/30 to-transparent my-1" />
+
+                {/* Magnetic strip simulation */}
+                <div className="w-full h-6 rounded bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800 flex items-center justify-center border border-gray-600/30">
+                  <div className="w-full h-[2px] bg-gradient-to-r from-transparent via-gray-400/20 to-transparent" />
+                </div>
+
+                {/* Contact */}
+                <div className="text-center mt-1">
+                  <div className="flex items-center justify-center gap-3 text-white/50 text-[10px] font-medium tracking-wide">
+                    <span>contact@lips.sn</span>
+                    <span className="text-lips-gold/40">•</span>
+                    <span>www.lips.sn</span>
+                  </div>
                 </div>
               </div>
 
-              <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-4" />
-
-              <div className="text-center">
-                <div className="flex items-center justify-center gap-4 text-white/40 text-[10px] font-medium tracking-wide">
-                  <span>+221 33 800 00 00</span>
-                  <span>•</span>
-                  <span>contact@lips.sn</span>
-                </div>
-                <div className="text-white/20 text-[9px] mt-4 max-w-[80%] mx-auto leading-relaxed">
-                  {p.carteMembre.legalNotice}
-                </div>
+              {/* Legal notice */}
+              <div className="pb-2 text-white/25 text-[8px] max-w-[85%] mx-auto text-center leading-relaxed">
+                {p.carteMembre.legalNotice}
               </div>
             </div>
+
+            {/* Bottom gold strip */}
+            <GoldStrip />
           </div>
         </div>
       </motion.div>
@@ -230,7 +369,7 @@ function MembershipCard({ flipped, onFlip }: { flipped: boolean; onFlip: () => v
   );
 }
 
-// --- Main Section ---
+// ─── Main Section ─────────────────────────────────────────────────
 export default function CarteMembreSection() {
   const { p } = useLanguage();
   const [flipped, setFlipped] = useState(false);
@@ -322,7 +461,9 @@ export default function CarteMembreSection() {
             {/* Glow behind card */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-3/4 bg-lips-gold/20 rounded-full blur-[100px] pointer-events-none" />
             
-            <MembershipCard flipped={flipped} onFlip={() => setFlipped(!flipped)} />
+            <TiltCard>
+              <MembershipCard flipped={flipped} onFlip={() => setFlipped(!flipped)} />
+            </TiltCard>
           </motion.div>
         </div>
       </div>
