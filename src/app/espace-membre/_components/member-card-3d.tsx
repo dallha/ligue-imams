@@ -1,64 +1,36 @@
 'use client'
 
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
-import { RotateCw, Download, Loader2, Sparkles } from 'lucide-react'
+import { RotateCw, Download, Loader2, Sparkles, ShieldCheck } from 'lucide-react'
 import { useLanguage } from '@/lib/lips/i18n/language-context'
 import html2canvas from 'html2canvas'
 import jsPDF from 'jspdf'
+import QRCode from 'qrcode'
 
-// ─── QR Code SVG Generator (simple matrix pattern) ───────────────
+// ─── QR Code SVG Generator (vrai QR code via librairie) ───────────
 function QrCodeSvg({ size = 80, url }: { size?: number; url?: string }) {
-  const modules = 21
-  const cellSize = size / modules
-  const pattern: boolean[][] = []
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const [dataUrl, setDataUrl] = useState<string | null>(null)
 
-  // Use a deterministic seed based on the URL
-  const seed = url ? url.split('').reduce((a, c) => a + c.charCodeAt(0), 0) : 42
+  useEffect(() => {
+    if (!url) return
+    QRCode.toDataURL(url, {
+      width: size * 2,
+      margin: 1,
+      color: { dark: '#0D3B1F', light: '#FFFFFF' },
+    }).then(setDataUrl).catch(console.error)
+  }, [url, size])
 
-  for (let r = 0; r < modules; r++) {
-    pattern[r] = []
-    for (let c = 0; c < modules; c++) {
-      const isFinderTL = r < 7 && c < 7
-      const isFinderTR = r < 7 && c >= modules - 7
-      const isFinderBL = r >= modules - 7 && c < 7
-
-      if (isFinderTL || isFinderTR || isFinderBL) {
-        const lr = isFinderTR ? r : isFinderBL ? r - (modules - 7) : r
-        const lc = isFinderTR ? c - (modules - 7) : isFinderBL ? c : c
-        if (lr === 0 || lr === 6 || lc === 0 || lc === 6) {
-          pattern[r][c] = true
-        } else if (lr >= 2 && lr <= 4 && lc >= 2 && lc <= 4) {
-          pattern[r][c] = true
-        } else {
-          pattern[r][c] = false
-        }
-      } else {
-        pattern[r][c] = ((r * seed + c * 7 + r * c) % 3) === 0
-      }
-    }
+  if (dataUrl) {
+    return <img src={dataUrl} alt="QR Code" width={size} height={size} className="rounded-sm" />
   }
 
+  // Fallback canvas
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-      <rect width={size} height={size} fill="white" rx={2} />
-      {pattern.map((row, r) =>
-        row.map((cell, c) =>
-          cell ? (
-            <rect
-              key={`${r}-${c}`}
-              x={c * cellSize}
-              y={r * cellSize}
-              width={cellSize}
-              height={cellSize}
-              fill="#0D3B1F"
-            />
-          ) : null
-        )
-      )}
-    </svg>
+    <canvas ref={canvasRef} width={size} height={size} className="rounded-sm" />
   )
 }
 
@@ -110,7 +82,17 @@ function GoldStrip() {
   )
 }
 
-// ─── Card Front ───────────────────────────────────────────────────
+// ─── Islamic ornamental corner ────────────────────────────────────
+function IslamicCorner({ className = '' }: { className?: string }) {
+  return (
+    <svg className={`absolute w-16 h-16 ${className}`} viewBox="0 0 64 64" fill="none">
+      <path d="M0 0h64v4H4v60H0V0z" fill="currentColor" className="text-lips-gold/20" />
+      <path d="M0 0l20 20M0 0l20-20M0 0l-20 20M0 0l-20-20" stroke="currentColor" strokeWidth="0.5" className="text-lips-gold/15" transform="translate(32,32)" />
+    </svg>
+  )
+}
+
+// ─── Card Front (Recto) ───────────────────────────────────────────
 function CardFrontDesign({ member, p, isExport = false }: { member: any; p: any; isExport?: boolean }) {
   const card = member.carteMembre
   const exportScaleStyle = isExport ? { transform: 'scale(1)', transformOrigin: 'top left', width: '500px', height: '315px' } : {}
@@ -134,6 +116,12 @@ function CardFrontDesign({ member, p, isExport = false }: { member: any; p: any;
 
       {/* Noise texture */}
       <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.08] mix-blend-overlay z-[1]" />
+
+      {/* Islamic ornamental corners */}
+      <IslamicCorner className="top-0 left-0 z-[2]" />
+      <IslamicCorner className="top-0 right-0 z-[2] rotate-90" />
+      <IslamicCorner className="bottom-0 left-0 z-[2] -rotate-90" />
+      <IslamicCorner className="bottom-0 right-0 z-[2] rotate-180" />
 
       {/* Watermark */}
       <WatermarkOverlay />
@@ -174,21 +162,26 @@ function CardFrontDesign({ member, p, isExport = false }: { member: any; p: any;
         {/* Main content */}
         <div className="flex-1 flex items-center px-5">
           <div className="flex items-center gap-5 w-full bg-black/20 rounded-xl p-3 border border-white/10 backdrop-blur-sm shadow-inner">
-            {/* Photo */}
-            <div className="w-[76px] h-[92px] rounded-xl overflow-hidden shrink-0 border-2 border-lips-gold/30 shadow-lg shadow-black/30 relative">
-              {member.photo ? (
-                <img src={member.photo} alt="Photo" className="w-full h-full object-cover" crossOrigin="anonymous" />
-              ) : (
-                <div className="w-full h-full bg-gradient-to-b from-white/10 to-black/40 flex flex-col items-center justify-center">
-                  <Avatar className="w-12 h-12 rounded-full border-2 border-white/20">
-                    <AvatarFallback className="bg-lips-gold/20 text-lips-gold text-lg font-bold">
-                      {member.prenom[0]}{member.nom[0]}
-                    </AvatarFallback>
-                  </Avatar>
-                </div>
-              )}
-              {/* Photo border accent */}
-              <div className="absolute inset-0 ring-1 ring-inset ring-white/10 rounded-xl pointer-events-none" />
+            {/* Photo avec cadre islamique */}
+            <div className="relative shrink-0">
+              <div className="w-[76px] h-[92px] rounded-xl overflow-hidden border-2 border-lips-gold/40 shadow-lg shadow-black/30 relative">
+                {member.photo ? (
+                  <img src={member.photo} alt="Photo" className="w-full h-full object-cover" crossOrigin="anonymous" />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-b from-white/10 to-black/40 flex flex-col items-center justify-center">
+                    <Avatar className="w-12 h-12 rounded-full border-2 border-white/20">
+                      <AvatarFallback className="bg-lips-gold/20 text-lips-gold text-lg font-bold">
+                        {member.prenom[0]}{member.nom[0]}
+                      </AvatarFallback>
+                    </Avatar>
+                  </div>
+                )}
+                <div className="absolute inset-0 ring-1 ring-inset ring-white/10 rounded-xl pointer-events-none" />
+              </div>
+              {/* Sceau de validation */}
+              <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-lips-gold rounded-full flex items-center justify-center shadow-lg border border-[#0A2E17]">
+                <ShieldCheck className="w-3 h-3 text-[#0A2E17]" />
+              </div>
             </div>
 
             {/* Info */}
@@ -243,7 +236,7 @@ function CardFrontDesign({ member, p, isExport = false }: { member: any; p: any;
             </div>
           </div>
 
-          {/* QR Code */}
+          {/* QR Code - vrai QR scannable */}
           <div className="bg-white p-1 rounded-lg shadow-lg shadow-black/30 rotate-2 hover:rotate-0 transition-transform duration-300">
             <QrCodeSvg size={44} url={verifyUrl} />
           </div>
@@ -256,7 +249,7 @@ function CardFrontDesign({ member, p, isExport = false }: { member: any; p: any;
   )
 }
 
-// ─── Card Back ────────────────────────────────────────────────────
+// ─── Card Back (Verso) ────────────────────────────────────────────
 function CardBackDesign({ member, p, isExport = false }: { member: any; p: any; isExport?: boolean }) {
   const exportScaleStyle = isExport ? { transform: 'scale(1)', transformOrigin: 'top left', width: '500px', height: '315px' } : {}
   const verifyUrl = `https://lips.sn/verifier/${member.matricule}`
@@ -264,7 +257,7 @@ function CardBackDesign({ member, p, isExport = false }: { member: any; p: any; 
   return (
     <div
       className="relative w-full aspect-[1.586/1] rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10 group"
-      style={{ ...exportScaleStyle, backfaceVisibility: 'hidden', transform: isExport ? 'none' : 'rotateY(180deg)' }}
+      style={{ ...exportScaleStyle, backfaceVisibility: 'hidden' }}
     >
       {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#061e0e] via-[#0A2E17] to-[#05180C]" />
@@ -273,6 +266,12 @@ function CardBackDesign({ member, p, isExport = false }: { member: any; p: any; 
 
       {/* Decorative orbs */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-lips-gold/8 rounded-full blur-[100px]" />
+
+      {/* Islamic ornamental corners */}
+      <IslamicCorner className="top-0 left-0 z-[2]" />
+      <IslamicCorner className="top-0 right-0 z-[2] rotate-90" />
+      <IslamicCorner className="bottom-0 left-0 z-[2] -rotate-90" />
+      <IslamicCorner className="bottom-0 right-0 z-[2] rotate-180" />
 
       {/* Watermark */}
       <WatermarkOverlay />
@@ -442,13 +441,15 @@ export function MemberCard3D({ member }: { member: any }) {
           className="relative w-full"
           style={{ transformStyle: 'preserve-3d' }}
         >
-          {/* FRONT */}
-          <TiltCard>
-            <CardFrontDesign member={member} p={p} />
-          </TiltCard>
+          {/* FRONT - Recto (toujours visible par défaut) */}
+          <div style={{ backfaceVisibility: 'hidden' }}>
+            <TiltCard>
+              <CardFrontDesign member={member} p={p} />
+            </TiltCard>
+          </div>
 
-          {/* BACK */}
-          <div className="absolute inset-0">
+          {/* BACK - Verso (caché derrière, tourné à 180°) */}
+          <div className="absolute inset-0" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
             <TiltCard>
               <CardBackDesign member={member} p={p} />
             </TiltCard>

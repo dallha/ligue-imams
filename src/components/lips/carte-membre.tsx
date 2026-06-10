@@ -1,59 +1,32 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { Shield, CheckCircle2, Printer, Download, RotateCw, Sparkles } from 'lucide-react';
+import { Shield, CheckCircle2, Printer, Download, RotateCw, Sparkles, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useLanguage } from '@/lib/lips/i18n/language-context';
+import QRCode from 'qrcode';
 
-// ─── QR Code SVG Generator ────────────────────────────────────────
-function QrCodeSvg({ size = 80, seed = 42 }: { size?: number; seed?: number }) {
-  const modules = 21;
-  const cellSize = size / modules;
-  const pattern: boolean[][] = [];
+// ─── QR Code SVG Generator (vrai QR code via librairie) ───────────
+function QrCodeSvg({ size = 80, url }: { size?: number; url?: string }) {
+  const [dataUrl, setDataUrl] = useState<string | null>(null);
 
-  for (let r = 0; r < modules; r++) {
-    pattern[r] = [];
-    for (let c = 0; c < modules; c++) {
-      const isFinderTL = r < 7 && c < 7;
-      const isFinderTR = r < 7 && c >= modules - 7;
-      const isFinderBL = r >= modules - 7 && c < 7;
+  useEffect(() => {
+    if (!url) return;
+    QRCode.toDataURL(url, {
+      width: size * 2,
+      margin: 1,
+      color: { dark: '#0D3B1F', light: '#FFFFFF' },
+    }).then(setDataUrl).catch(console.error);
+  }, [url, size]);
 
-      if (isFinderTL || isFinderTR || isFinderBL) {
-        const lr = isFinderTR ? r : isFinderBL ? r - (modules - 7) : r;
-        const lc = isFinderTR ? c - (modules - 7) : isFinderBL ? c : c;
-        if (lr === 0 || lr === 6 || lc === 0 || lc === 6) {
-          pattern[r][c] = true;
-        } else if (lr >= 2 && lr <= 4 && lc >= 2 && lc <= 4) {
-          pattern[r][c] = true;
-        } else {
-          pattern[r][c] = false;
-        }
-      } else {
-        pattern[r][c] = ((r * seed + c * 7 + r * c) % 3) === 0;
-      }
-    }
+  if (dataUrl) {
+    return <img src={dataUrl} alt="QR Code" width={size} height={size} className="rounded-sm" />;
   }
 
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-      <rect width={size} height={size} fill="white" rx={2} />
-      {pattern.map((row, r) =>
-        row.map((cell, c) =>
-          cell ? (
-            <rect
-              key={`${r}-${c}`}
-              x={c * cellSize}
-              y={r * cellSize}
-              width={cellSize}
-              height={cellSize}
-              fill="#0D3B1F"
-            />
-          ) : null
-        )
-      )}
-    </svg>
+    <canvas width={size} height={size} className="rounded-sm" />
   );
 }
 
@@ -88,6 +61,16 @@ function WatermarkOverlay() {
 function GoldStrip() {
   return (
     <div className="h-[3px] bg-gradient-to-r from-lips-gold/40 via-[#FFF2D8] to-lips-gold/40 shadow-[0_2px_15px_rgba(201,150,42,0.4)] relative z-10" />
+  );
+}
+
+// ─── Islamic ornamental corner ────────────────────────────────────
+function IslamicCorner({ className = '' }: { className?: string }) {
+  return (
+    <svg className={`absolute w-16 h-16 ${className}`} viewBox="0 0 64 64" fill="none">
+      <path d="M0 0h64v4H4v60H0V0z" fill="currentColor" className="text-lips-gold/20" />
+      <path d="M0 0l20 20M0 0l20-20M0 0l-20 20M0 0l-20-20" stroke="currentColor" strokeWidth="0.5" className="text-lips-gold/15" transform="translate(32,32)" />
+    </svg>
   );
 }
 
@@ -153,7 +136,7 @@ function MembershipCard({ flipped, onFlip }: { flipped: boolean; onFlip: () => v
         className="relative w-full"
         style={{ transformStyle: 'preserve-3d' }}
       >
-        {/* ===== FRONT FACE ===== */}
+        {/* ===== FRONT FACE (Recto) ===== */}
         <div
           className="w-full aspect-[1.586/1] rounded-2xl overflow-hidden shadow-2xl shadow-[#0A2E17]/40 ring-1 ring-white/10 group"
           style={{ backfaceVisibility: 'hidden' }}
@@ -167,6 +150,12 @@ function MembershipCard({ flipped, onFlip }: { flipped: boolean; onFlip: () => v
             {/* Islamic pattern */}
             <div className="absolute inset-0 islamic-pattern opacity-[0.08] z-[1]" />
             <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.08] mix-blend-overlay z-[1]" />
+
+            {/* Islamic ornamental corners */}
+            <IslamicCorner className="top-0 left-0 z-[2]" />
+            <IslamicCorner className="top-0 right-0 z-[2] rotate-90" />
+            <IslamicCorner className="bottom-0 left-0 z-[2] -rotate-90" />
+            <IslamicCorner className="bottom-0 right-0 z-[2] rotate-180" />
 
             {/* Watermark */}
             <WatermarkOverlay />
@@ -206,15 +195,21 @@ function MembershipCard({ flipped, onFlip }: { flipped: boolean; onFlip: () => v
             <div className="flex-1 flex items-center px-5 relative z-10">
               <div className="flex items-center gap-5 w-full bg-black/20 rounded-xl p-3 border border-white/10 backdrop-blur-sm shadow-inner">
                 {/* Photo */}
-                <div className="w-[76px] h-[92px] rounded-xl overflow-hidden shrink-0 border-2 border-lips-gold/30 shadow-lg shadow-black/30 relative">
-                  <div className="w-full h-full bg-gradient-to-b from-white/10 to-black/40 flex flex-col items-center justify-center">
-                    <div className="w-12 h-12 rounded-full bg-lips-gold/20 flex items-center justify-center border-2 border-white/20">
-                      <span className="text-lips-gold text-lg font-bold">
-                        {previewMember.prenom[0]}{previewMember.nom[0]}
-                      </span>
+                <div className="relative shrink-0">
+                  <div className="w-[76px] h-[92px] rounded-xl overflow-hidden shrink-0 border-2 border-lips-gold/30 shadow-lg shadow-black/30 relative">
+                    <div className="w-full h-full bg-gradient-to-b from-white/10 to-black/40 flex flex-col items-center justify-center">
+                      <div className="w-12 h-12 rounded-full bg-lips-gold/20 flex items-center justify-center border-2 border-white/20">
+                        <span className="text-lips-gold text-lg font-bold">
+                          {previewMember.prenom[0]}{previewMember.nom[0]}
+                        </span>
+                      </div>
                     </div>
+                    <div className="absolute inset-0 ring-1 ring-inset ring-white/10 rounded-xl pointer-events-none" />
                   </div>
-                  <div className="absolute inset-0 ring-1 ring-inset ring-white/10 rounded-xl pointer-events-none" />
+                  {/* Sceau de validation */}
+                  <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-lips-gold rounded-full flex items-center justify-center shadow-lg border border-[#0A2E17]">
+                    <ShieldCheck className="w-3 h-3 text-[#0A2E17]" />
+                  </div>
                 </div>
 
                 {/* Info */}
@@ -265,9 +260,9 @@ function MembershipCard({ flipped, onFlip }: { flipped: boolean; onFlip: () => v
                 </div>
               </div>
 
-              {/* QR Code */}
+              {/* QR Code - vrai QR scannable */}
               <div className="bg-white p-1 rounded-lg shadow-lg shadow-black/30 rotate-2 hover:rotate-0 transition-transform duration-300">
-                <QrCodeSvg size={44} seed={42} />
+                <QrCodeSvg size={44} url={verifyUrl} />
               </div>
             </div>
 
@@ -283,7 +278,7 @@ function MembershipCard({ flipped, onFlip }: { flipped: boolean; onFlip: () => v
           </div>
         </div>
 
-        {/* ===== BACK FACE ===== */}
+        {/* ===== BACK FACE (Verso) ===== */}
         <div
           className="absolute inset-0 w-full aspect-[1.586/1] rounded-2xl overflow-hidden shadow-2xl shadow-[#0A2E17]/40 ring-1 ring-white/10 group"
           style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
@@ -292,6 +287,12 @@ function MembershipCard({ flipped, onFlip }: { flipped: boolean; onFlip: () => v
             <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.06] mix-blend-overlay" />
             <div className="absolute inset-0 islamic-pattern opacity-[0.05]" />
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-lips-gold/8 rounded-full blur-[100px]" />
+
+            {/* Islamic ornamental corners */}
+            <IslamicCorner className="top-0 left-0 z-[2]" />
+            <IslamicCorner className="top-0 right-0 z-[2] rotate-90" />
+            <IslamicCorner className="bottom-0 left-0 z-[2] -rotate-90" />
+            <IslamicCorner className="bottom-0 right-0 z-[2] rotate-180" />
 
             {/* Watermark */}
             <WatermarkOverlay />
