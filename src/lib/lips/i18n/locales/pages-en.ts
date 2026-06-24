@@ -54,6 +54,13 @@ export const enPages: PageTranslations = {
       social: { name: 'Social Commission', desc: 'Solidarity, mutual aid, and social integration actions' },
     },
   },
+  presidentSection: {
+    sectionTag: 'Word from the President',
+    sectionTitle: 'The National President',
+    name: 'Imam Amadou TRAORÉ',
+    role: 'National President of LIPS',
+    bio: 'Elected to lead LIPS to consolidate the institutionalization of the imamate and promote training and interfaith dialogue in Senegal.',
+  },
   carteMembre: {
     sectionTag: 'Member Card', sectionTitle: 'The National Member Card', sectionDesc: 'The national member card is a secure identification document attesting to your affiliation with the League of Imams and Preachers of Senegal.',
     orgNameLine1: 'LEAGUE OF IMAMS AND', orgNameLine2: 'PREACHERS OF SENEGAL',

@@ -3,6 +3,7 @@
 import LipsHeader from '@/components/lips/header';
 import PageBanner from '@/components/lips/page-banner';
 import MissionSection from '@/components/lips/mission';
+import PresidentSection from '@/components/lips/president';
 import GouvernanceSection from '@/components/lips/gouvernance';
 import CarteMembreSection from '@/components/lips/carte-membre';
 import FAQSection from '@/components/lips/faq';
@@ -23,6 +24,7 @@ export default function AProposPage() {
           description={p.pages.about.description}
         />
         <MissionSection />
+        <PresidentSection />
         <GouvernanceSection />
         <CarteMembreSection />
         <FAQSection />

@@ -50,9 +50,16 @@ export const frPages: PageTranslations = {
     commissions: {
       fatwa: { name: 'Commission Fatwa', desc: 'Émission d\'avis juridiques islamiques sur les questions contemporaines' },
       formation: { name: 'Commission Formation', desc: 'Conception et déploiement des programmes de formation continue' },
-      communication: { name: 'Commission Communication', desc: 'Gestion de la communication institutionnelle et des relations publiques' },
-      social: { name: 'Commission Sociale', desc: "Actions de solidarité, d'entraide et d'insertion sociale" },
+      communication: { name: 'Commission Communication', desc: 'Gestion de la communication institutionnelle et relations publiques' },
+      social: { name: 'Commission Affaires Sociales', desc: 'Actions de solidarité, entraide et inclusion sociale' },
     },
+  },
+  presidentSection: {
+    sectionTag: 'Mot du Président',
+    sectionTitle: 'Le Président National',
+    name: 'Imam Amadou TRAORÉ',
+    role: 'Président National de la LIPS',
+    bio: 'Élu à la tête de la LIPS pour consolider l\'institutionnalisation de l\'imamat et promouvoir la formation et le dialogue interreligieux au Sénégal.',
   },
   carteMembre: {
     sectionTag: 'Carte Membre', sectionTitle: 'La Carte Membre Nationale', sectionDesc: "La carte membre nationale est un document d'identification sécurisé qui atteste de votre affiliation à la Ligue des Imams et Prédicateurs du Sénégal.",

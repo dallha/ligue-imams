@@ -63,6 +63,15 @@ export interface PageTranslations {
     };
   };
 
+  // ─── President Section Component ─────────────────────────────
+  presidentSection: {
+    sectionTag: string;
+    sectionTitle: string;
+    name: string;
+    role: string;
+    bio: string;
+  };
+
   // ─── Carte Membre Component ────────────────────────────────
   carteMembre: {
     sectionTag: string; sectionTitle: string; sectionDesc: string;
