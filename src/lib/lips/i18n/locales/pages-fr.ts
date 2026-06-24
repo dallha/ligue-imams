@@ -57,7 +57,7 @@ export const frPages: PageTranslations = {
   presidentSection: {
     sectionTag: 'Mot du Président',
     sectionTitle: 'Le Président National',
-    name: 'Imam Amadou TRAORÉ',
+    name: 'Imam Ahmed Dame NDIAYE',
     role: 'Président National de la LIPS',
     bio: 'Élu à la tête de la LIPS pour consolider l\'institutionnalisation de l\'imamat et promouvoir la formation et le dialogue interreligieux au Sénégal.',
   },

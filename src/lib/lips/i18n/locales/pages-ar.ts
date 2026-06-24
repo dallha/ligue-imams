@@ -57,7 +57,7 @@ export const arPages: PageTranslations = {
   presidentSection: {
     sectionTag: 'كلمة الرئيس',
     sectionTitle: 'الرئيس الوطني',
-    name: 'الإمام أمادو تراوري',
+    name: 'الإمام أحمد دام نجاي',
     role: 'الرئيس الوطني للرابطة',
     bio: 'انتخب على رأس الرابطة لتعزيز مأسسة الإمامة وتطوير التكوين والحوار بين الأديان في السنغال.',
   },

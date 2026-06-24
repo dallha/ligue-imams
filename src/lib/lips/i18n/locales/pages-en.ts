@@ -57,7 +57,7 @@ export const enPages: PageTranslations = {
   presidentSection: {
     sectionTag: 'Word from the President',
     sectionTitle: 'The National President',
-    name: 'Imam Amadou TRAORÉ',
+    name: 'Imam Ahmed Dame NDIAYE',
     role: 'National President of LIPS',
     bio: 'Elected to lead LIPS to consolidate the institutionalization of the imamate and promote training and interfaith dialogue in Senegal.',
   },
