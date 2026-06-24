@@ -4,7 +4,7 @@ import { useState, useRef, useCallback, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
-import { RotateCw, Download, Loader2, Sparkles, ShieldCheck } from 'lucide-react'
+import { RotateCw, Download, Loader2, Sparkles, ShieldCheck, Mail, Phone } from 'lucide-react'
 import { useLanguage } from '@/lib/lips/i18n/language-context'
 import html2canvas from 'html2canvas'
 import jsPDF from 'jspdf'
@@ -250,7 +250,7 @@ function CardFrontDesign({ member, p, isExport = false }: { member: any; p: any;
 }
 
 // ─── Card Back (Verso) ────────────────────────────────────────────
-function CardBackDesign({ member, p, isExport = false }: { member: any; p: any; isExport?: boolean }) {
+function CardBackDesign({ member, p, contactInfo, isExport = false }: { member: any; p: any; contactInfo: any; isExport?: boolean }) {
   const exportScaleStyle = isExport ? { transform: 'scale(1)', transformOrigin: 'top left', width: '500px', height: '315px' } : {}
   const verifyUrl = `https://lips.sn/verifier/${member.matricule}`
 
@@ -316,9 +316,9 @@ function CardBackDesign({ member, p, isExport = false }: { member: any; p: any; 
           {/* Contact */}
           <div className="text-center mt-1">
             <div className="flex items-center justify-center gap-3 text-white/50 text-[10px] font-medium tracking-wide">
-              <span>contact@lips.sn</span>
+              <div className="flex items-center gap-1"><Mail className="w-3 h-3"/> {contactInfo.email}</div>
               <span className="text-lips-gold/40">•</span>
-              <span>www.lips.sn</span>
+              <div className="flex items-center gap-1"><Phone className="w-3 h-3"/> {contactInfo.phone}</div>
             </div>
           </div>
         </div>
@@ -374,7 +374,25 @@ export function MemberCard3D({ member }: { member: any }) {
   const { p } = useLanguage()
   const [flipped, setFlipped] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
+  const [contactInfo, setContactInfo] = useState({
+    email: 'contact@lips.sn',
+    phone: '+221 33 800 00 00'
+  });
   const exportContainerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    fetch('/api/public/config?keys=contact_email,contact_phone')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.data) {
+          setContactInfo({
+            email: data.data.contact_email || 'contact@lips.sn',
+            phone: data.data.contact_phone || '+221 33 800 00 00'
+          });
+        }
+      })
+      .catch(console.error);
+  }, []);
 
   const handleExportPDF = async () => {
     if (!exportContainerRef.current) return
@@ -451,7 +469,7 @@ export function MemberCard3D({ member }: { member: any }) {
           {/* BACK - Verso (caché derrière, tourné à 180°) */}
           <div className="absolute inset-0" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
             <TiltCard>
-              <CardBackDesign member={member} p={p} />
+              <CardBackDesign member={member} p={p} contactInfo={contactInfo} />
             </TiltCard>
           </div>
         </motion.div>
@@ -480,7 +498,7 @@ export function MemberCard3D({ member }: { member: any }) {
       <div className="fixed top-[-10000px] left-[-10000px] pointer-events-none">
         <div ref={exportContainerRef} className="flex flex-col gap-8 p-12 bg-white" style={{ width: '600px' }}>
           <CardFrontDesign member={member} p={p} isExport={true} />
-          <CardBackDesign member={member} p={p} isExport={true} />
+          <CardBackDesign member={member} p={p} contactInfo={contactInfo} isExport={true} />
         </div>
       </div>
     </div>

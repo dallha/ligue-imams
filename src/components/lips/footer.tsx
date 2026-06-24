@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Phone,
   Mail,
@@ -19,6 +19,24 @@ import { cn } from '@/lib/utils';
 export default function LipsFooter() {
   const { t, isRTL } = useLanguage();
   const [currentYear] = useState(() => new Date().getFullYear());
+  const [contactInfo, setContactInfo] = useState({
+    email: 'contact@lips.sn',
+    phone: '+221 33 800 00 00'
+  });
+
+  useEffect(() => {
+    fetch('/api/public/config?keys=contact_email,contact_phone')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.data) {
+          setContactInfo({
+            email: data.data.contact_email || 'contact@lips.sn',
+            phone: data.data.contact_phone || '+221 33 800 00 00'
+          });
+        }
+      })
+      .catch(console.error);
+  }, []);
 
   const QUICK_LINKS = [
     { label: t.nav.home, href: '/' },
@@ -176,13 +194,13 @@ export default function LipsFooter() {
                 <div className="w-10 h-10 rounded-full bg-white/50 dark:bg-white/5 border border-lips-green/10 dark:border-white/10 flex items-center justify-center shrink-0 group-hover:bg-lips-green/10 dark:group-hover:bg-lips-gold/20 dark:group-hover:border-lips-gold/30 transition-colors">
                   <Phone className="h-4 w-4 text-lips-green dark:text-lips-gold" />
                 </div>
-                <span className="text-sm text-lips-green-dark/70 dark:text-white/70 font-mono tracking-wide">+221 33 800 00 00</span>
+                <span className="text-sm text-lips-green-dark/70 dark:text-white/70 font-mono tracking-wide">{contactInfo.phone}</span>
               </li>
               <li className="flex items-center gap-4 group">
                 <div className="w-10 h-10 rounded-full bg-white/50 dark:bg-white/5 border border-lips-green/10 dark:border-white/10 flex items-center justify-center shrink-0 group-hover:bg-lips-green/10 dark:group-hover:bg-lips-gold/20 dark:group-hover:border-lips-gold/30 transition-colors">
                   <Mail className="h-4 w-4 text-lips-green dark:text-lips-gold" />
                 </div>
-                <span className="text-sm text-lips-green-dark/70 dark:text-white/70">contact@lips.sn</span>
+                <span className="text-sm text-lips-green-dark/70 dark:text-white/70">{contactInfo.email}</span>
               </li>
             </ul>
 

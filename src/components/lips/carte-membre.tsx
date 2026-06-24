@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { Shield, CheckCircle2, Printer, Download, RotateCw, Sparkles, ShieldCheck } from 'lucide-react';
+import { Shield, CheckCircle2, Printer, Download, RotateCw, Sparkles, ShieldCheck, Mail, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useLanguage } from '@/lib/lips/i18n/language-context';
@@ -109,10 +109,9 @@ function TiltCard({ children }: { children: React.ReactNode }) {
 }
 
 // ─── Membership Card Component ────────────────────────────────────
-function MembershipCard({ flipped, onFlip }: { flipped: boolean; onFlip: () => void }) {
+function MembershipCard({ flipped, onFlip, contactInfo }: { flipped: boolean; onFlip: () => void; contactInfo: { email: string; phone: string } }) {
   const { p } = useLanguage();
 
-  // Données d'aperçu réalistes mais clairement identifiées comme démo
   const previewMember = {
     prenom: 'Mamadou',
     nom: 'Sy',
@@ -142,31 +141,18 @@ function MembershipCard({ flipped, onFlip }: { flipped: boolean; onFlip: () => v
           style={{ backfaceVisibility: 'hidden' }}
         >
           <div className="relative w-full h-full bg-gradient-to-br from-[#0A2E17] via-[#0D3B1F] to-[#061e0e]">
-            {/* Decorative orbs */}
             <div className="absolute -top-20 -right-20 w-72 h-72 bg-lips-gold/15 rounded-full blur-[100px]" />
             <div className="absolute -bottom-20 -left-20 w-72 h-72 bg-emerald-500/10 rounded-full blur-[100px]" />
             <div className="absolute top-1/3 right-1/4 w-32 h-32 bg-lips-gold/10 rounded-full blur-[60px]" />
-
-            {/* Islamic pattern */}
             <div className="absolute inset-0 islamic-pattern opacity-[0.08] z-[1]" />
             <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.08] mix-blend-overlay z-[1]" />
-
-            {/* Islamic ornamental corners */}
             <IslamicCorner className="top-0 left-0 z-[2]" />
             <IslamicCorner className="top-0 right-0 z-[2] rotate-90" />
             <IslamicCorner className="bottom-0 left-0 z-[2] -rotate-90" />
             <IslamicCorner className="bottom-0 right-0 z-[2] rotate-180" />
-
-            {/* Watermark */}
             <WatermarkOverlay />
-
-            {/* Shine effect */}
             <ShineOverlay />
-
-            {/* Top gold strip */}
             <GoldStrip />
-
-            {/* Card header */}
             <div className="flex items-center justify-between px-5 pt-4 pb-2 relative z-10">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 shadow-inner p-1">
@@ -190,11 +176,8 @@ function MembershipCard({ flipped, onFlip }: { flipped: boolean; onFlip: () => v
                 </div>
               </div>
             </div>
-
-            {/* Main content */}
             <div className="flex-1 flex items-center px-5 relative z-10">
               <div className="flex items-center gap-5 w-full bg-black/20 rounded-xl p-3 border border-white/10 backdrop-blur-sm shadow-inner">
-                {/* Photo */}
                 <div className="relative shrink-0">
                   <div className="w-[76px] h-[92px] rounded-xl overflow-hidden shrink-0 border-2 border-lips-gold/30 shadow-lg shadow-black/30 relative">
                     <div className="w-full h-full bg-gradient-to-b from-white/10 to-black/40 flex flex-col items-center justify-center">
@@ -206,13 +189,10 @@ function MembershipCard({ flipped, onFlip }: { flipped: boolean; onFlip: () => v
                     </div>
                     <div className="absolute inset-0 ring-1 ring-inset ring-white/10 rounded-xl pointer-events-none" />
                   </div>
-                  {/* Sceau de validation */}
                   <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-lips-gold rounded-full flex items-center justify-center shadow-lg border border-[#0A2E17]">
                     <ShieldCheck className="w-3 h-3 text-[#0A2E17]" />
                   </div>
                 </div>
-
-                {/* Info */}
                 <div className="flex-1 space-y-2.5">
                   <div>
                     <div className="text-lips-gold/60 text-[8px] uppercase tracking-[0.15em] font-bold mb-0.5">{p.carteMembre.nameLabel}</div>
@@ -246,8 +226,6 @@ function MembershipCard({ flipped, onFlip }: { flipped: boolean; onFlip: () => v
                 </div>
               </div>
             </div>
-
-            {/* Bottom section */}
             <div className="px-5 pb-3 pt-1.5 flex items-end justify-between relative z-10">
               <div className="flex items-center gap-5">
                 <div>
@@ -259,17 +237,11 @@ function MembershipCard({ flipped, onFlip }: { flipped: boolean; onFlip: () => v
                   <div className="text-white text-[10px] font-mono font-bold">14/03/2026</div>
                 </div>
               </div>
-
-              {/* QR Code - vrai QR scannable */}
               <div className="bg-white p-1 rounded-lg shadow-lg shadow-black/30 rotate-2 hover:rotate-0 transition-transform duration-300">
                 <QrCodeSvg size={44} url={verifyUrl} />
               </div>
             </div>
-
-            {/* Bottom gold strip */}
             <GoldStrip />
-
-            {/* Preview badge */}
             <div className="absolute top-3 right-3 z-40">
               <Badge className="bg-lips-gold/80 text-[#0A2E17] text-[9px] font-bold px-2 py-0.5 rounded-full border border-lips-gold/50 shadow-lg backdrop-blur-sm">
                 APERÇU
@@ -287,25 +259,15 @@ function MembershipCard({ flipped, onFlip }: { flipped: boolean; onFlip: () => v
             <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.06] mix-blend-overlay" />
             <div className="absolute inset-0 islamic-pattern opacity-[0.05]" />
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-lips-gold/8 rounded-full blur-[100px]" />
-
-            {/* Islamic ornamental corners */}
             <IslamicCorner className="top-0 left-0 z-[2]" />
             <IslamicCorner className="top-0 right-0 z-[2] rotate-90" />
             <IslamicCorner className="bottom-0 left-0 z-[2] -rotate-90" />
             <IslamicCorner className="bottom-0 right-0 z-[2] rotate-180" />
-
-            {/* Watermark */}
             <WatermarkOverlay />
-
-            {/* Shine */}
             <ShineOverlay />
-
-            {/* Top gold strip */}
             <GoldStrip />
-
             <div className="relative z-10 flex flex-col items-center justify-center px-6 h-full">
               <div className="flex-1 flex flex-col justify-center items-center w-full gap-2">
-                {/* Arabic calligraphy */}
                 <div className="text-center">
                   <p className="font-arabic text-lips-gold text-2xl drop-shadow-md leading-relaxed">
                     بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
@@ -314,10 +276,7 @@ function MembershipCard({ flipped, onFlip }: { flipped: boolean; onFlip: () => v
                     بِالصَّبْرِ وَالْيَقِينِ
                   </p>
                 </div>
-
                 <div className="w-3/4 h-px bg-gradient-to-r from-transparent via-lips-gold/30 to-transparent my-1" />
-
-                {/* Verification section */}
                 <div className="w-full bg-white/5 backdrop-blur-md rounded-xl p-3 border border-white/10 text-center">
                   <div className="text-[10px] text-white/50 uppercase tracking-[0.15em] font-bold mb-1.5">
                     {p.carteMembre.verifyText}
@@ -326,37 +285,32 @@ function MembershipCard({ flipped, onFlip }: { flipped: boolean; onFlip: () => v
                     {verifyUrl}
                   </div>
                 </div>
-
                 <div className="w-3/4 h-px bg-gradient-to-r from-transparent via-lips-gold/30 to-transparent my-1" />
-
-                {/* Magnetic strip simulation */}
                 <div className="w-full h-6 rounded bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800 flex items-center justify-center border border-gray-600/30">
                   <div className="w-full h-[2px] bg-gradient-to-r from-transparent via-gray-400/20 to-transparent" />
                 </div>
-
-                {/* Contact */}
-                <div className="text-center mt-1">
-                  <div className="flex items-center justify-center gap-3 text-white/50 text-[10px] font-medium tracking-wide">
-                    <span>contact@lips.sn</span>
+                <div className="text-center mt-1 text-white/50 text-[10px] font-medium tracking-wide">
+                  <div className="flex items-center justify-center gap-3">
+                    <div className="flex items-center gap-1.5">
+                      <Mail className="h-3 w-3" />
+                      <span>{contactInfo.email}</span>
+                    </div>
                     <span className="text-lips-gold/40">•</span>
-                    <span>www.lips.sn</span>
+                    <div className="flex items-center gap-1.5">
+                      <Phone className="h-3 w-3" />
+                      <span>{contactInfo.phone}</span>
+                    </div>
                   </div>
                 </div>
               </div>
-
-              {/* Legal notice */}
               <div className="pb-2 text-white/25 text-[8px] max-w-[85%] mx-auto text-center leading-relaxed">
                 {p.carteMembre.legalNotice}
               </div>
             </div>
-
-            {/* Bottom gold strip */}
             <GoldStrip />
           </div>
         </div>
       </motion.div>
-
-      {/* Flip button */}
       <div className="flex justify-center mt-8">
         <Button
           onClick={onFlip}
@@ -374,8 +328,26 @@ function MembershipCard({ flipped, onFlip }: { flipped: boolean; onFlip: () => v
 export default function CarteMembreSection() {
   const { p } = useLanguage();
   const [flipped, setFlipped] = useState(false);
+  const [contactInfo, setContactInfo] = useState({
+    email: 'contact@lips.sn',
+    phone: '+221 33 800 00 00'
+  });
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-50px' });
+
+  useEffect(() => {
+    fetch('/api/public/config?keys=contact_email,contact_phone')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.data) {
+          setContactInfo({
+            email: data.data.contact_email || 'contact@lips.sn',
+            phone: data.data.contact_phone || '+221 33 800 00 00'
+          });
+        }
+      })
+      .catch(console.error);
+  }, []);
 
   const FEATURES = [
     { title: p.carteMembre.features.uniqueId.title, desc: p.carteMembre.features.uniqueId.desc },
@@ -463,7 +435,7 @@ export default function CarteMembreSection() {
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-3/4 bg-lips-gold/20 rounded-full blur-[100px] pointer-events-none" />
             
             <TiltCard>
-              <MembershipCard flipped={flipped} onFlip={() => setFlipped(!flipped)} />
+              <MembershipCard flipped={flipped} onFlip={() => setFlipped(!flipped)} contactInfo={contactInfo} />
             </TiltCard>
           </motion.div>
         </div>
