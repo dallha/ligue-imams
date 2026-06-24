@@ -79,7 +79,7 @@ export const enPages: PageTranslations = {
   faq: {
     sectionTag: 'FAQ', sectionTitle: 'Frequently Asked Questions', sectionDesc: 'Find answers to the most common questions about LIPS, membership, and services offered.',
     items: {
-      q1: { q: 'What is LIPS?', a: 'LIPS (League of Imams and Preachers of Senegal) is the national reference institution that federates all imams and preachers of Senegal. Founded in 2006, it works for the institutionalization of the imamate, continuous training, and the promotion of interfaith dialogue.' },
+      q1: { q: 'What is LIPS?', a: 'LIPS (League of Imams and Preachers of Senegal) is the national reference institution that federates all imams and preachers of Senegal. Founded in 2011, it works for the institutionalization of the imamate, continuous training, and the promotion of interfaith dialogue.' },
       q2: { q: 'How to join LIPS?', a: 'Membership involves 4 steps: 1) Fill out the online application form, 2) Validation by the regional delegation, 3) Payment of the annual fee, 4) Issuance of the national member card. You can start your application directly on our website.' },
       q3: { q: 'What are the benefits of the member card?', a: 'The member card gives access to: continuing education, the national institutional network, official representation, educational resources, the online member area, and LIPS social coverage.' },
       q4: { q: 'How to verify a member card?', a: 'Go to the "Verify a Card" page, enter the registration number (format: LIPS-NNNN) and the system will instantly verify its validity.' },

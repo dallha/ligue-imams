@@ -79,7 +79,7 @@ export const frPages: PageTranslations = {
   faq: {
     sectionTag: 'FAQ', sectionTitle: 'Questions Fréquentes', sectionDesc: 'Retrouvez les réponses aux questions les plus courantes sur la LIPS, l\'adhésion et les services proposés.',
     items: {
-      q1: { q: "Qu'est-ce que la LIPS ?", a: "La LIPS (Ligue des Imams et Prédicateurs du Sénégal) est l'institution nationale de référence qui fédère l'ensemble des imams et prédicateurs du Sénégal. Fondée en 2006, elle œuvre pour l'institutionnalisation de l'imamat, la formation continue et la promotion du dialogue interreligieux." },
+      q1: { q: "Qu'est-ce que la LIPS ?", a: "La LIPS (Ligue des Imams et Prédicateurs du Sénégal) est l'institution nationale de référence qui fédère l'ensemble des imams et prédicateurs du Sénégal. Fondée en 2011, elle œuvre pour l'institutionnalisation de l'imamat, la formation continue et la promotion du dialogue interreligieux." },
       q2: { q: "Comment adhérer à la LIPS ?", a: "L'adhésion se fait en 4 étapes : 1) Remplir le formulaire de candidature en ligne, 2) Validation par la délégation régionale, 3) Paiement de la cotisation annuelle, 4) Délivrance de la carte membre nationale. Vous pouvez commencer votre adhésion directement sur notre site." },
       q3: { q: "Quels sont les avantages de la carte membre ?", a: "La carte membre donne accès à : la formation continue, le réseau institutionnel national, la représentation officielle, les ressources pédagogiques, l'espace membre en ligne, et la couverture sociale de la LIPS." },
       q4: { q: "Comment vérifier une carte membre ?", a: "Rendez-vous sur la page 'Vérifier une Carte', saisissez le numéro de matricule (format LIPS-NNNN) et le système vérifiera instantanément sa validité." },
