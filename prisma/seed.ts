@@ -124,13 +124,8 @@ async function main() {
   console.log('🔑 Member Password: Membre@2025');
 
   // --- Bureau National ---
-  const bureauMembers = [
-    { nom: 'TRAORÉ', prenom: 'Amadou', role: 'Président National', roleAr: 'الرئيس الوطني', region: 'Dakar', bio: 'Imam de la Grande Mosquée de la Médina, élu à la tête de la LIPS en 2020 pour un mandat de 5 ans.', initiales: 'AT', ordre: 1 },
-    { nom: 'BALDE', prenom: 'Mouhammadou', role: 'Vice-Président', roleAr: 'نائب الرئيس', region: 'Tambacounda', bio: 'Prédicateur émérite et ancien responsable régional de Tambacounda.', initiales: 'MB', ordre: 2 },
-    { nom: 'SOW', prenom: 'Ibrahima', role: 'Secrétaire Général', roleAr: 'الأمين العام', region: 'Saint-Louis', bio: 'Juriste en droit islamique, formé à l\'Université Al-Azhar.', initiales: 'IS', ordre: 3 },
-    { nom: 'DIAKHATE', prenom: 'Ousmane', role: 'Trésorier Général', roleAr: 'أمين الصندوق', region: 'Thiès', bio: 'Expert en gestion financière et administration d\'organisations confessionnelles.', initiales: 'OD', ordre: 4 },
-    { nom: 'MBACKÉ', prenom: 'Serigne', role: 'Conseiller Spirituel', roleAr: 'المستشار الروحي', region: 'Diourbel', bio: 'Descendant d\'une lignée savante, érudit en sciences islamiques.', initiales: 'SM', ordre: 5 },
-    { nom: 'FAYE', prenom: 'Mamadou', role: 'Responsable Formation', roleAr: 'مسؤول التكوين', region: 'Kaolack', bio: 'Docteur en études islamiques, concepteur du programme de formation continue.', initiales: 'MF', ordre: 6 },
+  const bureauMembers: any[] = [
+    // Les membres du Bureau National seront gérés dynamiquement par l'administration.
   ];
 
   for (const m of bureauMembers) {
